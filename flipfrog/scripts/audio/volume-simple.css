@@ -1,0 +1,58 @@
+@import url("../../themer/global.css");
+
+window {
+    background-color: transparent;
+}
+#container {
+    background-color: @mybackground;
+    padding: 16px 20px 18px 20px;
+    min-width: 280px;
+}
+
+#container {
+    border-radius: 4px;
+}
+
+/* Label: "Volumen" (volume-simple.py) */
+#header {
+    color: @myforegroundhover;
+    font-size: 15px;
+    margin-bottom: 10px;
+    font-weight: 800;
+}
+
+/* Label: porcentaje o "🔇 silenciado" (dinámico, volume-simple.py, pct_label) */
+#label-pct {
+    color: @myforeground;
+    margin-top: -28px;
+    margin-bottom: 10px;
+}
+
+scale trough {
+    background-color: @mybackgroundhover;
+    min-height: 6px;
+}
+scale highlight {
+    background-color: @myforegroundhover;
+}
+scale slider {
+    background-color: @myforegroundhover;
+    min-width: 14px;
+    min-height: 14px;
+    margin: -4px 0;
+    box-shadow: none;
+    border: none;
+}
+
+scale trough,
+scale highlight {
+    border-radius: 4px;
+}
+
+scale slider {
+    border-radius: 50%;
+}
+
+scale {
+    padding: 0 4px;
+}

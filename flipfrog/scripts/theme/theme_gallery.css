@@ -1,0 +1,192 @@
+@import url("../../themer/global.css");
+
+/* Ventana normal (no layer-shell) en su propio workspace -- fondo
+   translúcido para que se vea el wallpaper detrás (blur de Hyprland). */
+#tg-window {
+    background-color: @mybackground;
+}
+
+#tg-root {
+    padding: 18px 48px 24px 48px;
+}
+
+/* Fondo sólido (el tono de @mybackground casi opaco): la ventana no
+   tiene blur (windowrules.lua) y GTK3 no puede desenfocar solo una
+   parte, así que sobre un wallpaper claro la barra se perdía. */
+#tg-toolbar {
+    background-color: alpha(@mybackground, 0.92);
+    border-radius: 4px;
+    padding: 5px 8px;
+    margin-bottom: 22px;
+}
+
+#tg-title {
+    color: @myforegroundhover;
+    font-weight: 900;
+    font-size: 15px;
+    margin: 0 10px 0 6px;
+}
+
+.tg-chip {
+    background-color: transparent;
+    background-image: none;
+    color: @myforeground;
+    border: none;
+    box-shadow: none;
+    border-radius: 4px;
+    padding: 3px 12px;
+    min-height: 0;
+    min-width: 0;
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 0.7;
+}
+
+.tg-chip:hover {
+    background-color: alpha(@myforeground, 0.08);
+    opacity: 1;
+}
+
+.tg-chip.active {
+    background-color: @myforegroundhover;
+    color: @mybackground;
+    opacity: 1;
+}
+
+#tg-count {
+    color: @myforeground;
+    font-size: 12px;
+    opacity: 0.5;
+    margin: 0 6px 0 10px;
+}
+
+/* Espacio alrededor de la rejilla -- theme_gallery.py lo lee para
+   calcular el tamaño de tarjeta. */
+#tg-area {
+    margin: 100px 0;
+}
+
+.tg-divider {
+    background-color: alpha(@myforeground, 0.15);
+    min-width: 1px;
+    margin: 4px 8px;
+}
+
+/* "Editor de temas": ícono+texto sin caja, mismo criterio que
+   .editor-btn de theme_module.css (el ícono lo invierte
+   _icon_text_button). */
+.tg-tool-btn {
+    background-color: transparent;
+    background-image: none;
+    color: @myforegroundhover;
+    border: none;
+    box-shadow: none;
+    padding: 3px 6px;
+    min-height: 0;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.tg-tool-btn:hover {
+    color: @myforeground;
+}
+
+.tg-tool-label {
+    color: @myforeground;
+    font-size: 12px;
+    font-weight: 700;
+    margin: 0 4px;
+}
+
+#tg-interval {
+    background-color: alpha(@myforeground, 0.08);
+    color: @myforeground;
+    border: none;
+    box-shadow: none;
+    border-radius: 4px;
+    font-size: 12px;
+    min-height: 0;
+    padding: 2px 6px;
+    margin-left: 8px;
+}
+
+#tg-scroller scrollbar {
+    opacity: 0;
+}
+
+/* Tarjeta: el borde es la única decoración (hover / tema activo). */
+.tg-card {
+    background-color: transparent;
+    background-image: none;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    box-shadow: none;
+    padding: 0;
+    margin: 7px;
+    min-width: 0;
+    min-height: 0;
+}
+
+.tg-card:hover {
+    border-color: alpha(@myforegroundhover, 0.6);
+}
+
+.tg-card.active {
+    border-color: @myforegroundhover;
+}
+
+.tg-placeholder {
+    background-color: alpha(@myforeground, 0.06);
+    border-radius: 4px;
+}
+
+.tg-name,
+.tg-tag {
+    background-color: alpha(@mybackground, 0.75);
+    color: @myforeground;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+}
+
+.tg-tag {
+    color: @myforegroundhover;
+    font-size: 10px;
+    letter-spacing: 1px;
+}
+
+/* Badges eliminar/favorito -- encima de la tarjeta, cápsula oscura
+   como .delete-btn del dashboard. */
+.tg-badge {
+    background-color: alpha(#000000, 0.55);
+    background-image: none;
+    color: @myforeground;
+    border: none;
+    border-radius: 4px;
+    box-shadow: none;
+    min-width: 22px;
+    min-height: 22px;
+    padding: 0;
+}
+
+.tg-badge:hover {
+    background-color: alpha(#000000, 0.75);
+}
+
+.tg-fav label {
+    color: alpha(#ffffff, 0.6);
+    font-size: 15px;
+}
+
+/* Favorito siempre dorado, sin importar el acento del tema (pedido
+   explícito del usuario). */
+.tg-fav.active label,
+.tg-fav:hover label {
+    color: #f5c542;
+}
+
+button:focus {
+    outline: none;
+    box-shadow: none;
+}

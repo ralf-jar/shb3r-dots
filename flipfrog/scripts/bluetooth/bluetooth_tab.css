@@ -1,0 +1,148 @@
+/* bluetooth_tab.css -- pestaña "Bluetooth" del dashboard
+   (build_bluetooth_tab: encender/apagar el adaptador, escanear,
+   conectar/desconectar, emparejar, olvidar, autoconexión al iniciar
+   sesión). Cargado con waybar_lib.load_module_css() desde
+   bluetooth_tab.py -- comparte pantalla con dashboard.css en vez de
+   abrir una ventana propia. Look redondeado siempre -- el toggle "Bordes
+   Redondeados"/trapezoide ya no existe (eliminado). */
+
+/* Sin .bluetooth-tab-title -- el label "Bluetooth" se sacó (pedido
+   explícito del usuario, redundante con el nombre de la pestaña, mismo
+   criterio que "Red" en network_tab.css). Header ahora homogeneous
+   50/50: "Buscar" (ícono+texto sin caja, mismo patrón que
+   .menu-editor-btn) y el toggle de power (ícono+etiqueta+Gtk.Switch,
+   .toggle-list-row/.toggle-icon-chip/.toggle-row-label/.toggle-row-switch
+   de toggle_common.css, ya cargado por dashboard.py) -- sin CSS propio
+   para el toggle, ese es justamente el punto de reusar el componente
+   compartido. */
+.bluetooth-scan-btn {
+    background-color: transparent;
+    color: @myforegroundhover;
+    border: none;
+    padding: 4px 0;
+    font-weight: 600;
+}
+.bluetooth-scan-btn:hover {
+    color: @myforeground;
+}
+
+.bluetooth-status-label {
+    color: @myforegroundhover;
+    font-size: 13px;
+    font-style: italic;
+    margin: 2px 2px 6px 2px;
+}
+
+/* Fila "Autoconectar al iniciar sesión -- retraso: [10] s" -- retraso
+   global (bluetooth_autoconnect.py, invocado desde autostart.lua). El
+   marcado por dispositivo vive en .bluetooth-autoconnect-btn, en cada
+   fila de la lista, no acá. */
+#bluetooth-top-grid {
+    margin-bottom: 12px;
+}
+
+/* Sin margin-top/bottom propio -- ahora vive en un grid 2x2 junto al
+   toggle de power (ver _build_top_grid en bluetooth_tab.py), el
+   row_spacing del grid ya separa verticalmente. */
+#bluetooth-autoconnect-row {
+    margin: 0 2px;
+}
+
+.bluetooth-autoconnect-label {
+    color: @myforegroundhover;
+    font-weight: 600;
+}
+
+/* Entry: retraso en segundos -- mismo estilo que #rotation-row entry/
+   #radius-group entry en theme_module.css. */
+#bluetooth-autoconnect-row entry {
+    background-color: @mybackground;
+    color: @myforegroundhover;
+    border: none;
+    border-radius: 4px;
+    font-weight: 800;
+    padding: 2px 8px;
+    min-height: 25px;
+}
+
+/* Label: "s" -- mismo rol que .radius-unit-label en theme_module.css. */
+.bluetooth-autoconnect-unit-label {
+    color: @myforegroundhover;
+}
+
+/* Button: "Aplicar" del retraso de autoconexión -- .apply-btn vive en
+   themer/components.css (cargado una sola vez por dashboard.py, no
+   lazy, así que siempre está disponible sin importar qué pestaña se
+   visite primero). */
+
+#bluetooth-device-scroller {
+    background-color: transparent;
+    min-height: 90px;
+}
+
+#bluetooth-device-list {
+    background-color: transparent;
+}
+#bluetooth-device-list row {
+    color: @myforeground;
+}
+/* Sin fondo de hover (pedido explícito del usuario, referencia del
+   launcher Android) -- el nombre pasa a acento, mismo criterio que
+   #process-list row en process_module.css. */
+#bluetooth-device-list row:hover .bluetooth-device-name {
+    color: @myforegroundhover;
+}
+
+.bluetooth-empty {
+    color: @myforeground;
+    font-style: italic;
+    padding: 8px 4px;
+}
+
+/* margin vertical 10px (20px de separación entre dos filas consecutivas)
+   -- mismo espaciado que row_spacing=20 en la grilla de toggles de
+   "Sistema" (dashboard.py, _build_toggle_grid), pedido explícito del
+   usuario. */
+.bluetooth-device-row {
+    padding: 5px 8px;
+    margin: 10px 0;
+}
+
+.bluetooth-device-name {
+    color: @myforeground;
+    font-size: 14px;
+}
+
+/* Botón "Auto" por fila (_make_autoconnect_toggle) -- marca ese
+   dispositivo para bluetooth_autoconnect.py. Fondo sólido cuando está
+   activo (a diferencia de un toggle suelto como el de power): en una
+   lista de varios dispositivos hace falta distinguir el estado de un
+   vistazo mientras se scrollea, mismo criterio que
+   .services-enable-btn/.services-active-btn en services_popup.css. */
+.bluetooth-autoconnect-btn {
+    color: @myforeground;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    padding: 2px 8px;
+}
+.bluetooth-autoconnect-btn:hover {
+    background-color: alpha(@myforegroundhover, 0.2);
+}
+.bluetooth-autoconnect-btn.active {
+    background-color: @myforegroundhover;
+    color: @mybackground;
+    font-weight: 700;
+}
+
+.bluetooth-forget-btn {
+    background-color: transparent;
+    color: @myforeground;
+    border: none;
+    border-radius: 4px;
+    box-shadow: none;
+    padding: 2px 6px;
+}
+.bluetooth-forget-btn:hover {
+    color: @myforegroundhover;
+}

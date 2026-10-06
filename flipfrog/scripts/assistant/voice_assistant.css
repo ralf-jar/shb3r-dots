@@ -1,0 +1,181 @@
+@import url("../../themer/global.css");
+
+window {
+    background-color: transparent;
+}
+
+/* @mybackground directo, sin multiplicar -- ver #container en
+   dashboard.css (razón completa del cambio 2026-09-01: un factor fijo
+   ahí rompía el blur con alphas bajos configurados por el usuario). */
+#voice-assistant-container {
+    background-color: @mybackground;
+    padding: 20px 24px 22px 24px;
+    min-width: 560px;
+}
+
+#voice-assistant-container {
+    border-radius: 4px;
+}
+
+#voice-assistant-header {
+    margin-bottom: 10px;
+}
+
+#voice-assistant-status {
+    color: @myforegroundhover;
+    font-weight: 700;
+}
+
+/* Ícono real del tema ("preferences-system-symbolic", no uno propio) --
+   sigue @color como cualquier ícono simbólico, no hace falta el
+   mecanismo de svg_icon_image acá. Sin caja de fondo en hover (pedido
+   explícito del usuario, referencia del launcher Android) -- acento =
+   accionable, hover pasa a color default, mismo criterio que el resto
+   del dashboard. */
+#voice-assistant-settings-btn {
+    background-color: transparent;
+    color: @myforegroundhover;
+    border: none;
+    padding: 2px 4px;
+}
+#voice-assistant-settings-btn:hover {
+    color: @myforeground;
+}
+
+/* Pregunta transcripta -- sin caja de fondo (antes @mybackgroundhover),
+   se lee como un título más que como un campo de formulario: es texto
+   de solo lectura (set_editable(False)), no algo para editar. */
+#voice-assistant-query {
+    background-color: transparent;
+    color: @myforegroundhover;
+    border: none;
+    padding: 4px 0;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+/* Alto máximo real: set_max_content_height() en Python -- GTK3 CSS no
+   soporta max-height (confirmado a mano, gotcha ya conocido con
+   width/height, ver CLAUDE.md). */
+#voice-assistant-answer-scroller {
+    background-color: transparent;
+    min-height: 0;
+    margin-top: 16px;
+}
+
+#voice-assistant-answer {
+    background-color: transparent;
+    color: @myforeground;
+    font-size: 16px;
+}
+
+#voice-assistant-answer text {
+    background-color: transparent;
+    color: @myforeground;
+}
+
+#voice-assistant-locations,
+#voice-assistant-music {
+    margin-top: 4px;
+}
+
+.voice-assistant-link-row {
+    background-color: transparent;
+    color: @myforegroundhover;
+}
+.voice-assistant-link-row:hover {
+    color: @myforeground;
+}
+
+/* Gtk.Button normal (NO Gtk.LinkButton, ver voice_assistant.py) --
+   estilizado a mano para verse como link/chip, en vez del azul/subrayado
+   default de GTK. Sin caja de fondo en hover (pedido explícito del
+   usuario) -- el ícono (color heredado de .voice-assistant-link-row) y
+   el texto (regla propia abajo) pasan a color default juntos.
+   Compartido por Ubicaciones (abre navegador) y Música (copia al
+   portapapeles) -- mismo look para los dos, solo cambia la acción del
+   clic. */
+.voice-assistant-link-btn {
+    background: none;
+    border: none;
+    padding: 5px 8px;
+}
+.voice-assistant-link-btn label {
+    color: @myforegroundhover;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration-line: none;
+}
+.voice-assistant-link-btn:hover label {
+    color: @myforeground;
+}
+
+#voice-assistant-settings {
+    margin-top: 6px;
+}
+
+.voice-assistant-settings-label {
+    color: @myforeground;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+/* Mismo estilo que .editor-name-entry en menu_module.css/"Aplicaciones"
+   -- ahora la referencia para cualquier entry del repo: sin borde,
+   @mybackground + texto en acento y negrita. */
+#voice-assistant-settings-entry {
+    background-color: @mybackground;
+    color: @myforegroundhover;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-weight: 800;
+    font-size: 16px;
+}
+
+/* Button: "Guardar" (preferencias)/"Sí, agregar" (calendario) --
+   acción PRIMARIA de su formulario, mismo criterio de relleno sólido
+   que .firewall-add-btn/.save-btn (acento, no transparente como el
+   resto de botones del popup). myforegroundhover, no
+   myforegroundhover2 (pedido explícito del usuario, evitar ese acento
+   secundario). */
+.voice-assistant-settings-save {
+    background-color: @myforegroundhover;
+    color: @mybackground;
+    font-weight: 700;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 16px;
+}
+.voice-assistant-settings-save:hover {
+    background-color: alpha(@myforegroundhover, 0.8);
+}
+
+/* Button: "Cancelar" (preferencias)/"No" (calendario) -- acción
+   secundaria, sin caja de fondo (pedido explícito del usuario), mismo
+   patrón que .eq-action-btn en sound_module.css. */
+.voice-assistant-cancel-btn {
+    background-color: transparent;
+    color: @myforeground;
+    border: none;
+    padding: 6px 10px;
+    font-weight: 600;
+}
+.voice-assistant-cancel-btn:hover {
+    color: @myforegroundhover;
+}
+
+#voice-assistant-confirm {
+    margin-top: 6px;
+}
+
+.voice-assistant-confirm-summary {
+    color: @myforeground;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.voice-assistant-confirm-existing {
+    color: @myforegroundhover;
+    font-size: 14px;
+}

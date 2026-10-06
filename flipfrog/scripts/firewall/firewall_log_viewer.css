@@ -1,0 +1,59 @@
+@import url("../../themer/global.css");
+
+window {
+    background-color: transparent;
+}
+
+/* @mybackground directo, sin multiplicar -- ver #container en
+   dashboard.css (razón completa del cambio 2026-09-01: un factor fijo
+   ahí rompía el blur con alphas bajos configurados por el usuario). */
+#firewall-log-container {
+    background-color: @mybackground;
+    border-radius: 4px;
+    padding: 16px 20px 18px 20px;
+    min-width: 480px;
+}
+
+#firewall-log-title {
+    color: @myforeground;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.firewall-log-empty {
+    color: @myforeground;
+    font-style: italic;
+    padding: 12px 0;
+}
+
+/* El alto real (min Y max) se fija en Python -- LogViewer.__init__,
+   scroller.set_min/max_content_height -- esta regla solo saca el
+   marco/fondo default de GTK. */
+#firewall-log-scroller {
+    background-color: transparent;
+}
+
+#firewall-log-list {
+    background-color: transparent;
+}
+
+.firewall-log-row {
+    color: @myforeground;
+    padding: 3px 4px;
+}
+
+.firewall-log-tag-block {
+    color: #e35d5d;
+    font-weight: 700;
+    min-width: 80px;
+}
+.firewall-log-tag-allow {
+    color: #8fd693;
+    font-weight: 700;
+    min-width: 80px;
+}
+.firewall-log-tag-limit {
+    color: #e6c260;
+    font-weight: 700;
+    min-width: 80px;
+}

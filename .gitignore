@@ -1,0 +1,201 @@
+# Whitelist: se ignora TODO por default y solo se habilitan explícitamente
+# las carpetas/archivos que son dotfiles de este repo. El resto de
+# ~/.config (cache y estado de otras apps: navegador, Discord, IDEs,
+# credenciales, sesiones, etc.) nunca debe llegar a git.
+/*
+
+!/.gitignore
+!/install.sh
+!/bootstrap.sh
+!/CLAUDE.md
+!/README.md
+
+# --- .claude/: solo las skills del proyecto (settings.local.json es personal) ---
+!/.claude
+/.claude/*
+!/.claude/skills
+
+# --- waybar/ ---
+!/waybar
+# artefactos generados/estado runtime, no se versionan (ver CLAUDE.md):
+/waybar/config.jsonc
+/waybar/layout-mode.json
+/waybar/clock-format.json
+/waybar/clock-gradient.json
+/waybar/bar-background.json
+/waybar/language.json
+/waybar/modules.jsonc.bak-*
+/waybar/updates-cache.json
+/waybar/bluetooth-autoconnect.json
+/waybar/firewall-log.jsonl
+/waybar/network-usage.json
+# archivo sin ninguna referencia real en el repo (revisar antes de borrar):
+/waybar/power_menu.xml
+
+# --- flipfrog/ (scripts/ y themer/ reales, ver CLAUDE.md -- las reglas
+#     de acá abajo bajo /waybar/scripts/... y /themer/... quedaron
+#     obsoletas y sin efecto desde la migración "moveplaces" a esta
+#     carpeta; sin este !/flipfrog ningún archivo NUEVO bajo flipfrog/
+#     se puede trackear con un `git add` normal -- confirmado a mano:
+#     common.py y toggles/workspaces_toggle.py quedaron afuera de git
+#     por este motivo, ya corregido) ---
+!/flipfrog
+# "No molestar" guardado entre reinicios (notifications/dnd_state.py):
+/flipfrog/scripts/notifications/dnd.json
+# popup de atajos al iniciar sesión (keybinds_popup.py --welcome):
+/flipfrog/scripts/keybinds/welcome.json
+# datos personales (cuentas, dispositivos, rutas propias) y scripts que no se publican:
+/flipfrog/scripts/bandcamp/username_aliases.json
+/flipfrog/scripts/bandcamp/artist_aliases.json
+/flipfrog/scripts/bandcamp/wishlist-history.json
+/flipfrog/themer/wallpaper.json
+/flipfrog/scripts/gaming/
+# ajustes de la barra propia (bar_settings.py, toggles del dashboard) -- estado personal:
+/flipfrog/scripts/bar/bar-settings.json
+/flipfrog/scripts/bar/.bar-settings.lock
+# contiene notas personales (info sensible), no debe versionarse:
+/flipfrog/scripts/calendar/calendar_notes.json
+# blacklist + nombre/ícono custom de apps para el launcher (menu_module.py) +
+# backups de .desktop locales pisados al blacklistear/customizar --
+# estado/config personal, no código:
+/flipfrog/scripts/menu/blacklist.json
+/flipfrog/scripts/menu/customizations.json
+/flipfrog/scripts/menu/backups/
+# gains guardados del ecualizador (pestaña "Sonido") -- estado runtime
+# como blacklist.json/favorites.json, no código:
+/flipfrog/scripts/audio/eq-bands.json
+# preajustes propios del ecualizador (Guardar preajuste), gains por
+# dispositivo de salida (Guardar para este dispositivo) y alias de
+# nombres de salidas de audio (Dispositivos de audio) -- mismo criterio,
+# estado/dato personal, no código:
+/flipfrog/scripts/audio/eq-custom-presets.json
+/flipfrog/scripts/audio/eq-device-gains.json
+/flipfrog/scripts/audio/sink-names.json
+# preferencias del asistente de voz (ciudad, sistema operativo, notas):
+/flipfrog/scripts/assistant/assistant-config.json
+# alarmas programadas por el usuario (alarm_popup.py/alarm_daemon.py) --
+# estado personal, no código:
+/flipfrog/scripts/alarms/alarms.json
+# conteo de aperturas por app (fila "más abiertas") + categorías
+# editables/asignación del launcher (launcher_store.py) -- estado/
+# config personal, no código:
+/flipfrog/scripts/launcher/usage.json
+/flipfrog/scripts/launcher/categories.json
+/flipfrog/scripts/launcher/launcher-settings.json
+# cola de descargas (download_daemon.py) + carpeta destino elegida en el
+# popup de Descargas -- estado runtime/personal, no código:
+/flipfrog/scripts/downloads/queue.json
+/flipfrog/scripts/downloads/downloads-config.json
+/flipfrog/scripts/vpn/vpn-config.json
+# tema activo + estado runtime del themer -- estado/config personal:
+/flipfrog/themer/colors.css
+/flipfrog/themer/.colors.css.lastgood
+/flipfrog/themer/favorites.json
+/flipfrog/themer/oled-shader.json
+/flipfrog/themer/rotation.json
+/flipfrog/themer/corner-radius.json
+/flipfrog/themer/hypr-look.json
+/flipfrog/themer/font-size.json
+# extensión de tema generada por sync_brave.py (+ caché que escribe Brave):
+/flipfrog/themer/brave/
+# solo el tema por defecto va versionado; el resto son temas propios
+# generados/guardados desde el editor y no deben subirse:
+/flipfrog/themer/themes/*
+!/flipfrog/themer/themes/dragon-blue.theme
+# packs de íconos de terceros (candy-icons, Miya-black, pixelitos,
+# etc.) descargados a mano + sus .tar.xz/.tar.gz -- assets binarios de
+# terceros, no creados por mí, no van en el repo:
+/flipfrog/themer/icons-extra/
+
+# --- flipfrog/scripts/bandcamp/ (Descubre Bandcamp, SUPER+M) ---
+# último tag buscado -- estado runtime como layout-mode.json/favorites.json,
+# no código:
+/flipfrog/scripts/bandcamp/last-tag.json
+# álbumes/artistas favoritos del usuario -- estado personal, no código:
+/flipfrog/scripts/bandcamp/favorites.json
+# toggle "Autoecualizador" (bandcamp_daemon.py/sound_module.py) -- estado runtime:
+/flipfrog/scripts/bandcamp/auto-eq.json
+# marcador del progreso -- bandcamp_popup.py lo regenera en cada apertura
+# (_render_frog_marker, glifo PromptIcons teñido al tema activo),
+# artefacto generado, no asset a mano:
+/flipfrog/scripts/bandcamp/frog-marker.png
+
+# --- hypr/ ---
+!/hypr
+# layout de monitores guardado desde el dashboard (tab "Monitores") --
+# estado/config personal como colors.css, no código; monitors.lua cae a
+# autodetectar todo si este archivo no existe:
+/hypr/monitor-config.lua
+# mapeo touch->monitor, mismo criterio (ver monitor_config.py,
+# save_touch()) -- .lua lo consume monitors.lua, .json es el espejo que
+# lee el dashboard para preseleccionar el droplist (no hay parser Lua
+# en Python):
+/hypr/touch-config.lua
+/hypr/touch-config.json
+# distribución de teclado elegida en install.sh (input.lua):
+/hypr/keyboard.lua
+/hypr/config/personal.lua
+
+# --- pipewire/ (ecualizador, pestaña "Sonido" del dashboard) ---
+# solo el filter-chain del ecualizador -- el resto de ~/.config/pipewire/
+# (si algún día hay más) es config de PipeWire en general, no de este
+# repo, mismo criterio que radicale/ (ver CLAUDE.md, sección Calendario).
+!/pipewire
+/pipewire/*
+!/pipewire/filter-chain.conf.d
+/pipewire/filter-chain.conf.d/*
+!/pipewire/filter-chain.conf.d/sink-eq6.conf
+
+# --- kitty/ (solo kitty.conf; current-theme.conf es symlink huérfano
+#     de Noctalia, themes/ tampoco es de este repo) ---
+!/kitty
+/kitty/*
+!/kitty/kitty.conf
+
+# --- resto de dotfiles de shell/WM ---
+!/dunst
+# frame_color lo reescribe sync_dunst.py en cada cambio de tema; el
+# resto de dunstrc (geometría, timeouts, reglas) queda solo con su
+# estado inicial:
+/dunst/dunstrc
+!/xdg-desktop-portal
+!/mimeapps.list
+# Colors:* las reescribe sync_qt.py en cada cambio de tema; el resto de
+# kdeglobals (tema de iconos, fuentes) queda solo con su estado inicial:
+/kdeglobals
+
+# --- micro (config + temas, sin syntax/ que es vendored) ---
+!/micro
+/micro/*
+!/micro/settings.json
+!/micro/colorschemes
+# colorschemes de terceros (Catppuccin), no creados por mí:
+/micro/colorschemes/catppuccin-frappe.micro
+/micro/colorschemes/catppuccin-latte.micro
+/micro/colorschemes/catppuccin-macchiato.micro
+/micro/colorschemes/catppuccin-mocha.micro
+
+# --- uwsm (solo env) ---
+!/uwsm
+/uwsm/*
+!/uwsm/env
+
+# --- apps con theming/config propio ---
+!/millennium
+!/Thunar
+
+# --- vesktop: la carpeta es 95% sesión/cache de Discord (cookies,
+#     IndexedDB, etc.) -- eso NUNCA se versiona. Solo lo que es
+#     configuración/tema real: ---
+!/vesktop
+/vesktop/*
+!/vesktop/settings
+!/vesktop/themes
+!/vesktop/userAssets
+
+# pycache en cualquier profundidad dentro de lo que sí se trackea
+__pycache__/
+*.pyc
+kdeglobals
+dunst/dunstrc
+themer/global.css

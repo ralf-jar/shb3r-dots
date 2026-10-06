@@ -1,0 +1,94 @@
+/* toggle_common.css -- fila compartida por los 9 toggles del dashboard
+   (dashboard.py, SISTEMA_TOGGLE_BUILDERS/PANEL_TOGGLE_BUILDERS): ícono
+   en chip + etiqueta + Gtk.Switch real, en vez de la grilla de ícono
+   arriba/leyenda de 10px abajo de antes (pedido explícito del usuario,
+   "Opción B" -- lista tipo quick-settings, ver waybar_lib.build_switch_
+   row). Cargado UNA sola vez con waybar_lib.load_module_css() desde
+   dashboard.py -- es dashboard.py quien arma las filas de toggles, no
+   cada toggle individual, así que es el dueño natural de este archivo
+   compartido (evita registrar el mismo proveedor 10 veces si cada
+   toggle lo cargara por su cuenta).
+
+   Ningún toggle individual tiene ya su propio <nombre>_toggle.css --
+   el estado encendido/apagado lo muestra el switch solo (color de
+   fondo del track), así que la fila y el ícono se ven siempre igual sin
+   importar el estado; no queda nada puntual por tema que estilear por
+   toggle como antes. Look redondeado siempre -- el toggle "Bordes
+   Redondeados"/trapezoide ya no existe (eliminado). */
+
+/* Sin caja ni hover (pedido explícito del usuario, referencia del
+   launcher Android: "el espaciado es quien define el componente, no
+   requiere de un color hover, ni bordes") -- antes tenía fondo propio +
+   fondo de hover ("Opción B"); ahora la fila flota sobre #container
+   igual que el resto del contenido, el padding queda solo como aire
+   alrededor del ícono/etiqueta/switch, no como caja. */
+.toggle-list-row {
+    padding: 8px 10px;
+}
+
+/* Sin fondo propio (mismo motivo de arriba) -- el ícono flota solo,
+   sin badge detrás, como en la referencia. min-width/min-height se
+   quedan: no son "caja", son el ancho fijo que hace que todos los
+   íconos de la lista queden alineados en la misma columna sin importar
+   cuánto mida cada SVG. */
+.toggle-icon-chip {
+    color: @myforeground;
+    min-width: 28px;
+    min-height: 28px;
+}
+
+/* font-weight:600 (no 400) -- pedido explícito del usuario: "el texto
+   tiene un grosor que hace que no se pierda con el fondo" en vez de
+   depender de una caja detrás para leerse. */
+.toggle-row-label {
+    color: @myforeground;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Toggle prendido -- pedido explícito del usuario, vale para cualquier
+   toggle de la interfaz que use este componente (dashboard, Bluetooth,
+   Firewall, "Monitor de red"/"Wifi"), no solo estos 9. Ver
+   waybar_lib.sync_toggle_label_active/wrap_toggle_row. */
+.toggle-row-label.active {
+    color: @myforegroundhover;
+}
+
+/* Gtk.Switch: pill real (círculo/cápsula, no una esquina "de diseño") --
+   sin marcar con @corner-radius a propósito, mismo criterio que el knob
+   de un slider o el ★ de favorito en theme_module.css. */
+switch.toggle-row-switch {
+    background-color: @mybackground;
+    border: 1px solid @myborderinactive;
+    border-radius: 4px;
+    min-width: 34px;
+    min-height: 18px;
+    box-shadow: none;
+}
+switch.toggle-row-switch:checked {
+    background-color: @myforegroundhover;
+    border-color: @myforegroundhover;
+}
+switch.toggle-row-switch slider {
+    background-color: @myforeground;
+    border-radius: 4px;
+    min-width: 14px;
+    min-height: 14px;
+    margin: 1px;
+    box-shadow: none;
+    border: none;
+}
+switch.toggle-row-switch:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Spinner de carga mientras un toggle async (VPN, ver vpn_toggle.py)
+   resuelve el estado real -- reemplaza al switch en su misma posición
+   hasta que llega la respuesta, para que se note que el switch todavía
+   no muestra el estado final y no solo que está deshabilitado. */
+spinner.toggle-row-spinner {
+    color: @myforeground;
+    min-width: 16px;
+    min-height: 16px;
+}

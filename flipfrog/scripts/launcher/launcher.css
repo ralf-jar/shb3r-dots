@@ -1,0 +1,175 @@
+@import url("../../themer/global.css");
+
+/* Ventana layer-shell del popup, transparente para que solo se vea
+   el fondo redondeado de #launcher-container. */
+window {
+    background-color: transparent;
+}
+
+/* @mybackground directo, sin borde -- misma línea de diseño que
+   dashboard.css/keybinds_popup.css (referencia del launcher Android:
+   "el propio background gana bastante blur"), ver CLAUDE.md. Sin
+   multiplicar (ver #container en dashboard.css, cambio 2026-09-01). */
+#launcher-container {
+    background-color: @mybackground;
+    border-radius: 4px;
+    padding: 20px 26px 22px 26px;
+    min-width: 390px;
+}
+
+/* Cualquier Gtk.Entry del popup (por ahora solo la barra de búsqueda). */
+entry {
+    border-radius: 4px;
+}
+
+/* Barra de búsqueda (Gtk.SearchEntry) arriba del todo -- padding-right
+   extra para que el texto no quede debajo del botón A-Z/Categorías
+   superpuesto. */
+#launcher-search {
+    font-size: 15px;
+    padding: 8px 44px 8px 14px;
+    margin-bottom: 4px;
+}
+
+/* Fila de las 5 apps más abiertas (solo íconos), debajo de la búsqueda. */
+#launcher-top-row {
+    padding: 10px 0 4px 0;
+}
+
+/* Cada botón-ícono dentro de #launcher-top-row. */
+.launcher-top-icon-btn {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.launcher-top-icon-btn:hover {
+    background-color: alpha(@myforeground, 0.08);
+}
+
+.launcher-top-icon-btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Botón A-Z/Categorías superpuesto a la barra de búsqueda (pegado a la
+   derecha, ver Gtk.Overlay en launcher.py). */
+.launcher-view-toggle-btn {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 6px;
+    border-radius: 4px;
+}
+
+.launcher-view-toggle-btn:hover {
+    background-color: alpha(@myforeground, 0.1);
+}
+
+.launcher-view-toggle-btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* ScrolledWindow que envuelve el listado de apps en columnas. */
+#launcher-scroller {
+    margin-top: 4px;
+}
+
+/* Scrollbar oculta -- ver CLAUDE.md "Tiras horizontales de chips", mismo
+   criterio para cualquier ScrolledWindow de este repo. */
+#launcher-scroller scrollbar {
+    opacity: 0;
+}
+
+/* Una de las columnas del listado (cantidad = NUM_COLUMNS en
+   launcher.py) -- separación entre columnas vive acá, no en Python. */
+.launcher-column {
+    padding-left: 20px;
+}
+
+/* Encabezado de cada grupo del listado (letra en modo A-Z, nombre de
+   categoría en modo Categorías). */
+.launcher-section-title {
+    color: @myforegroundhover;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 15px;
+    margin-bottom: 4px;
+}
+
+/* EventBox clickeable del header en modo Categorías (colapsa/expande). */
+.launcher-category-header {
+    border-radius: 4px;
+}
+
+/* EventBox clickeable de cada app dentro de una columna (clic
+   izquierdo lanza, derecho abre el menú de categoría). */
+.launcher-app-cell {
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+
+/* Label con el nombre de la app dentro de .launcher-app-cell. */
+.launcher-app-label {
+    color: @myforeground;
+    font-size: 15px;
+    margin: 5px 0px;
+    transition: color 350ms ease;
+}
+
+.launcher-app-cell:hover .launcher-app-label {
+    color: @myforegroundhover;
+}
+
+/* Item seleccionado por teclado (Up/Down/Left/Right, ver
+   _selection_active en launcher.py) -- subrayado, sin tocar el color. */
+.launcher-app-cell.selected .launcher-app-label {
+    text-decoration: underline;
+}
+
+/* Label "Sin resultados" cuando la búsqueda no matchea nada. */
+.launcher-empty {
+    color: @myforeground;
+    opacity: 0.6;
+    margin-top: 20px;
+}
+
+/* Hint en modo comando (texto de búsqueda empieza con "/"), reemplaza
+   el listado de apps mientras dura. */
+.launcher-command-hint {
+    color: @myforegroundhover;
+    font-family: monospace;
+    font-size: 17px;
+    margin-top: 20px;
+}
+
+/* Panel "Editar categorías" (página "editor" del Gtk.Stack, reemplaza
+   el listado de apps mientras está abierto). */
+#launcher-category-editor {
+    padding-top: 8px;
+}
+
+/* Botón "quitar" junto a cada categoría en el editor. */
+.launcher-category-del-btn {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 4px;
+}
+
+.launcher-category-del-btn:hover {
+    background-color: alpha(@myforeground, 0.1);
+}
+
+.launcher-category-del-btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Botón "Volver" del editor, regresa al listado de apps. */
+.launcher-editor-back-btn {
+    margin-top: 10px;
+}

@@ -1,0 +1,32 @@
+/* updates_module.css -- badge de actualizaciones embebido en la pestaña
+   "Sistema" del dashboard (build_updates_badge, top_row). Cargado con
+   waybar_lib.load_module_css() desde updates_module.py -- comparte
+   pantalla con dashboard.css en vez de abrir una ventana propia. */
+
+/* Button: fila completa de actualizaciones (texto + íconos), tooltip
+   "Copiar comando de actualización" */
+.updates-badge-btn {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin-left: 20px;
+}
+
+/* Label: estado de actualizaciones, ej. "Todo está actualizado" o
+   "N actualizaciones disponibles" (dinámico) */
+.updates-badge {
+    color: @myforegroundhover2;
+}
+
+.updates-badge.alert {
+    color: @myforegroundhover2;
+    font-weight: 800;
+}
+
+/* Desglose "+N de AUR" -- más chico/atenuado que el label principal,
+   es un detalle del total de arriba, no un dato al mismo nivel. */
+.updates-badge-aur {
+    color: alpha(@myforegroundhover2, 0.65);
+    font-size: 13px;
+}

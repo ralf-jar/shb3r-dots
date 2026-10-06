@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+<action>
+	<icon>utilities-terminal</icon>
+	<name>Open Terminal Here</name>
+	<submenu></submenu>
+	<unique-id>1782255918640927-1</unique-id>
+	<command>exo-open --working-directory %f --launch TerminalEmulator</command>
+	<description>Example for a custom action</description>
+	<range></range>
+	<patterns>*</patterns>
+	<startup-notify/>
+	<directories/>
+</action>
+<action>
+	<icon>cm_extractfiles</icon>
+	<name>Extraer zip aqui</name>
+	<submenu></submenu>
+	<unique-id>1782933416214035-1</unique-id>
+	<command>unzip %f</command>
+	<description></description>
+	<range>*</range>
+	<patterns>*.zip</patterns>
+	<other-files/>
+</action>
+<action>
+	<icon>document-save-as</icon>
+	<name>Guardar como Theme</name>
+	<submenu></submenu>
+	<unique-id>1783051747903986-1</unique-id>
+	<command>bash -c &quot;$HOME/.config/flipfrog/themer/save-theme.sh %f&quot;</command>
+	<description></description>
+	<range>*</range>
+	<patterns>*.css</patterns>
+	<other-files/>
+	<text-files/>
+</action>
+<action>
+	<icon>preferences-desktop-color</icon>
+	<name>Aplicar Theme</name>
+	<submenu></submenu>
+	<unique-id>1783051810094992-2</unique-id>
+	<command>bash -c &quot;$HOME/.config/flipfrog/themer/apply-theme.sh %f&quot;</command>
+	<description></description>
+	<range>*</range>
+	<patterns>*.theme</patterns>
+	<other-files/>
+</action>
+<action>
+	<icon>cm_extractfiles</icon>
+	<name>Extrar rar aqui</name>
+	<submenu></submenu>
+	<unique-id>1786637324363184-1</unique-id>
+	<command>unrar x %f</command>
+	<description></description>
+	<range>*</range>
+	<patterns>*.rar</patterns>
+	<other-files/>
+</action>
+<action>
+	<icon>cm_extractfiles</icon>
+	<name>Extraer tar.gz aqui</name>
+	<submenu></submenu>
+	<unique-id>1790000000000005-1</unique-id>
+	<command>tar -xzf %f</command>
+	<description></description>
+	<range>*</range>
+	<patterns>*.tar.gz;*.tgz</patterns>
+	<other-files/>
+</action>
+<action>
+	<icon>proton-vpn-logo</icon>
+	<name>Subir a Proton Drive</name>
+	<submenu></submenu>
+	<unique-id>1787012345678901-1</unique-id>
+	<command>bash -c &quot;$HOME/.config/Thunar/scripts/proton-drive-upload.sh %F&quot;</command>
+	<description>Sube el/los archivo(s) seleccionado(s) a /my-files/thunar-uploader</description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<audio-files/>
+	<image-files/>
+	<other-files/>
+	<text-files/>
+	<video-files/>
+</action>
+<action>
+	<icon>object-rotate-left</icon>
+	<name>Rotar a la izquierda</name>
+	<submenu></submenu>
+	<unique-id>1790000000000001-1</unique-id>
+	<command>bash &quot;$HOME/.config/Thunar/scripts/rotate-image.sh&quot; 270 %F</command>
+	<description>Gira la(s) imagen(es) 90° a la izquierda</description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<image-files/>
+</action>
+<action>
+	<icon>object-rotate-right</icon>
+	<name>Rotar a la derecha</name>
+	<submenu></submenu>
+	<unique-id>1790000000000002-1</unique-id>
+	<command>bash &quot;$HOME/.config/Thunar/scripts/rotate-image.sh&quot; 90 %F</command>
+	<description>Gira la(s) imagen(es) 90° a la derecha</description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<image-files/>
+</action>
+<action>
+	<icon>preferences-desktop-wallpaper</icon>
+	<name>Poner como fondo de pantalla (Themer)</name>
+	<submenu></submenu>
+	<unique-id>1790000000000003-1</unique-id>
+	<command>python3 &quot;$HOME/.config/flipfrog/themer/wallpaper.py&quot; set %f</command>
+	<description>Imagen con awww, video con mpvpaper</description>
+	<range>1</range>
+	<patterns>*.png;*.jpg;*.jpeg;*.webp;*.gif;*.bmp;*.PNG;*.JPG;*.JPEG;*.WEBP;*.GIF;*.mp4;*.webm;*.mkv;*.mov;*.m4v;*.avi;*.MP4;*.WEBM;*.MKV;*.MOV</patterns>
+	<image-files/>
+	<video-files/>
+</action>
+<action>
+	<icon>upscayl</icon>
+	<name>Escalar imagen con IA</name>
+	<submenu></submenu>
+	<unique-id>1790727731924943-1</unique-id>
+	<command>bash &quot;$HOME/.config/Thunar/scripts/upscale-image.sh&quot; %F</command>
+	<description>Duplica la resolución con Real-ESRGAN (guarda &lt;nombre&gt;_x2.png)</description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<image-files/>
+</action>
+<action>
+	<icon>video-x-generic</icon>
+	<name>Convertir a MOV (DaVinci Resolve)</name>
+	<submenu></submenu>
+	<unique-id>1790000000000004-1</unique-id>
+	<command>bash &quot;$HOME/.config/Thunar/scripts/convert-to-mov.sh&quot; %F</command>
+	<description>DNxHR HQ + audio PCM en .mov (guarda &lt;nombre&gt;.mov junto al original)</description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<video-files/>
+</action>
+</actions>

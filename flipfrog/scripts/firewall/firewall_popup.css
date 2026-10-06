@@ -1,0 +1,220 @@
+@import url("../../themer/global.css");
+
+window {
+    background-color: transparent;
+}
+
+/* @mybackground directo, sin multiplicar -- ver #container en
+   dashboard.css (razón completa del cambio 2026-09-01: un factor fijo
+   ahí rompía el blur con alphas bajos configurados por el usuario). */
+/* min-width/min-height iguales a CONTAINER_SIZE en dashboard.py (872x539)
+   -- pedido explícito del usuario: esta ventana se sentía amontonada
+   contra el dashboard, que tiene mucho más lugar para el mismo tipo de
+   contenido (columnas + formulario). #firewall-columns ya se empaqueta
+   con expand=True en firewall_popup.py (`container.pack_start(columns,
+   True, True, 0)`), así que el espacio de más lo absorben solas las dos
+   listas de reglas -- no hace falta tocar su min-height fijo (200px,
+   sigue siendo solo un piso). */
+#firewall-container {
+    background-color: @mybackground;
+    padding: 16px 20px 18px 20px;
+    min-width: 872px;
+    min-height: 539px;
+}
+
+#firewall-container {
+    border-radius: 4px;
+}
+
+/* Centrado, mismo tamaño/negrita que #header en theme-editor.css
+   ("Editor de tema") -- pedido explícito del usuario: el título de la
+   VENTANA sigue ese patrón grande+centrado, no el de subtítulo+línea
+   chico que usan las secciones de adentro (#firewall-form-title-row,
+   más abajo). :backdrop explícito -- solo lo accionable debe cambiar
+   de color, un label suelto como este no; sin esto se veía cambiar de
+   tono al mover el mouse encima (sospecha sin confirmar del todo: el
+   tema del sistema atenúa texto bajo :backdrop -- ventana sin foco
+   real -- y esta ventana layer-shell gana foco casi al toque de que el
+   cursor entra; fijar el mismo color en ambos estados lo neutraliza
+   sin depender de esa causa). */
+#firewall-title,
+#firewall-title:backdrop {
+    color: @myforegroundhover;
+    margin-bottom: 16px;
+    font-weight: 900;
+    font-size: 17px;
+}
+
+/* Entry: Puerto/Origen (firewall_popup.py) -- mismo estilo que
+   .editor-name-entry en menu_module.css/"Aplicaciones": sin borde,
+   @mybackground + texto en acento y negrita. */
+entry {
+    background-color: @mybackground;
+    color: @myforegroundhover;
+    border: none;
+    border-radius: 4px;
+    font-weight: 800;
+    padding: 2px 8px;
+    min-height: 25px;
+    margin-bottom: 10px;
+}
+
+#firewall-header {
+    margin-bottom: 20px;
+}
+
+/* "Firewall: Activo/Inactivo" ahora es una fila ícono+etiqueta+
+   Gtk.Switch real (ver firewall_popup.py, enable_switch) -- comparte
+   .toggle-list-row/.toggle-icon-chip/.toggle-row-label/.toggle-row-switch
+   con los 9 toggles de "Sistema"/"Panel" del dashboard
+   (toggles/toggle_common.css, cargado acá con load_module_css() ya que
+   esta ventana es proceso/pantalla aparte), pedido explícito del
+   usuario: que siga esa misma línea de diseño. Sin CSS propio acá --
+   ese es justamente el punto de reusar el componente compartido. */
+
+/* Button: "Ver registro" (firewall_popup.py, abre firewall_log_viewer.py)
+   -- sin caja de fondo, mismo patrón ícono+acento que .menu-editor-btn
+   en menu_module.css. */
+.firewall-log-btn {
+    background-color: transparent;
+    color: @myforegroundhover;
+    border: none;
+    padding: 4px 0;
+    font-weight: 600;
+}
+.firewall-log-btn:hover {
+    color: @myforeground;
+}
+
+#firewall-columns {
+    min-height: 200px;
+    margin-bottom: 10px;
+}
+
+/* Sin caja de fondo (pedido explícito del usuario, referencia del
+   launcher Android) -- antes @mybackgroundhover + padding propio. El
+   spacing=16 entre columnas (firewall_popup.py, `columns`) ya separa
+   "Abiertos"/"Bloqueados" sin necesidad de una caja por columna, mismo
+   criterio que #menu-column en menu_module.css. */
+#firewall-column {
+}
+
+#firewall-column-title {
+    color: @myforegroundhover;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: -2px;
+}
+
+#firewall-rule-list {
+    background-color: transparent;
+}
+#firewall-rule-list row {
+    color: @myforeground;
+}
+
+/* Sin fondo de hover -- el texto de la regla pasa a acento, mismo
+   criterio que #menu-app-list row en menu_module.css. */
+#firewall-rule-list row:hover label {
+    color: @myforegroundhover;
+}
+#firewall-rule-list row label {
+    font-size: 14px;
+}
+
+.firewall-rule-row {
+    padding: 3px 4px;
+}
+
+.firewall-delete-btn {
+    background-color: transparent;
+    color: @myforeground;
+    border: none;
+    box-shadow: none;
+    padding: 2px 6px;
+}
+.firewall-delete-btn:hover {
+    color: @myforegroundhover;
+}
+
+/* Subtítulo + línea de "Agregar regla" (firewall_popup.py) -- mismo
+   patrón que #theme-title-row/#menu-editor-title-row -- reemplaza la
+   caja con fondo que envolvía todo el formulario antes. */
+#firewall-form-title-row {
+    margin-bottom: 4px;
+}
+
+.firewall-form-title {
+    color: @myforegroundhover;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.firewall-form-title-divider {
+    background-color: alpha(@myforegroundhover, 0.25);
+    min-height: 1px;
+}
+
+#firewall-add-form {
+    margin-top: 4px;
+}
+
+.firewall-field-label {
+    color: @myforeground;
+    font-size: 13px;
+}
+
+/* ComboBoxText: Acción/Protocolo/Dirección (firewall_popup.py) -- sin
+   estilo propio hasta ahora, se veían con el chrome default de Adwaita
+   (caja con relieve + flecha), pedido explícito del usuario: mismo
+   look sin borde que los Gtk.Entry de al lado (Puerto/Origen, ver
+   regla `entry` más abajo). combobox button.combo es el nodo interno
+   real que dibuja la caja -- estilear solo `combobox` no alcanza,
+   Adwaita pinta el fondo/borde en ese botón interno. */
+combobox {
+    background-color: transparent;
+}
+combobox button.combo {
+    background-color: @mybackground;
+    background-image: none;
+    color: @myforegroundhover;
+    border: none;
+    box-shadow: none;
+    outline: none;
+    border-radius: 4px;
+    font-weight: 800;
+    padding: 2px 8px;
+    min-height: 25px;
+}
+combobox button.combo:hover {
+    background-color: @mybackground;
+}
+combobox arrow {
+    color: @myforegroundhover;
+    min-height: 0;
+}
+
+/* Button: "Agregar regla" (firewall_popup.py) -- acción primaria del
+   formulario, mismo criterio de relleno que .save-btn en
+   theme-editor.css/.apply-btn en theme_module.css (acento sólido, no
+   transparente como el resto de botones de esta ventana) en vez de la
+   caja gris plana que tenía antes. */
+.firewall-add-btn {
+    color: @mybackground;
+    background-color: @myforegroundhover;
+    border: none;
+    border-radius: 4px;
+    font-weight: 800;
+    padding: 4px 15px;
+    margin-top: 4px;
+}
+.firewall-add-btn:hover {
+    background-color: alpha(@myforegroundhover, 0.8);
+}
+
+.firewall-form-status {
+    color: @myforeground;
+    font-weight: 600;
+    font-size: 13px;
+    margin-left: 10px;
+}

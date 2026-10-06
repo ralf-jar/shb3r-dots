@@ -1,0 +1,153 @@
+@import url("../../themer/global.css");
+
+window {
+    background-color: transparent;
+}
+/* @mybackground directo, sin multiplicar -- ver #container en
+   dashboard.css (razón completa del cambio 2026-09-01: un factor fijo
+   ahí rompía el blur con alphas bajos configurados por el usuario). */
+#container {
+    background-color: @mybackground;
+    border-radius: 4px;
+    padding: 16px 20px 18px 20px;
+    min-width: 420px;
+}
+
+/* Label: "Google Fonts" (google-fonts.py) */
+#header {
+    color: @myforeground;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+/* Entry: búsqueda de fuente, placeholder "Buscar fuente..." (google-fonts.py)
+   -- mismo estilo que .editor-name-entry en menu_module.css/"Aplicaciones":
+   sin borde, @mybackground + texto en acento y negrita. */
+entry {
+    background-color: @mybackground;
+    color: @myforegroundhover;
+    border: none;
+    border-radius: 4px;
+    font-weight: 800;
+    padding: 2px 8px;
+    min-height: 25px;
+    margin-bottom: 8px;
+}
+
+#results-scroller {
+    margin-bottom: 10px;
+}
+
+/* Button: nombre de cada familia tipográfica en los resultados (dinámico,
+   google-fonts.py) */
+.gf-result-btn {
+    background-color: transparent;
+    border: none;
+    border-radius: 4px;
+    color: @myforeground;
+    padding: 6px 10px;
+}
+.gf-result-btn label {
+    font-size: 15px;
+}
+.gf-result-btn:hover {
+    background-color: @mybackgroundhover;
+}
+.gf-result-btn.active {
+    background-color: @mybackgroundhover;
+    color: @myforegroundhover;
+}
+.gf-result-btn label.gf-installed-check {
+    color: @myforegroundhover;
+    font-weight: 800;
+}
+
+/* Label: "Sin resultados" (google-fonts.py) */
+.gf-empty {
+    color: @myforeground;
+    opacity: 0.6;
+    padding: 10px;
+}
+
+/* Button: "Cargar más (N)" (dinámico, google-fonts.py) */
+.gf-load-more-btn {
+    background-color: transparent;
+    border: none;
+    color: @myforegroundhover;
+}
+.gf-load-more-btn label {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+
+.gf-load-more-btn {
+    border: 1px solid @myborderinactive;
+    border-radius: 4px;
+    padding: 6px 10px;
+    margin-top: 2px;
+}
+.gf-load-more-btn:hover {
+    background-color: @mybackgroundhover;
+    border-color: @myborders;
+}
+
+#preview-box {
+    background-color: @mybackgroundhover;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+}
+
+#preview-box {
+    border-radius: 4px;
+}
+
+/* Label: nombre de la familia elegida + categoría (dinámico,
+   google-fonts.py, family_label) */
+#family-label {
+    color: @myforegroundhover;
+    font-weight: 800;
+    font-size: 15px;
+    margin-bottom: 6px;
+}
+
+/* Label: "Aa Bb Cc" -- muestra grande en la fuente elegida (google-fonts.py) */
+label.gf-specimen {
+    color: @myforeground;
+    font-size: 32px;
+    margin-bottom: 4px;
+}
+
+/* Label: pangrama de ejemplo ("El veloz murciélago...") en la fuente
+   elegida (google-fonts.py) */
+label.gf-pangram {
+    color: @myforeground;
+    font-size: 15px;
+    opacity: 0.85;
+}
+
+/* Label: estado de la descarga/instalación (dinámico, google-fonts.py) */
+#status-label {
+    color: @myforeground;
+    opacity: 0.75;
+    font-size: 14px;
+}
+
+/* Button: "Descargar e instalar" (google-fonts.py) */
+.install-btn {
+    background-color: @myborders;
+    border: none;
+    color: @mybackground;
+    padding: 6px 14px;
+}
+
+.install-btn {
+    border-radius: 4px;
+}
+.install-btn label {
+    font-size: 15px;
+    font-weight: 700;
+}
+.install-btn:disabled {
+    opacity: 0.55;
+}

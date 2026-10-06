@@ -1,0 +1,128 @@
+/* theme_module.css -- pestaña "Personalización" del dashboard
+   (build_theme_selector: selector de temas, rotación automática, picker
+   de fuente). Cargado con waybar_lib.load_module_css() desde
+   theme_module.py -- comparte pantalla con dashboard.css en vez de abrir
+   una ventana propia (eso es cosa de theme-editor.py/google-fonts.py,
+   popups aparte). Look redondeado siempre -- el toggle "Bordes
+   Redondeados"/trapezoide ya no existe (eliminado). */
+
+/* A diferencia de brillo/actualizaciones (.module solo), esta caja se
+   expande para llenar el alto fijo de la pestaña "Personalización" (ver
+   dashboard.py, page.set_size_request/PAGE_SIZE), así que el padding
+   vertical de 24px de .module se restaba directo de espacio útil para
+   la grilla en vez de solo separar contenido -- se veía como un margen
+   muerto grande arriba de "Temas" y abajo del selector de fuentes. Se
+   achica solo acá (el padding horizontal se deja igual, ese sí se veía
+   bien) -- selector combinado para ganarle a `.module` sin importar el
+   orden en la hoja de estilos. */
+.module.theme-module {
+    padding: 8px 24px;
+}
+
+/* Fila "Fondo de pantalla y Colores" + línea -- mismo estilo que
+   "Configuración del Panel" en la pestaña "Sistema" (dashboard.py,
+   panel_header/#panel-separator/#panel-subtitle), pedido explícito del
+   usuario. */
+#theme-title-row {
+    margin-bottom: 10px;
+}
+
+#theme-title {
+    color: @myforegroundhover;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#theme-title-divider {
+    background-color: alpha(@myforegroundhover, 0.25);
+    min-height: 1px;
+}
+
+/* Label: "px" */
+.radius-unit-label {
+    color: @myforegroundhover;
+}
+
+/* Button: "Aplicar" (ícono de check, rotate_apply_btn/radius_apply_btn)
+   -- .apply-btn vive en themer/components.css (cargado una sola vez
+   por dashboard.py, ver ese archivo para el rationale de tamaño/altura). */
+
+/* Campos numéricos nuevos (_number_field: tamaño de fuente, cursor,
+   opacidad, gaps, borde) -- mismo look que #radius-group entry. */
+.number-group entry {
+    background-color: @mybackground;
+    color: @myforegroundhover;
+    border: none;
+    border-radius: 4px;
+    font-weight: 800;
+    padding: 2px 8px;
+    min-height: 25px;
+    margin-left: 10px;
+    /* dashboard.css le da margin-bottom: 10px a todo entry -- acá lo
+       desalinearía de la etiqueta de la fila. */
+    margin-bottom: 0;
+}
+
+/* "Ventanas": separa la sección de la de "Interfaz". */
+.look-section {
+    margin-top: 18px;
+}
+
+.look-icon {
+    color: @myforeground;
+}
+
+/* Rejilla de 2 columnas de la pestaña (_grid): cada celda es una fila
+   ícono + etiqueta + control, igual que los toggles de "Sistema". */
+.settings-grid {
+    margin-bottom: 6px;
+}
+
+.settings-grid > * {
+    margin: 0 14px;
+}
+
+/* Botones de texto de las filas ("Abrir", nombre de la fuente) y
+   droplists -- sin caja, acento como el resto de acciones. */
+.setting-btn,
+.setting-combo,
+.setting-combo:focus {
+    background-color: transparent;
+    background-image: none;
+    color: @myforegroundhover;
+    border: none;
+    box-shadow: none;
+    font-weight: 600;
+    padding: 4px 0;
+    min-height: 0;
+}
+
+.setting-btn:hover,
+.setting-combo:hover {
+    color: @myforeground;
+}
+
+.setting-combo button {
+    background-color: transparent;
+    background-image: none;
+    border: none;
+    box-shadow: none;
+    padding: 0 0 0 8px;
+    min-height: 0;
+}
+
+.setting-combo button cellview,
+.setting-combo button arrow {
+    color: @myforegroundhover;
+    font-weight: 600;
+}
+
+.setting-combo:hover button cellview,
+.setting-combo:hover button arrow {
+    color: @myforeground;
+}
+
+/* Mismo alto en todas las filas, tenga switch, campo o droplist. */
+.settings-grid .toggle-list-row {
+    min-height: 44px;
+}

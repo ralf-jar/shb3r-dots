@@ -1,0 +1,122 @@
+@import url("../themer/global.css");
+
+window {
+    background-color: transparent;
+}
+
+#container {
+    background-color: @mybackground;
+    border-radius: 4px;
+    padding: 16px 20px 18px 20px;
+    min-width: 650px;
+}
+
+.module {
+    padding: 24px 24px;
+}
+
+.module-title {
+    color: @myforegroundhover;
+    margin-bottom: 6px;
+    margin-left: 20px;
+}
+
+#tab-loading {
+    color: @myforeground;
+    font-style: italic;
+}
+
+#tab-page {
+    padding: 16px 4px 4px 4px;
+}
+
+#dashboard-notebook {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+#dashboard-notebook stack {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+#dashboard-tab-header {
+    background-color: alpha(@mybackgroundhover, 0.20);
+    border-radius: 4px;
+    padding: 4px;
+    margin-bottom: 16px;
+}
+
+.dashboard-tab-btn {
+    background-color: transparent;
+    background-image: none;
+    color: alpha(@myforeground, 0.65);
+    border: none;
+    border-radius: 4px;
+    box-shadow: none;
+    outline: none;
+    padding: 6px 14px;
+    margin: 0 1px;
+    font-weight: 500;
+    transition: background-color 700ms ease, color 700ms ease,
+                border-radius 700ms ease;
+}
+.dashboard-tab-btn:hover {
+    background-color: @mybackground;
+}
+.dashboard-tab-btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.dashboard-tab-btn:checked {
+    background-color: @mybackground;
+    color: @myforegroundhover;
+    border-radius: 4px;
+    transition: background-color 450ms ease, color 450ms ease,
+                border-radius 450ms ease;
+}
+
+entry {
+    background-color: @mybackground;
+    color: @myforegroundhover;
+    border: none;
+    border-radius: 4px;
+    font-weight: 800;
+    padding: 2px 8px;
+    min-height: 25px;
+    margin-bottom: 10px;
+}
+
+#top-row {
+    margin-bottom: 16px;
+}
+
+#top-row .module {
+    padding: 6px 4px;
+}
+
+#toggle-row {
+    margin: 0 0 18px 0;
+}
+
+#toggle-row:last-child {
+    margin-bottom: 0;
+}
+
+#panel-header {
+    margin: 14px 0 14px 0;
+}
+
+#panel-separator {
+    background-color: alpha(@myforegroundhover, 0.25);
+    min-height: 1px;
+}
+
+#panel-subtitle {
+    color: @myforegroundhover;
+    font-size: 14px;
+    font-weight: 600;
+}

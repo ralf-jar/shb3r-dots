@@ -1,0 +1,36 @@
+@import url("colors.css");
+
+* {
+    font-family: "Geologica", "Symbols Nerd Font", sans-serif;
+    font-size: 15px;
+}
+
+/* Solo el REDONDEO default del tema GTK del sistema (adw-gtk3-dark)
+   para nodos que ningún .css de este repo toca puntualmente -- filas de
+   Gtk.ListBox y el popup de cualquier Gtk.ComboBox (Sistema >
+   Personalización, "Pack de íconos" en menu_module.py, confirmado en
+   vivo con el usuario: las opciones mostraban una franja redondeada en
+   hover pese al slider en 0). El popup de un combo no es hijo de
+   ningún #id nuestro -- no hay forma de apuntarle desde un archivo
+   puntual, así que el reset vive acá, importado por todos los popups y
+   por dashboard.css.
+
+   A propósito SIN `background-color` acá -- primer intento lo ponía en
+   `transparent` para las filas y terminó apagando el hover del todo (el
+   resaltado tenue que pinta el propio tema, `row.activatable:hover {
+   background-color: alpha(currentColor,0.07) }`, es la única señal de
+   hover que existe en un dropdown nativo como este combo -- no tiene un
+   color de texto propio como sí tienen las listas de Procesos/Red). El
+   bug real era que ese resaltado salía REDONDEADO sin importar el
+   slider, no que existiera -- este reset solo cuadra la esquina y dejar
+   que el fondo del tema siga pintando el hover como corresponde. Un
+   `#id row` puntual (ej. #menu-app-list row, que si define su propio
+   "sin fondo de hover" a propósito) sigue ganando por especificidad. */
+row,
+menu,
+menu menuitem,
+combobox window.popup,
+combobox window.popup row {
+    border-radius: 4px;
+}
+

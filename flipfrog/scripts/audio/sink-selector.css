@@ -1,0 +1,68 @@
+@import url("../../themer/global.css");
+
+window {
+    background-color: transparent;
+}
+
+#container {
+    background-color: @mybackground;
+    padding: 15px 20px 15px 20px;
+    min-width: 250px;
+}
+
+#container {
+    border-radius: 4px;
+}
+
+/* Label: "Salidas de Audio" (sink-selector.py) */
+#header {
+    color: @myforeground;
+    font-size: 15px;
+    margin-bottom: 14px;
+}
+
+#header {
+    color: @myforegroundhover;
+    font-size: 15px;
+    margin-bottom: 10px;
+    font-weight: 800;
+}
+
+/* Button: nombre de cada salida de audio disponible (dinámico, sink-selector.py) */
+radiobutton {
+    color: @myforeground;
+    border: none;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+}
+
+radiobutton {
+    border-radius: 4px;
+}
+
+radiobutton:hover {
+    color: @myforegroundhover;
+}
+
+radiobutton radio {
+    min-width: 14px;
+    min-height: 14px;
+    border: 2px solid @myforeground;
+    background-color: transparent;
+    margin-right: 4px;
+    margin-right: 10px;
+}
+
+radiobutton radio {
+    border-radius: 50%;
+}
+
+radiobutton:hover radio {
+    border-color: @myforegroundhover;
+}
+
+radio:checked {
+    background-image: none;
+    background-color: transparent;
+    color: @myforegroundhover;
+}

@@ -1,0 +1,83 @@
+@import url("../../themer/global.css");
+
+window {
+    background-color: transparent;
+}
+
+#container {
+    background-color: @mybackground;
+    padding: 14px 20px 18px 20px;
+    min-width: 300px;
+}
+
+#container {
+    border-radius: 4px;
+}
+
+/* Label: "Mezclador" (mixer.py) */
+#header {
+    color: @myforeground;
+    font-size: 15px;
+    margin-bottom: 14px;
+}
+
+/* Label: nombre de la app reproduciendo audio (dinámico, mixer.py, name_label) */
+.app-name {
+    color: @myforeground;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+/* Label: porcentaje de volumen por app, ej. "80%" (dinámico, mixer.py, pct_label) */
+.app-pct {
+    color: @myforeground;
+    font-size: 13px;
+    min-width: 38px;
+}
+
+/* Label: "Sin apps reproduciendo audio" (mixer.py) */
+#no-apps {
+    color: @myforeground;
+    font-size: 14px;
+    padding: 8px 0;
+}
+
+#header {
+    color: @myforegroundhover;
+    font-size: 15px;
+    margin-bottom: 10px;
+    font-weight: 800;
+}
+
+scale trough {
+    background-color: @mybackgroundhover;
+    min-height: 6px;
+}
+scale highlight {
+    background-color: @myforegroundhover;
+}
+scale slider {
+    background-color: @myforegroundhover;
+    min-width: 12px;
+    min-height: 12px;
+    margin: -3px 0;
+    box-shadow: none;
+    border: none;
+}
+
+scale trough,
+scale highlight {
+    border-radius: 4px;
+}
+
+scale slider {
+    border-radius: 50%;
+}
+
+scale {
+    padding: 0 2px;
+}
+
+.app-row {
+    margin-bottom: 10px;
+}

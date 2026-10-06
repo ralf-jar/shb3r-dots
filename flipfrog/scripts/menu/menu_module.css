@@ -1,0 +1,158 @@
+/* menu_module.css -- pestaña "Aplicaciones" del dashboard
+   (build_menu_selector: blacklist de apps para el launcher). Cargado con
+   waybar_lib.load_module_css() desde menu_module.py -- comparte pantalla
+   con dashboard.css en vez de abrir una ventana propia. Look redondeado
+   siempre -- el toggle "Bordes Redondeados"/trapezoide ya no existe
+   (eliminado). El estilo base de `entry` (usado por el buscador de esta
+   pestaña) queda en
+   dashboard.css -- es un selector de elemento sin clase, genuinamente
+   compartido con cualquier Gtk.Entry del dashboard (rotación de temas,
+   retraso de autoconexión de Bluetooth), no algo que tenga sentido
+   "mover" a un módulo -- movería el estilo base de TODOS los entries,
+   no solo el de esta pestaña. */
+
+/* Opciones del lanzador (_build_launcher_row), arriba del buscador. */
+#menu-launcher-row {
+    margin-bottom: 10px;
+}
+
+/* Box: cada una de las dos columnas (_build_column) */
+#menu-columns {
+    min-height: 100px;
+}
+
+/* Sin caja de fondo (pedido explícito del usuario, referencia del
+   launcher Android: "el espaciado es quien define el componente") --
+   antes tenía @mybackgroundhover + padding propio ("Grid Depurado").
+   El spacing=16 entre columnas (menu_module.py, `columns`) ya separa
+   "Visibles" de "Ocultas" sin necesidad de una caja por columna. */
+#menu-column {
+}
+
+/* Label: título de columna, "Visibles"/"Ocultas" */
+#menu-column-title {
+    color: @myforegroundhover;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: -2px;
+}
+
+#menu-app-list {
+    background-color: transparent;
+}
+
+/* Sin fondo de hover (pedido explícito del usuario, referencia del
+   launcher Android) -- ser parte de una lista arrastrable ya deja claro
+   que la fila es interactiva, el color de texto solo es la señal de
+   hover/selección, no una caja detrás. */
+#menu-app-list row {
+    background-color: transparent;
+    color: @myforeground;
+}
+
+#menu-app-list row:hover {
+    color: @myforegroundhover;
+}
+
+/* Fila seleccionada (_on_row_selected -- clic para cargar el panel de
+   edición compartido) -- acento + negrita en vez del fondo azul default
+   de Adwaita (que además desentonaba con el resto del dashboard) o una
+   caja de color propia. */
+#menu-app-list row:selected {
+    background-color: transparent;
+    color: @myforegroundhover;
+    box-shadow: none;
+    outline: none;
+}
+
+#menu-app-list row:selected label {
+    font-weight: 700;
+}
+
+#menu-app-list row label {
+    font-size: 12px;
+}
+
+/* Box: panel único de edición/creación (_build_editor_panel) -- sin
+   caja de fondo (pedido explícito del usuario, referencia del launcher
+   Android), separado de las dos columnas de arriba con el subtítulo +
+   línea de #menu-editor-title-row en vez de un borde de tarjeta. Margen
+   chico (antes 125px a cada lado) -- confirmado a mano que ese margen
+   tan grande, sumado a los 4 botones de la fila de abajo ("Elegir
+   script .sh...", "Guardar", "Restablecer nombre", "Restablecer
+   ícono", que no se achican ni hacen wrap), forzaba el ancho mínimo de
+   #menu-editor-panel a 944px contra los 832px fijos de PAGE_SIZE en
+   dashboard.py -- como Gtk.Notebook es homogéneo, ESE desborde se
+   propagaba a las otras pestañas apenas se visitaba "Aplicaciones" una
+   vez (confirmado a mano con get_preferred_width() antes/después de
+   construir la pestaña). */
+#menu-editor-panel {
+    margin-top: 16px;
+}
+
+/* Subtítulo "Editar aplicación" + línea -- mismo estilo que
+   #theme-title-row (theme_module.py) / "Configuración del Panel"
+   (dashboard.py). */
+#menu-editor-title-row {
+    margin-bottom: 10px;
+}
+
+#menu-editor-title {
+    color: @myforegroundhover;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#menu-editor-title-divider {
+    background-color: alpha(@myforegroundhover, 0.25);
+    min-height: 1px;
+}
+
+/* Button: preview del ícono actual, clickeable para elegir uno nuevo
+   (_build_icon_field) -- flat, sin el chrome de botón default de GTK,
+   se lee como una imagen con affordance de click, no como un botón de
+   verdad. */
+.menu-icon-preview-btn {
+    background-color: transparent;
+    border: none;
+    border-radius: 4px;
+    box-shadow: none;
+    outline: none;
+    padding: 4px;
+}
+
+/* Button: "Elegir script .sh..."/"Guardar"/"Restablecer nombre"/
+   "Restablecer ícono" -- sin caja de fondo, mismo patrón que
+   .editor-btn/.font-picker-btn/.get-fonts-btn en theme_module.py:
+   ícono + texto en acento como señal de "esto es accionable", hover
+   pasa el texto al color default del tema (@myforeground); el ícono
+   invierte igual pero eso lo maneja _icon_text_button en Python
+   (swap de pixbuf), no CSS. */
+.menu-editor-btn {
+    background-color: transparent;
+    color: @myforegroundhover;
+    border: none;
+    padding: 8px 0;
+    font-weight: 600;
+}
+
+.menu-editor-btn:hover {
+    color: @myforeground;
+}
+
+
+entry {
+    background-color: @mybackground;
+    color: @myforegroundhover;
+    border: none;
+    border-radius: 4px;
+    font-weight: 800;
+    padding: 2px 8px;
+    min-height: 25px;
+    margin-left: 10px;
+    margin-right: 5px;
+}
+
+.editor-name-entry {
+    margin-top: 15px;
+}

@@ -1,0 +1,114 @@
+@import url("../../themer/global.css");
+
+window {
+    background-color: transparent;
+}
+
+#vpn-container {
+    background-color: @mybackground;
+    padding: 16px 20px 18px 20px;
+    border-radius: 4px;
+}
+
+#vpn-title,
+#vpn-title:backdrop {
+    color: @myforegroundhover;
+    font-weight: 900;
+    font-size: 17px;
+}
+
+#vpn-in-use {
+    color: @myforeground;
+    font-size: 13px;
+    margin-bottom: 14px;
+}
+
+#vpn-top {
+    margin-bottom: 6px;
+}
+
+#vpn-readonly {
+    color: alpha(@myforeground, 0.6);
+    font-size: 12px;
+    margin-bottom: 6px;
+}
+
+#vpn-form {
+    margin: 6px 0 14px 0;
+}
+
+.vpn-field-label {
+    color: @myforeground;
+    font-size: 13px;
+}
+
+entry {
+    background-color: alpha(@myforeground, 0.08);
+    color: @myforegroundhover;
+    border: none;
+    border-radius: 4px;
+    box-shadow: none;
+    font-family: monospace;
+    padding: 2px 8px;
+    min-height: 25px;
+}
+
+entry.readonly {
+    color: alpha(@myforeground, 0.6);
+}
+
+combobox button.combo {
+    background-color: alpha(@myforeground, 0.08);
+    background-image: none;
+    color: @myforegroundhover;
+    border: none;
+    box-shadow: none;
+    border-radius: 4px;
+}
+
+combobox arrow {
+    color: @myforegroundhover;
+}
+
+.vpn-btn {
+    background-color: transparent;
+    background-image: none;
+    color: @myforegroundhover;
+    border: none;
+    box-shadow: none;
+    font-weight: 600;
+    padding: 4px 8px;
+}
+
+.vpn-btn:hover {
+    color: @myforeground;
+}
+
+.vpn-btn:disabled {
+    opacity: 0.3;
+}
+
+.vpn-btn:focus,
+button:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.vpn-primary-btn {
+    color: @mybackground;
+    background-color: @myforegroundhover;
+    border-radius: 4px;
+    font-weight: 800;
+    padding: 4px 15px;
+}
+
+.vpn-primary-btn:hover {
+    color: @mybackground;
+    background-color: alpha(@myforegroundhover, 0.8);
+}
+
+#vpn-result {
+    color: @myforeground;
+    font-weight: 600;
+    font-size: 13px;
+}

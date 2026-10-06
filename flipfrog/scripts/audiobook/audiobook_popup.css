@@ -1,0 +1,335 @@
+@import url("../../themer/global.css");
+
+window {
+    background-color: transparent;
+}
+
+/* Mismo contenedor que #launcher-container/#dl-container. */
+#ab-container {
+    background-color: @mybackground;
+    border-radius: 4px;
+    padding: 18px 22px 16px 22px;
+    min-width: 1120px;
+    min-height: 760px;
+}
+
+/* ---- Biblioteca ---- */
+
+#ab-title {
+    color: @myforegroundhover;
+    font-weight: 900;
+    font-size: 17px;
+}
+
+#ab-count {
+    color: @mybackground;
+    background-color: alpha(@myforegroundhover, 0.55);
+    font-size: 12px;
+    font-weight: 800;
+    border-radius: 4px;
+    padding: 1px 8px;
+}
+
+#ab-toolbar {
+    margin: 14px 0 10px 0;
+}
+
+.ab-add-btn {
+    background-color: alpha(@myforegroundhover, 0.2);
+    color: @myforegroundhover;
+    border: none;
+    box-shadow: none;
+    border-radius: 4px;
+    font-weight: 800;
+    padding: 6px 16px;
+}
+
+.ab-add-btn:hover {
+    background-color: alpha(@myforegroundhover, 0.32);
+}
+
+.ab-voice-combo button {
+    background-color: alpha(@myforeground, 0.06);
+    color: @myforeground;
+    border: none;
+    box-shadow: none;
+    border-radius: 4px;
+    padding: 4px 10px;
+}
+
+#ab-conversions {
+    margin-bottom: 12px;
+}
+
+.ab-conv-row {
+    background-color: alpha(@myforeground, 0.05);
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+}
+
+.ab-conv-name {
+    color: @myforeground;
+    font-weight: 700;
+}
+
+.ab-conv-status {
+    color: @myforegroundhover;
+    font-size: 12px;
+}
+
+.ab-conv-error .ab-conv-status {
+    color: @myborders2;
+}
+
+#ab-library-scroller scrollbar,
+#ab-text-scroller scrollbar,
+#ab-sidebar scrollbar {
+    opacity: 0;
+}
+
+.ab-card {
+    padding: 8px;
+    border-radius: 4px;
+}
+
+flowboxchild {
+    border-radius: 4px;
+    padding: 0;
+}
+
+flowboxchild:hover {
+    background-color: alpha(@myforeground, 0.06);
+}
+
+.ab-cover-placeholder {
+    background-color: alpha(@myforeground, 0.06);
+    border-radius: 4px;
+    color: alpha(@myforeground, 0.4);
+}
+
+.ab-card-title {
+    color: @myforeground;
+    font-weight: 800;
+    margin-top: 6px;
+}
+
+.ab-card-author {
+    color: @myforeground;
+    font-size: 12px;
+    font-style: italic;
+    opacity: 0.7;
+}
+
+.ab-card-status {
+    color: @myforegroundhover;
+    font-size: 11px;
+}
+
+.ab-empty {
+    color: @myforeground;
+    font-style: italic;
+    opacity: 0.6;
+    padding: 120px 0;
+}
+
+.ab-empty-small {
+    color: @myforeground;
+    font-style: italic;
+    font-size: 12px;
+    opacity: 0.6;
+    padding: 20px 8px;
+}
+
+/* ---- Lector ---- */
+
+#ab-sidebar {
+    min-width: 290px;
+    margin-right: 12px;
+}
+
+.ab-tab {
+    background-color: transparent;
+    color: @myforeground;
+    border: none;
+    box-shadow: none;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 5px 0;
+    opacity: 0.6;
+}
+
+.ab-tab:checked {
+    background-color: alpha(@myforeground, 0.08);
+    color: @myforegroundhover;
+    opacity: 1;
+}
+
+.ab-list,
+.ab-list row {
+    background-color: transparent;
+}
+
+.ab-list row {
+    border-radius: 4px;
+    padding: 0;
+}
+
+.ab-list row:hover {
+    background-color: alpha(@myforeground, 0.05);
+}
+
+.ab-chapter {
+    padding: 7px 8px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+}
+
+/* Capítulo en curso -- mismo "pill" con borde de la referencia. */
+.ab-chapter-current {
+    background-color: alpha(@myforeground, 0.08);
+    border: 1px solid alpha(@myforeground, 0.25);
+}
+
+.ab-chapter-title {
+    color: alpha(@myforeground, 0.75);
+    font-size: 12px;
+}
+
+.ab-chapter-current .ab-chapter-title {
+    color: @myforeground;
+    font-weight: 800;
+}
+
+.ab-chapter-time {
+    color: alpha(@myforeground, 0.75);
+    font-size: 12px;
+    font-family: monospace;
+}
+
+.ab-chapter-current .ab-chapter-time {
+    color: @myforeground;
+    font-weight: 800;
+}
+
+#ab-text,
+#ab-text text {
+    background-color: transparent;
+    color: @myforeground;
+    font-size: 15px;
+}
+
+#ab-text text selection {
+    background-color: alpha(@myforegroundhover, 0.35);
+}
+
+#ab-player {
+    border-top: 1px solid alpha(@myforeground, 0.08);
+    padding-top: 10px;
+    margin-top: 6px;
+}
+
+.ab-time {
+    color: @myforeground;
+    font-size: 12px;
+    font-family: monospace;
+    opacity: 0.8;
+}
+
+.ab-book-title {
+    color: @myforeground;
+    font-weight: 800;
+}
+
+.ab-left {
+    color: @myforeground;
+    font-size: 12px;
+    opacity: 0.85;
+}
+
+.ab-icon-btn,
+.ab-round-btn,
+.ab-play-btn,
+.ab-speed-btn {
+    background-color: transparent;
+    color: @myforeground;
+    border: none;
+    box-shadow: none;
+    padding: 4px;
+    min-width: 0;
+    min-height: 0;
+}
+
+.ab-icon-btn:hover,
+.ab-play-btn:hover,
+.ab-speed-btn:hover {
+    color: @myforegroundhover;
+}
+
+.ab-round-btn {
+    border-radius: 50%;
+    border: 1px solid alpha(@myforeground, 0.25);
+    padding: 7px;
+    margin-bottom: 8px;
+}
+
+.ab-round-btn:hover {
+    background-color: alpha(@myforeground, 0.08);
+}
+
+.ab-play-btn {
+    padding: 2px 8px;
+}
+
+.ab-speed-btn {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 6px;
+}
+
+scale trough {
+    background-color: alpha(@myforeground, 0.16);
+    min-height: 4px;
+    border-radius: 4px;
+}
+
+scale highlight {
+    background-color: @myforegroundhover;
+    border-radius: 4px;
+}
+
+scale slider {
+    background-color: @myborders;
+    border: none;
+    min-width: 12px;
+    min-height: 12px;
+    border-radius: 50%;
+}
+
+progressbar trough {
+    background-color: alpha(@myforeground, 0.1);
+    min-height: 5px;
+    border: none;
+    border-radius: 4px;
+}
+
+progressbar progress {
+    background-color: @myforegroundhover;
+    min-height: 5px;
+    border: none;
+    border-radius: 4px;
+}
+
+.ab-conv-error progressbar progress {
+    background-color: @myborders2;
+}
+
+button:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+button:disabled {
+    opacity: 0.3;
+}

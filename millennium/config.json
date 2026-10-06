@@ -1,0 +1,138 @@
+{
+  "general": {
+    "accentColor": "DEFAULT_ACCENT_COLOR",
+    "checkForMillenniumUpdates": true,
+    "checkForPluginAndThemeUpdates": true,
+    "injectCSS": true,
+    "injectJavascript": true,
+    "millenniumUpdateChannel": "stable",
+    "onMillenniumUpdate": 1,
+    "shouldShowThemePluginUpdateNotifications": true
+  },
+  "misc": {
+    "hasShownWelcomeModal": true
+  },
+  "network": {
+    "proxy": "",
+    "proxyPassword": "",
+    "proxyUsername": ""
+  },
+  "notifications": {
+    "showNotifications": true,
+    "showPluginNotifications": true,
+    "showUpdateNotifications": true
+  },
+  "plugins": {
+    "enabledPlugins": []
+  },
+  "themes": {
+    "activeTheme": "Adwaita-for-Steam",
+    "allowedScripts": true,
+    "allowedStyles": true,
+    "conditions": {
+      "Adwaita-for-Steam": {
+        "Color theme": "Default",
+        "Font": "Adwaita",
+        "Hide What's New shelf": "no",
+        "Keep pointer cursor for clickable elements": "no",
+        "Login QR code": "Show",
+        "Remove rounded corners": "no",
+        "Show Library sidebar on hover": "no",
+        "Show URL": "no",
+        "Window controls layout": "Adwaita",
+        "Window controls theme": "Adwaita (GNOME)"
+      },
+      "NEVKO-UI": {
+        "Alternative Online Indicator": "yes",
+        "Avatar Decoration": "no",
+        "Badges for Contributors": "yes",
+        "Blur Account Name": "no",
+        "Blur Balance": "no",
+        "DRIVER = 1": "",
+        "DRIVER = 2": "",
+        "DRIVER = 3": "",
+        "DRIVER = 4": "",
+        "DRIVER = 5": "",
+        "Fonts [WIP]": "Steam Default",
+        "Game Page Content Location": "[All] Center",
+        "Gamepage Side": "Left Side",
+        "Hide Balance": "yes",
+        "Hide Profile Button": "yes",
+        "Hiding Library Items": "None",
+        "Library Side": "Left Side",
+        "Move Bottom Buttons to Top Bar": "yes",
+        "Move URL Bar to Bottom": "yes",
+        "Refresh Friends & Chat": "Disabled",
+        "Refresh Settings": "Disabled",
+        "Remove Window Buttons": "None",
+        "Reorder Main Buttons": "yes",
+        "Resize Library List": "Default",
+        "Rounding Avatars": "Rounded Square",
+        "Style Menu": "Spacious"
+      }
+    },
+    "themeColors": {
+      "Adwaita-for-Steam": {
+        "--adw-accent-bg-rgb": "53, 132, 228",
+        "--adw-accent-fg-rgb": "255, 255, 255",
+        "--adw-accent-rgb": "120, 174, 237",
+        "--adw-banner-bg-rgb": "125, 125, 131",
+        "--adw-banner-fg-rgb": "255, 255, 255",
+        "--adw-card-bg-rgb": "0, 0, 0",
+        "--adw-card-fg-rgb": "255, 255, 255",
+        "--adw-card-shade-rgb": "0, 0, 6",
+        "--adw-destructive-bg-rgb": "192, 28, 40",
+        "--adw-destructive-fg-rgb": "255, 255, 255",
+        "--adw-destructive-rgb": "255, 123, 99",
+        "--adw-dialog-bg-rgb": "0, 0, 0",
+        "--adw-dialog-fg-rgb": "255, 255, 255",
+        "--adw-error-bg-rgb": "192, 28, 40",
+        "--adw-error-fg-rgb": "255, 255, 255",
+        "--adw-error-rgb": "255, 123, 99",
+        "--adw-headerbar-bg-rgb": "0, 0, 0",
+        "--adw-headerbar-border-rgb": "255, 255, 255",
+        "--adw-headerbar-darker-shade-rgb": "0, 0, 12",
+        "--adw-headerbar-fg-rgb": "255, 255, 255",
+        "--adw-headerbar-shade-rgb": "0, 0, 6",
+        "--adw-popover-bg-rgb": "0, 0, 0",
+        "--adw-popover-fg-rgb": "255, 255, 255",
+        "--adw-popover-shade-rgb": "0, 0, 6",
+        "--adw-secondary-sidebar-backdrop-rgb": "37, 37, 41",
+        "--adw-secondary-sidebar-bg-rgb": "0, 0, 0",
+        "--adw-secondary-sidebar-fg-rgb": "255, 255, 255",
+        "--adw-secondary-sidebar-shade-rgb": "0, 0, 6",
+        "--adw-shade-rgb": "0, 0, 6",
+        "--adw-sidebar-backdrop-rgb": "40, 40, 44",
+        "--adw-sidebar-bg-rgb": "0, 0, 0",
+        "--adw-sidebar-fg-rgb": "255, 255, 255",
+        "--adw-sidebar-shade-rgb": "0, 0, 6",
+        "--adw-success-bg-rgb": "38, 162, 105",
+        "--adw-success-fg-rgb": "255, 255, 255",
+        "--adw-success-rgb": "143, 240, 164",
+        "--adw-thumbnail-bg-rgb": "0, 0, 0",
+        "--adw-thumbnail-fg-rgb": "255, 255, 255",
+        "--adw-user-ingame-rgb": "143, 240, 164",
+        "--adw-user-offline-rgb": "128, 128, 128",
+        "--adw-user-online-rgb": "120, 174, 237",
+        "--adw-view-bg-rgb": "0, 0, 0",
+        "--adw-view-fg-rgb": "255, 255, 255",
+        "--adw-warning-bg-rgb": "205, 147, 9",
+        "--adw-warning-fg-rgb": "0, 0, 0",
+        "--adw-warning-rgb": "248, 228, 92",
+        "--adw-window-bg-rgb": "0, 0, 0",
+        "--adw-window-fg-rgb": "255, 255, 255"
+      },
+      "NEVKO-UI": {
+        "--custom-accent": "#1A9FFF",
+        "--green-color": "#769C1F",
+        "--idle-status": "#4C91AC",
+        "--ingame-status": "#8CD61D",
+        "--ingameidle-status": "#62813B",
+        "--main-background": "#161D25",
+        "--offline-status": "#898989",
+        "--online-status": "#4CB4FF",
+        "--purple-color": "#834E8D"
+      }
+    }
+  }
+}

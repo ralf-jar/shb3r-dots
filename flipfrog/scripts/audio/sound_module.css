@@ -1,0 +1,142 @@
+/* sound_module.css -- pestaña "Sonido" del dashboard (build_sound_tab):
+   ecualizador de 6 bandas sobre el sink de PipeWire de
+   filter-chain.service. Cargado con waybar_lib.load_module_css() desde
+   sound_module.py -- comparte pantalla con dashboard.css en vez de
+   abrir una ventana propia. */
+
+#eq-preset-row {
+    margin-bottom: 10px;
+}
+
+.eq-preset-label {
+    color: @myforegroundhover;
+    font-size: 13px;
+}
+
+/* ComboBoxText: preajustes (eq_presets.py) -- mismo patrón mínimo que
+   `combobox button` en bandcamp/bandcamp_popup.css. */
+.eq-preset-combo button {
+    background-color: @mybackgroundhover;
+    color: @myforeground;
+    border-radius: 4px;
+}
+
+/* Button: basura junto al combo, borra el preajuste PROPIO seleccionado
+   (eq_presets.delete_custom_preset) -- mismo criterio visual que
+   .bluetooth-forget-btn: chico, sin fondo propio salvo hover.
+   :disabled cuando el seleccionado es de fábrica/el placeholder (ver
+   _sync_delete_sensitivity en sound_module.py). */
+.eq-delete-preset-btn {
+    background-color: transparent;
+    color: @myforeground;
+    border: none;
+    box-shadow: none;
+    padding: 2px 6px;
+}
+.eq-delete-preset-btn:hover {
+    color: @myforegroundhover;
+}
+.eq-delete-preset-btn:disabled {
+    opacity: 0.3;
+}
+
+#eq-bands-row {
+    margin-bottom: 10px;
+}
+
+.eq-band {
+    padding: 0 4px;
+}
+
+.eq-value-label {
+    color: @myforegroundhover;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.eq-freq-label {
+    color: @myforeground;
+    font-size: 13px;
+}
+
+/* Gtk.Scale vertical (band sliders) -- escopeado a .vertical (clase que
+   GTK3 agrega sola según orientación) para no afectar los sliders
+   HORIZONTALES de brillo/volumen (brightness_module.css, mixer.css)
+   que comparten la misma pantalla del dashboard vía load_module_css.
+   min-width en vez de min-height para el grosor del canal -- en un
+   slider vertical el "ancho" del trough es el grosor, no el largo. */
+scale.vertical trough {
+    background-color: @mybackgroundhover;
+    min-width: 6px;
+}
+scale.vertical highlight {
+    background-color: @myforegroundhover;
+}
+scale.vertical slider {
+    background-color: @myforegroundhover;
+    min-width: 14px;
+    min-height: 14px;
+    margin: 0 -4px;
+    box-shadow: none;
+    border: none;
+}
+scale.vertical trough,
+scale.vertical highlight {
+    border-radius: 4px;
+}
+scale.vertical slider {
+    border-radius: 50%;
+}
+
+#eq-actions-row {
+    margin-top: 4px;
+}
+
+/* Button: "Restablecer (0 dB)"/"Guardar preajuste"/"Guardar para este
+   dispositivo" -- sin caja de fondo (pedido explícito del usuario,
+   referencia del launcher Android), mismo patrón ícono+acento que
+   .menu-editor-btn en menu_module.css. Clase compartida por las tres
+   (mismo tipo de acción secundaria, mismo peso visual). */
+.eq-action-btn {
+    background-color: transparent;
+    color: @myforegroundhover;
+    border: none;
+    padding: 8px 0;
+    font-weight: 600;
+}
+.eq-action-btn:hover {
+    color: @myforeground;
+}
+
+/* Botón "Aplicar" (check) de cada fila de dispositivo -- .apply-btn
+   vive en themer/components.css (cargado una sola vez por
+   dashboard.py, no lazy, así que siempre está disponible sin importar
+   qué pestaña se visite primero). */
+
+/* Subtítulo + línea de "Dispositivos de audio" -- mismo patrón que
+   #theme-title-row en theme_module.py. */
+#eq-devices-title-row {
+    margin-top: 16px;
+    margin-bottom: 6px;
+}
+
+.eq-devices-title {
+    color: @myforegroundhover;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.eq-devices-title-divider {
+    background-color: alpha(@myforegroundhover, 0.25);
+    min-height: 1px;
+}
+
+.eq-devices-empty {
+    color: @myforeground;
+    font-style: italic;
+    padding: 4px 0;
+}
+
+.eq-device-row {
+    padding: 3px 0;
+}

@@ -1,0 +1,214 @@
+@import url("../../themer/global.css");
+
+window {
+    background-color: transparent;
+}
+
+/* Mismo contenedor que #launcher-container/#keybinds-container. */
+#dl-container {
+    background-color: @mybackground;
+    border-radius: 4px;
+    padding: 18px 24px 20px 24px;
+    min-width: 640px;
+}
+
+#dl-title {
+    color: @myforegroundhover;
+    font-weight: 900;
+    font-size: 17px;
+}
+
+/* Chip con el total de la cola, mismo look que #keybinds-count. */
+#dl-count {
+    color: @mybackground;
+    background-color: alpha(@myforegroundhover, 0.55);
+    font-size: 12px;
+    font-weight: 800;
+    border-radius: 4px;
+    padding: 1px 8px;
+}
+
+/* "ENLACES"/"COLA" -- mismo criterio que .keybinds-section-title. */
+.dl-section-title {
+    color: @myforegroundhover;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    opacity: 0.8;
+    margin-top: 14px;
+    margin-bottom: 6px;
+}
+
+#dl-text-scroller {
+    background-color: alpha(@myforeground, 0.06);
+    border-radius: 4px;
+}
+
+#dl-textview,
+#dl-textview text {
+    background-color: transparent;
+    color: @myforeground;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+#dl-textview {
+    padding: 8px 10px;
+}
+
+#dl-dest-row {
+    margin-top: 8px;
+}
+
+.dl-dest-btn,
+.dl-add-btn {
+    background-color: alpha(@myforeground, 0.06);
+    color: @myforeground;
+    border: none;
+    box-shadow: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+}
+
+.dl-dest-btn:hover {
+    background-color: alpha(@myforeground, 0.12);
+}
+
+.dl-format-combo button {
+    background-color: alpha(@myforeground, 0.06);
+    color: @myforeground;
+    border: none;
+    box-shadow: none;
+    border-radius: 4px;
+    padding: 4px 10px;
+}
+
+.dl-format-combo button:hover {
+    background-color: alpha(@myforeground, 0.12);
+}
+
+.dl-add-btn {
+    background-color: alpha(@myforegroundhover, 0.2);
+    color: @myforegroundhover;
+    font-weight: 800;
+    padding: 6px 22px;
+}
+
+.dl-add-btn:hover {
+    background-color: alpha(@myforegroundhover, 0.32);
+}
+
+.dl-feedback {
+    color: @myforegroundhover;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.dl-summary {
+    color: @myforeground;
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+#dl-queue-row .dl-section-title {
+    margin-bottom: 0;
+}
+
+#dl-queue-row {
+    margin-top: 10px;
+    margin-bottom: 6px;
+}
+
+#dl-list-scroller scrollbar {
+    opacity: 0;
+}
+
+.dl-list,
+.dl-list row {
+    background-color: transparent;
+}
+
+.dl-row {
+    padding: 8px 4px;
+    border-bottom: 1px solid alpha(@myforeground, 0.08);
+}
+
+.dl-name {
+    color: @myforeground;
+    font-weight: 700;
+}
+
+.dl-status {
+    color: @myforeground;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.dl-detail {
+    color: @myforeground;
+    font-size: 11px;
+    font-family: monospace;
+    opacity: 0.65;
+}
+
+.dl-choosing .dl-status,
+.dl-downloading .dl-status,
+.dl-done .dl-status {
+    color: @myforegroundhover;
+    opacity: 1;
+}
+
+.dl-error .dl-status,
+.dl-error .dl-detail {
+    color: @myborders2;
+    opacity: 1;
+}
+
+.dl-canceled .dl-name,
+.dl-done .dl-name {
+    opacity: 0.6;
+}
+
+progressbar trough {
+    background-color: alpha(@myforeground, 0.1);
+    min-height: 5px;
+    border: none;
+    border-radius: 4px;
+}
+
+progressbar progress {
+    background-color: @myforegroundhover;
+    min-height: 5px;
+    border: none;
+    border-radius: 4px;
+}
+
+.dl-error progressbar progress {
+    background-color: @myborders2;
+}
+
+.dl-empty {
+    color: @myforeground;
+    font-style: italic;
+    opacity: 0.6;
+    padding: 30px 0;
+}
+
+.dl-row-btn {
+    background-color: transparent;
+    color: @myforeground;
+    border: none;
+    box-shadow: none;
+    padding: 3px;
+    min-width: 0;
+    min-height: 0;
+}
+
+.dl-row-btn:hover {
+    color: @myforegroundhover;
+}
+
+button:focus {
+    outline: none;
+    box-shadow: none;
+}

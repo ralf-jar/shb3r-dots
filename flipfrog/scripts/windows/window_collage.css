@@ -1,0 +1,176 @@
+@import url("../../themer/global.css");
+
+/* Fondo completamente transparente: se ve el wallpaper del workspace
+   vacío detrás (sin blur, regla de windowrules.lua). */
+#wc-window {
+    background-color: transparent;
+}
+
+#wc-root {
+    padding: 18px 40px 32px 40px;
+}
+
+#wc-toolbar {
+    background-color: alpha(@mybackground, 0.92);
+    border-radius: 4px;
+    padding: 5px 8px;
+    margin-bottom: 22px;
+}
+
+#wc-heading {
+    color: @myforegroundhover;
+    font-weight: 900;
+    font-size: 15px;
+    margin: 0 10px 0 6px;
+}
+
+.wc-chip {
+    background-color: transparent;
+    background-image: none;
+    color: @myforeground;
+    border: none;
+    box-shadow: none;
+    border-radius: 4px;
+    padding: 3px 12px;
+    min-height: 0;
+    min-width: 0;
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 0.7;
+}
+
+.wc-chip:hover {
+    background-color: alpha(@myforeground, 0.08);
+    opacity: 1;
+}
+
+.wc-chip.active {
+    background-color: @myforegroundhover;
+    color: @mybackground;
+    opacity: 1;
+}
+
+#wc-count {
+    color: @myforeground;
+    font-size: 12px;
+    opacity: 0.5;
+    margin: 0 6px 0 10px;
+}
+
+/* Marco de cada ventana: 2px de borde por lado (window_collage.py lo
+   descuenta al escalar la captura). */
+.wc-tile {
+    background-color: alpha(#000000, 0.35);
+    border: 2px solid alpha(@myforeground, 0.12);
+    border-radius: 4px;
+}
+
+.wc-tile.hover {
+    border-color: alpha(@myforegroundhover, 0.7);
+}
+
+.wc-tile.active {
+    border-color: @myforegroundhover;
+}
+
+.wc-tile.dragging {
+    border-color: @myforegroundhover2;
+    opacity: 0.85;
+}
+
+.wc-placeholder {
+    color: @myforeground;
+    opacity: 0.6;
+}
+
+/* Negro translúcido, no @mybackground: el tema lo trae con alpha bajo y
+   sobre la captura la etiqueta se perdía. El borde la separa de capturas
+   oscuras (barras de navegador, terminales). */
+.wc-title {
+    background-color: alpha(#000000, 0.75);
+    color: @myforeground;
+    border: 1px solid alpha(@myforeground, 0.25);
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+}
+
+.wc-ws {
+    background-color: @myforegroundhover;
+    color: #111111;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 900;
+    padding: 2px 9px;
+}
+
+.wc-empty {
+    background-color: alpha(#000000, 0.65);
+    color: @myforeground;
+    border-radius: 4px;
+    font-size: 14px;
+    padding: 10px 20px;
+}
+
+button:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.wc-chip:disabled {
+    opacity: 0.3;
+}
+
+/* Esquina para cambiar el tamaño -- solo visible al pasar el mouse. */
+.wc-grip {
+    color: @myforegroundhover;
+    font-size: 16px;
+    opacity: 0;
+    padding: 0 4px 2px 0;
+}
+
+.wc-tile.hover .wc-grip,
+.wc-tile.dragging .wc-grip {
+    opacity: 0.9;
+}
+
+/* Seleccionada (teclado o mouse): Enter/Supr actúan sobre ella. */
+.wc-tile.selected {
+    border-color: @myforegroundhover2;
+}
+
+.wc-tile.closing {
+    opacity: 0.4;
+}
+
+#wc-search {
+    background-color: alpha(@myforeground, 0.08);
+    color: @myforeground;
+    border: none;
+    box-shadow: none;
+    border-radius: 4px;
+    font-size: 12px;
+    min-height: 0;
+    padding: 3px 8px;
+    margin: 0 6px 0 0;
+}
+
+/* "Por workspace": una zona por workspace, destino al arrastrar. */
+.wc-zone {
+    background-color: alpha(#000000, 0.28);
+    border: 2px dashed alpha(@myforeground, 0.14);
+    border-radius: 4px;
+}
+
+.wc-zone.drop {
+    background-color: alpha(@myforegroundhover, 0.14);
+    border-color: @myforegroundhover;
+}
+
+.wc-zone-title {
+    color: @myforegroundhover;
+    font-size: 13px;
+    font-weight: 900;
+    padding: 8px 14px 0 14px;
+}

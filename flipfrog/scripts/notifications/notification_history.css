@@ -1,0 +1,154 @@
+@import url("../../themer/global.css");
+
+window {
+    background-color: transparent;
+}
+
+/* Mismo contenedor que #dl-container/#launcher-container. */
+#nh-container {
+    background-color: @mybackground;
+    border-radius: 4px;
+    padding: 16px 18px 14px 18px;
+    min-width: 420px;
+}
+
+#nh-title {
+    color: @myforegroundhover;
+    font-weight: 900;
+    font-size: 17px;
+}
+
+#nh-count {
+    color: @mybackground;
+    background-color: alpha(@myforegroundhover, 0.55);
+    font-size: 12px;
+    font-weight: 800;
+    border-radius: 4px;
+    padding: 1px 8px;
+}
+
+.nh-dnd-label {
+    color: @myforeground;
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+#nh-scroller {
+    margin-top: 10px;
+}
+
+#nh-scroller scrollbar {
+    opacity: 0;
+}
+
+/* "HOY"/"AYER" -- mismo criterio que .keybinds-section-title. */
+.nh-day {
+    color: @myforegroundhover;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    opacity: 0.8;
+    margin: 10px 0 6px 2px;
+}
+
+.nh-row {
+    background-color: alpha(@myforeground, 0.05);
+    border-radius: 4px;
+    border: 1px solid transparent;
+    padding: 10px 8px 10px 12px;
+    margin-bottom: 6px;
+}
+
+.nh-row:hover {
+    background-color: alpha(@myforeground, 0.08);
+}
+
+/* Urgencia crítica (alarmas, etc.) -- borde de acento, sin otro color. */
+.nh-critical {
+    border: 1px solid alpha(@myborders, 0.6);
+}
+
+.nh-icon-placeholder {
+    color: alpha(@myforeground, 0.5);
+}
+
+.nh-app {
+    color: @myforegroundhover;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.nh-time {
+    color: @myforeground;
+    font-size: 11px;
+    opacity: 0.6;
+}
+
+.nh-summary {
+    color: @myforeground;
+    font-weight: 800;
+}
+
+.nh-body {
+    color: @myforeground;
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.nh-empty {
+    color: @myforeground;
+    font-style: italic;
+    opacity: 0.6;
+    padding: 40px 0;
+}
+
+.nh-icon-btn {
+    background-color: transparent;
+    color: @myforeground;
+    border: none;
+    box-shadow: none;
+    padding: 3px;
+    min-width: 0;
+    min-height: 0;
+    opacity: 0.7;
+}
+
+.nh-icon-btn:hover {
+    color: @myforegroundhover;
+    opacity: 1;
+}
+
+.nh-icon-btn:disabled {
+    opacity: 0.3;
+}
+
+button:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.nh-clear-btn {
+    background-color: transparent;
+    color: @myforeground;
+    border: none;
+    box-shadow: none;
+    font-size: 11px;
+    padding: 1px 6px;
+    min-width: 0;
+    min-height: 0;
+    opacity: 0.7;
+}
+
+.nh-clear-btn label {
+    font-size: 11px;
+}
+
+.nh-clear-btn:hover {
+    color: @myforegroundhover;
+    background-color: alpha(@myforeground, 0.08);
+    opacity: 1;
+}
+
+.nh-clear-btn:disabled {
+    opacity: 0.3;
+}

@@ -1,0 +1,190 @@
+/* process_module.css -- pestaña "Procesos" del dashboard
+   (build_process_tab: administrador de tareas simple). Cargado con
+   waybar_lib.load_module_css() desde process_module.py -- comparte
+   pantalla con dashboard.css en vez de abrir una ventana propia. Solo
+   look redondeado -- el toggle "Bordes Redondeados"/trapezoide ya no
+   existe (eliminado, redondeado es el único look). */
+
+/* Botón sin caja (abre disk/disk_usage_popup.py) -- hover pasa al
+   acento, mismo criterio inverso que .process-services-btn. */
+.process-disk-label {
+    background-color: transparent;
+    background-image: none;
+    color: @myforeground;
+    border: none;
+    box-shadow: none;
+    font-weight: 600;
+    padding: 0;
+    min-height: 0;
+    margin: 0 4px 4px 4px;
+}
+.process-disk-label:hover {
+    color: @myforegroundhover;
+}
+
+/* Button: "Servicios" (process_module.py, abre services_popup.py) --
+   sin caja de fondo (pedido explícito del usuario, referencia del
+   launcher Android), mismo patrón ícono+acento que .menu-editor-btn en
+   menu_module.css: ícono+texto en acento como señal de "esto es
+   accionable", hover pasa el texto al color default del tema
+   (@myforeground); el ícono invierte igual pero eso lo maneja
+   _icon_text_button en Python (swap de pixbuf), no CSS. */
+.process-services-btn {
+    background-color: transparent;
+    color: @myforegroundhover;
+    border: none;
+    padding: 4px 0;
+    font-weight: 600;
+}
+.process-services-btn:hover {
+    color: @myforeground;
+}
+
+/* Fila de totales (_build_totals_row) -- debajo de #process-sort-row,
+   arriba de la lista (pedido explícito del usuario). Vive fuera del
+   Gtk.ListBox/scroller a propósito: siempre visible, nunca scrollea con
+   los procesos. Mismo padding que .process-row (columnas RAM/CPU
+   alineadas con las de abajo) + borde inferior propio para separarla
+   visualmente de la lista, ya que no tiene el hover/fondo de una fila
+   real que la distinga por sí sola. */
+.process-totals-row {
+    margin: 0 4px 8px 4px;
+    border-bottom: 1px solid alpha(@myforegroundhover, 0.25);
+    padding-bottom: 9px;
+}
+
+.process-totals-name {
+    color: @myforegroundhover;
+    font-weight: 700;
+}
+
+#process-scroller {
+    background-color: transparent;
+}
+
+#process-list {
+    background-color: transparent;
+}
+
+.process-row {
+    padding: 5px 8px;
+}
+
+/* Hover con fondo @mybackgroundhover (2026-09-28, cambio del usuario;
+   antes sin fondo, solo el nombre en acento) -- replicado en
+   #network-activity-list/#network-wifi-list de network_tab.css.
+   El `background-color: transparent` va en el nodo `row` BASE (no
+   solo en :hover) -- a diferencia de menu_module.css/bluetooth_tab.css/
+   firewall_popup.css/services_popup.css, este archivo nunca lo tenía
+   acá, solo en el contenedor #process-list (que no protege a las filas
+   hijas, background-color no hereda) -- confirmado leyendo
+   /usr/share/themes/adw-gtk3-dark/gtk-3.0/gtk.css, `row.activatable:hover
+   { background-color: alpha(currentColor,0.07); }` con el border-radius
+   default del tema, sin relación con nada de este repo, se filtraba
+   porque nada de acá lo tapaba. Reportado por el usuario: filas
+   redondeadas en hover pese a tener el slider en 0. */
+#process-list row {
+    background-color: transparent;
+    border-radius: 4px;
+}
+
+#process-list row:hover {
+    color: @myforegroundhover;
+    background-color: @mybackgroundhover;
+}
+
+.process-name {
+    color: @myforeground;
+}
+
+.process-stat {
+    color: @myforegroundhover;
+    font-size: 13px;
+    min-width: 60px;
+}
+
+.process-close-btn {
+    background-color: transparent;
+    color: @myforeground;
+    border: none;
+    box-shadow: none;
+    padding: 2px 6px;
+}
+.process-close-btn:hover {
+    color: @myforegroundhover;
+}
+
+#process-sort-row {
+    margin: 0 4px 8px 4px;
+}
+
+.sysmon-row {
+    margin-left: 290px;
+}
+
+.process-sort-label {
+    color: @myforegroundhover;
+    font-size: 13px;
+    margin-right: 2px;
+}
+
+/* Button: "RAM"/"CPU"/"Nombre" -- criterio de orden activo
+   (_build_sort_row) -- sin caja de fondo (pedido explícito del usuario,
+   referencia del launcher Android), mismo criterio que
+   .rotation-label-btn en theme_module.css: acento+negrita para el
+   activo en vez de un fondo sólido, hover pasa a color default. */
+.process-sort-btn {
+    background-color: transparent;
+    background-image: none;
+    color: @myforeground;
+    border: none;
+    box-shadow: none;
+    outline: none;
+    font-size: 13px;
+    padding: 2px 10px;
+}
+.process-sort-btn:hover {
+    color: @myforegroundhover;
+}
+.process-sort-btn.active {
+    color: @myforegroundhover;
+    font-weight: 700;
+}
+.process-sort-btn.active:hover {
+    color: @myforeground;
+}
+
+/* EventBox: cabecera clickeable de un grupo de procesos con más de una
+   instancia (_make_expander_row) -- EventBox y no Gtk.Expander/
+   Gtk.Button a propósito: confirmado a mano que Gtk.Expander no estira
+   su label_widget al ancho de la fila en este entorno (RAM/CPU quedaban
+   pegados al nombre en vez de a la derecha, ver _make_stat_row), así
+   que la flecha (Gtk.Image) y el toggle de expandir/colapsar se
+   manejan a mano. */
+.process-group-header {
+    color: @myforeground;
+}
+/* Sin fondo de hover -- mismo criterio que #process-list row:hover
+   arriba: el nombre (y la flecha, ícono simbólico que sigue
+   currentColor) pasan a acento, sin caja detrás. */
+.process-group-header:hover,
+.process-group-header:hover .process-name {
+    color: @myforegroundhover;
+}
+
+.process-instance-box {
+    margin-left: 30px;
+    margin-top: 2px;
+}
+
+.process-instance-row {
+    padding: 3px 8px;
+}
+.process-instance-row:hover .process-instance-pid {
+    color: @myforegroundhover;
+}
+
+.process-instance-pid {
+    color: @myforeground;
+    font-size: 13px;
+}

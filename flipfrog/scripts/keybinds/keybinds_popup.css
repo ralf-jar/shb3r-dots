@@ -1,0 +1,136 @@
+@import url("../../themer/global.css");
+
+window {
+    background-color: transparent;
+}
+
+/* @mybackground directo, sin borde (pedido explícito del usuario,
+   referencia del launcher Android) -- ver #container en dashboard.css
+   (razón completa del cambio 2026-09-01: un factor fijo ahí rompía el
+   blur con alphas bajos configurados por el usuario). */
+#keybinds-container {
+    background-color: @mybackground;
+    border-radius: 4px;
+    padding: 18px 24px 20px 24px;
+    min-width: 1120px;
+}
+
+/* Label: "Atajos de Teclado" -- centrado, mismo tamaño/negrita que
+   #header en theme-editor.css/#firewall-title en firewall_popup.css. */
+#keybinds-title {
+    color: @myforegroundhover;
+    font-weight: 900;
+    font-size: 17px;
+}
+
+/* Label: total de atajos, chip chico al lado del título */
+#keybinds-count {
+    color: @mybackground;
+    background-color: alpha(@myforegroundhover, 0.55);
+    font-size: 12px;
+    font-weight: 800;
+    border-radius: 4px;
+    padding: 1px 8px;
+    margin-bottom: 4px;
+}
+
+.keybinds-empty {
+    color: @myforeground;
+    font-style: italic;
+    padding: 12px 0;
+}
+
+#keybinds-scroller {
+    background-color: transparent;
+    margin-top: 10px;
+}
+
+/* Label: encabezado de cada grupo ("APLICACIONES"/"VENTANAS"/
+   "WORKSPACES") -- mismo criterio que .section-title en
+   theme-editor.css / #panel-subtitle en dashboard.css. */
+.keybinds-section-title {
+    color: @myforegroundhover;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    opacity: 0.8;
+    margin-bottom: 8px;
+}
+
+/* Box vertical: una por categoría, lado a lado dentro de
+   #keybinds-scroller (KeybindsPopup.__init__, columns_row) -- mismo
+   criterio que .section-column en theme-editor.css, reimplementado acá
+   (cada popup standalone es proceso/pantalla aparte, no comparten
+   CssProvider). */
+/* Sin separador vertical (pedido explícito del usuario, referencia del
+   launcher Android: "el espaciado es quien define el componente, no
+   requiere... ni bordes") -- el padding de 20px a cada lado (40px de
+   aire entre dos columnas vecinas) ya las distingue solo, mismo
+   criterio que .section-column en theme-editor.css. */
+.keybinds-column {
+    padding: 0 20px;
+    min-width: 330px;
+}
+
+.keybinds-column:first-child {
+    padding-left: 0;
+}
+
+.keybinds-column:last-child {
+    padding-right: 0;
+}
+
+#keybinds-list {
+    background-color: transparent;
+}
+
+.keybinds-listrow {
+    background-color: transparent;
+}
+
+/* Sin fondo de hover -- la descripción pasa a acento, mismo criterio
+   que #process-list row en process_module.css. La cápsula de tecla
+   (.keybinds-keycap) no cambia en hover -- ya lee como "tecla física"
+   por sí sola, sin depender del estado de la fila. */
+.keybinds-listrow:hover .keybinds-desc {
+    color: @myforegroundhover;
+}
+
+.keybinds-row {
+    padding: 6px 8px;
+}
+
+/* Label: una cápsula por tecla del combo, ej. [SUPER] [SHIFT] [C]
+   (keycap_row en _make_row) -- estilo "tecla física" en vez de un solo
+   chip de texto largo. */
+.keybinds-keycap {
+    color: @myforegroundhover;
+    background-color: alpha(@myforegroundhover, 0.14);
+    border: 1px solid alpha(@myforegroundhover, 0.35);
+    font-weight: 700;
+    font-size: 12px;
+    font-family: monospace;
+    border-radius: 4px;
+    padding: 3px 7px;
+    min-width: 10px;
+    /* Sombra dura 2px abajo/derecha -- pedido explícito del usuario,
+       look de "tecla física" con relieve hacia ese lado. */
+    box-shadow: 2px 2px 0 0 alpha(@myforegroundhover, 0.35);
+}
+
+.keybinds-desc {
+    color: @myforeground;
+    font-size: 14px;
+}
+
+/* Solo con --welcome (autostart tras instalar): pista + switch para no
+   volver a mostrarlo al iniciar sesión. */
+#keybinds-welcome {
+    margin-top: 14px;
+}
+
+.keybinds-welcome-hint {
+    color: @myforeground;
+    font-size: 14px;
+    opacity: 0.8;
+}

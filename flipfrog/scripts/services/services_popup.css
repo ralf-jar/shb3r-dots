@@ -1,0 +1,192 @@
+@import url("../../themer/global.css");
+ 
+window {
+    background-color: transparent;
+}
+
+/* @mybackground directo, sin multiplicar -- ver #container en
+   dashboard.css (razón completa del cambio 2026-09-01: un factor fijo
+   ahí rompía el blur con alphas bajos configurados por el usuario). */
+#services-container {
+    background-color: @mybackground;
+    padding: 16px 20px 18px 20px;
+    min-width: 620px;
+}
+
+#services-container {
+    border-radius: 4px;
+}
+
+/* Gtk.Notebook (services_popup.py) -- mismo criterio visual que
+   #dashboard-notebook en dashboard.css (proceso/pantalla aparte, no se
+   puede compartir el provider, hay que repetir las reglas acá). */
+#services-notebook {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+#services-notebook stack {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+#services-notebook header {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    border-bottom: 4px solid @myforegroundhover;
+    margin-bottom: 10px;
+}
+
+#services-notebook tab {
+    background-color: alpha(@myforegroundhover, 0.12);
+    border: none;
+    border-radius: 4px 4px 0 0;
+    box-shadow: none;
+    padding: 6px 14px;
+    margin: 0 2px;
+}
+
+#services-notebook tab label {
+    color: @myforeground;
+    font-weight: 500;
+}
+
+#services-notebook tab:checked label {
+    color: @myforeground;
+    box-shadow: none;
+    outline: none;
+}
+
+#services-notebook tab:checked {
+    background-color: @myforegroundhover;
+    border: none;
+    border-radius: 4px 4px 0 0;
+    box-shadow: none;
+    outline: none;
+    margin-bottom: 1px;
+}
+
+/* Entry: buscador (services_popup.py) -- mismo estilo que
+   .editor-name-entry en menu_module.css/"Aplicaciones": sin borde,
+   @mybackground + texto en acento y negrita. */
+entry {
+    background-color: @mybackground;
+    color: @myforegroundhover;
+    border: none;
+    border-radius: 4px;
+    font-weight: 800;
+    padding: 2px 8px;
+    min-height: 25px;
+    margin-bottom: 10px;
+}
+
+/* Label: aviso fijo de que las acciones piden contraseña de
+   administrador (pedido explícito del usuario, para que no sea
+   sorpresa) -- acento de color como una nota, no como texto de error. */
+#services-hint {
+    color: @myforeground;
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+/* Label: aviso fijo de la pestaña Autostart -- mismo look que
+   #services-hint, texto distinto (acá no hay contraseña de por medio,
+   el punto es aclarar que el cambio no aplica hasta el próximo login). */
+#autostart-hint {
+    color: @myforeground;
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+#services-scroller {
+    background-color: transparent;
+    padding: 6px;
+}
+
+#services-scroller {
+    border-radius: 4px;
+}
+
+#services-list {
+    background-color: transparent;
+}
+#services-list row {
+    color: @myforeground;
+}
+
+/* Sin fondo de hover (pedido explícito del usuario, referencia del
+   launcher Android) -- el color del nombre es la señal, no una caja
+   detrás; mismo criterio que #process-list row en process_module.css. */
+#services-list row:hover .services-name {
+    color: @myforegroundhover;
+}
+
+.services-row {
+    padding: 3px 4px;
+}
+
+/* Borde punteado abajo del nombre -- pista visual de que hay más info
+   al pasar el mouse (services_wiki.describe(), ver services_popup.py),
+   mismo criterio que un `title=` subrayado en HTML. */
+.services-name {
+    color: @myforeground;
+    font-size: 14px;
+    border-bottom: 1px dotted alpha(@myforegroundhover, 0.5);
+}
+
+/* Button: "Habilitado"/"Deshabilitado" (persiste al boot) y
+   "Activo"/"Inactivo" (corriendo ahora) -- mismo criterio visual que
+   .firewall-enable-btn: activo = fondo @myforegroundhover. Dos clases
+   separadas (no una compartida) porque a futuro pueden necesitar un
+   acento de color distinto entre sí -- por ahora se ven igual a
+   propósito, son el mismo tipo de control. */
+.services-enable-btn,
+.services-active-btn {
+    color: @myforeground;
+    background-color: @mybackground;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    padding: 3px 10px;
+}
+.services-enable-btn:hover,
+.services-active-btn:hover {
+    background-color: alpha(@myforegroundhover, 0.3);
+}
+.services-enable-btn:checked,
+.services-active-btn:checked {
+    background-color: @myforegroundhover;
+    color: @mybackground;
+    font-weight: 700;
+}
+.services-enable-btn:disabled {
+    color: @myforeground;
+    opacity: 0.5;
+}
+
+.services-status-label {
+    color: @myforeground;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+/* Button: ícono de copiar (services_popup.py, _on_copy_clicked) --
+   mismo criterio visual que .firewall-delete-btn: chico, sin fondo
+   propio salvo hover. */
+.services-copy-btn {
+    background-color: transparent;
+    background-image: none;
+    color: @myforeground;
+    border: none;
+    box-shadow: none;
+    outline: none;
+    padding: 2px 6px;
+}
+.services-copy-btn:hover {
+    color: @myforegroundhover;
+}

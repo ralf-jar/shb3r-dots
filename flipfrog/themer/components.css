@@ -1,0 +1,46 @@
+/* components.css -- reglas de componentes GTK repetidas entre módulos
+   del dashboard de flipfrog (no tokens/reset, eso es global.css). Ver
+   memoria del usuario "consolidar componentes compartidos" para el
+   audit completo de los 25 .css de flipfrog (11 grupos de
+   duplicados) -- este archivo arranca con el primero migrado, no es
+   una consolidación completa todavía.
+
+   Cargado UNA sola vez por dashboard.py (mismo mecanismo que
+   toggle_common.css, waybar_lib.load_module_css()) para los módulos
+   embebidos que comparten pantalla con el dashboard. Un popup
+   standalone que necesite alguna de estas clases tiene que
+   `@import url(...)` este archivo él mismo, igual que ya hace con
+   global.css (ver dashboard.css/toggle_common.css como referencia de
+   qué NO hace falta acá: colores/reset van en global.css, esto es
+   solo estructura+color de componentes reales). */
+
+/* Botón ícono-solo (checkmark "object-select-symbolic") para
+   confirmar un campo editable inline -- reloj/rotación de temas
+   (theme_module.py: rotate_apply_btn/radius_apply_btn), delay de
+   autoconexión Bluetooth (bluetooth_tab.py) y nombre de sink de audio
+   (sound_module.py). Antes cada módulo declaraba esta clase por su
+   cuenta con el MISMO nombre ".apply-btn" -- como los tres comparten
+   pantalla con dashboard.py, las tres reglas competían por el mismo
+   selector y ganaba la que se hubiera cargado último (orden de
+   pestaña visitada, no el archivo "dueño"). sound_module.css tenía
+   `background-color: transparent` en vez de `@mybackground` sin
+   ningún comentario que lo justifique -- drift accidental, no una
+   variante a propósito (los otros dos, y todo el resto de la regla,
+   eran idénticos) -- se resuelve acá con el valor mayoritario.
+
+   Chico a propósito, no una pastilla de ancho completo (ver
+   .action-link-btn/grupo 2 del audit para ese otro patrón).
+   min-height igual al de los Gtk.Entry que acompaña (25px) para que
+   el widget completo (no solo el ícono) tenga la misma altura natural
+   -- junto con valign(CENTER) en Python del lado del botón Y del
+   entry, evita que uno quede más alto que el otro y se estire hacia
+   abajo (confirmado a mano en theme_module.py). */
+.apply-btn {
+    background-color: @mybackground;
+    color: @myforeground;
+    border: none;
+    border-radius: 25px;
+    min-width: 0;
+    min-height: 25px;
+    padding: 0 6px;
+}

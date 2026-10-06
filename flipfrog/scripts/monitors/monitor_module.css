@@ -1,0 +1,140 @@
+/* monitor_module.css -- pestaña "Monitores" del dashboard
+   (build_monitor_tab). Mismo criterio que theme_module.css: comparte
+   pantalla con dashboard.css, sin ventana propia. */
+
+.module.monitor-module {
+    padding: 8px 24px;
+}
+
+.monitor-empty {
+    color: @myforeground;
+    font-style: italic;
+    padding: 4px 0;
+}
+
+/* Canvas de posición (Gtk.DrawingArea, todo el dibujo es cairo en
+   monitor_module.py) -- sin fondo propio, transparente sobre el popup. */
+#monitor-canvas {
+    background-color: transparent;
+    margin-bottom: 10px;
+}
+
+.monitor-panel {
+    padding: 4px 2px;
+}
+
+/* Encendido/Principal ahora usan build_switch_row (waybar_lib.py) --
+   estilo compartido con los toggles de "Sistema"/"Panel", ver
+   toggles/toggle_common.css (cargado una vez por dashboard.py, sin CSS
+   propio acá). */
+
+.monitor-fields-row {
+    margin-top: 8px;
+}
+
+.monitor-field-label {
+    color: @myforegroundhover;
+    font-size: 14px;
+}
+
+.monitor-panel spinbutton entry {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    padding-top: 8px;
+}
+
+.monitor-panel spinbutton {
+    background-color: @mybackground;
+    border: none;
+    box-shadow: none;
+    padding-top: 8px;
+}
+
+.monitor-panel spinbutton button {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    padding-bottom: 4px;
+}
+
+.monitor-mode-combo button.combo {
+    background-color: @mybackground;
+    border: none;
+    box-shadow: none; 
+}
+
+.monitor-mirror-combo button.combo {
+    background-color: @mybackground;
+    border: none;
+    box-shadow: none;
+}
+
+#monitor-apply-row {
+    margin-top: 10px;
+}
+
+/* "Alto Contraste" -- switch global, sección "Global" (ver
+   monitor_module.py::_build_section_header). */
+#monitor-contrast-row {
+    margin-bottom: 14px;
+}
+
+/* Título de sección ("Global"/"Individual") + línea -- mismo patrón
+   que theme_module.css (#theme-title-row/#theme-title/
+   #theme-title-divider), pedido explícito del usuario 2026-09-06 para
+   separar el switch global del resto (por monitor). */
+#monitor-section-row {
+    margin-bottom: 10px;
+}
+
+#monitor-section-row:not(:first-child) {
+    margin-top: 16px;
+}
+
+#monitor-section-title {
+    color: @myforegroundhover;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#monitor-section-divider {
+    background-color: alpha(@myforegroundhover, 0.25);
+    min-height: 1px;
+}
+
+.monitor-status-label {
+    color: @myforeground;
+    font-size: 14px;
+    opacity: 0.85;
+}
+
+.monitor-status-label.warning {
+    color: @myforegroundhover;
+    font-weight: 600;
+    opacity: 1;
+}
+
+/* Sin fondo -- comparte el del popup (mismo patrón que .bluetooth-scan-btn,
+   ícono+texto vía _icon_text_button). */
+.monitor-apply-btn {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    color: @myforegroundhover;
+    padding: 6px 0;
+    font-weight: 600;
+}
+
+.monitor-apply-btn:hover {
+    color: @myforeground;
+}
+
+.monitor-apply-btn:disabled {
+    opacity: 0.4;
+}
+
+.monitor-apply-btn:focus {
+    outline: none;
+    box-shadow: none;
+}

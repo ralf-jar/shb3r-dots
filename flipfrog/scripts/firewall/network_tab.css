@@ -1,0 +1,242 @@
+/* network_tab.css -- pestaña "Red" del dashboard (build_network_tab:
+   info de la conexión activa + actividad de red por proceso en vivo).
+   Cargado con waybar_lib.load_module_css() desde network_tab.py --
+   comparte pantalla con dashboard.css en vez de abrir una ventana
+   propia. Nombre distinto de firewall_popup.css (esa es la ventana
+   aparte del administrador de UFW). Look redondeado siempre -- el
+   toggle "Bordes Redondeados"/trapezoide ya no existe (eliminado). */
+
+/* Button: "Firewall" (ícono real de Papirus-Dark, "firewall-config", no
+   emoji -- pedido explícito del usuario) -- abre firewall_popup.py
+   (ventana aparte, ver ese archivo). Sin caja de fondo (pedido
+   explícito del usuario, referencia del launcher Android): el ícono a
+   color + el texto en acento ya señalan "esto es accionable", hover
+   pasa el texto al color default del tema -- el ícono no invierte (es
+   un ícono real del tema, no uno monocromo propio, ver
+   network_tab.py). */
+.network-firewall-btn {
+    background-color: transparent;
+    background-image: none;
+    color: @myforegroundhover;
+    border: none;
+    box-shadow: none;
+    outline: none;
+    padding: 4px 0;
+    font-weight: 600;
+}
+.network-firewall-btn:hover {
+    color: @myforeground;
+}
+
+/* Subtítulo + línea (_section_title_row en network_tab.py) -- mismo
+   patrón que #theme-title-row en theme_module.css -- reemplaza la caja
+   con fondo que envolvía "Conexión activa"/"Actividad de red" antes
+   (pedido explícito del usuario, referencia del launcher Android). */
+.network-title-row {
+    margin-bottom: 6px;
+}
+
+.network-section-title {
+    color: @myforegroundhover;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.network-title-divider {
+    background-color: alpha(@myforegroundhover, 0.25);
+    min-height: 1px;
+}
+
+#network-info-section {
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+.network-info-empty {
+    color: @myforeground;
+    font-style: italic;
+}
+
+.network-info-row {
+    color: @myforeground;
+    font-size: 14px;
+}
+
+.network-info-label {
+    color: @myforeground;
+    font-weight: 600;
+    font-size: 13px;
+    min-width: 90px;
+}
+
+/* ---- Sección "Actividad de red" (nethogs) ---- */
+
+#network-activity-section {
+    margin-top: 10px;
+}
+
+/* "Monitor de red" ahora es una fila ícono+etiqueta+Gtk.Switch real
+   (waybar_lib.build_switch_row, ver network_tab.py) -- comparte
+   .toggle-list-row/.toggle-icon-chip/.toggle-row-label/.toggle-row-switch
+   con los 9 toggles de "Sistema"/"Panel" (toggle_common.css, cargado
+   una sola vez por dashboard.py), pedido explícito del usuario: que
+   siga esa misma línea de diseño. Sin CSS propio acá -- ese es
+   justamente el punto de reusar el componente compartido. */
+
+#network-activity-scroller {
+    background-color: transparent;
+    min-height: 90px;
+}
+
+#network-activity-list {
+    background-color: transparent;
+}
+/* background-color/border-radius acá (no solo en el contenedor
+   #network-activity-list, que no protege a las filas hijas -- no
+   hereda) -- sin esto se filtraba el fondo/radio default de hover del
+   tema GTK del sistema (adw-gtk3-dark, `row.activatable:hover`), mismo
+   patrón que ya tenían bien #menu-app-list row en menu_module.css/
+   #bluetooth-device-list row/#firewall-rule-list row/#services-list
+   row -- este archivo era uno de los dos que no lo tenían (el otro,
+   process_module.css). Reportado por el usuario: filas redondeadas en
+   hover pese a tener el slider en 0. */
+#network-activity-list row {
+    background-color: transparent;
+    border-radius: 4px;
+    color: @myforeground;
+}
+/* Hover con fondo, mismo criterio que #process-list row en
+   process_module.css. */
+#network-activity-list row:hover {
+    color: @myforegroundhover;
+    background-color: @mybackgroundhover;
+}
+
+.network-activity-row {
+    padding: 3px 8px;
+}
+
+.network-activity-empty {
+    color: @myforeground;
+    font-style: italic;
+    padding: 8px 4px;
+}
+
+.network-activity-name {
+    color: @myforeground;
+    font-size: 14px;
+}
+
+.network-activity-sent {
+    color: #e6c260;
+    font-size: 13px;
+}
+
+.network-activity-recv {
+    color: #8fd693;
+    font-size: 13px;
+}
+
+/* ---- Sección "Wifi" (wifi_state.py/wifi_actions.py) ---- */
+
+#network-wifi-section {
+    margin-top: 8px;
+}
+
+/* Botón "Buscar redes" -- mismo look que .bluetooth-scan-btn (sin caja
+   de fondo, acento en reposo, color default en hover). */
+.network-wifi-scan-btn {
+    background-color: transparent;
+    color: @myforegroundhover;
+    border: none;
+    padding: 4px 0;
+    font-weight: 600;
+}
+.network-wifi-scan-btn:hover {
+    color: @myforeground;
+}
+
+.network-wifi-status-label {
+    color: @myforegroundhover;
+    font-size: 13px;
+    font-style: italic;
+    margin: 2px 2px 6px 2px;
+}
+
+#network-wifi-scroller {
+    background-color: transparent;
+}
+
+#network-wifi-list {
+    background-color: transparent;
+}
+#network-wifi-list row {
+    background-color: transparent;
+    border-radius: 4px;
+    color: @myforeground;
+}
+#network-wifi-list row:hover {
+    color: @myforegroundhover;
+    background-color: @mybackgroundhover;
+}
+
+.network-wifi-row {
+    padding: 5px 8px;
+    margin: 4px 0;
+}
+
+.network-wifi-name {
+    color: @myforeground;
+    font-size: 14px;
+}
+
+/* Ícono de señal (_signal_icon_name) -- ícono simbólico del tema
+   (Papirus), no uno de los SVG propios recoloreados a mano -- por eso
+   la propiedad `color` sí le pega directo, sin necesitar el truco de
+   recoloreo manual que usan connect.svg/disconnect.svg en
+   bluetooth_tab.py. El tamaño real NO se controla acá -- sale de
+   Gtk.IconSize.SMALL_TOOLBAR en network_tab.py. */
+.network-wifi-signal-icon {
+    color: @myforeground;
+    margin-left: 10px;
+}
+
+/* Input de contraseña inline en la fila (_build_password_input) --
+   mismo estilo que #bluetooth-autoconnect-row entry en
+   bluetooth_tab.css, pero min-height 18px (no 25px) -- a diferencia de
+   esa fila (que vive sola, fuera de una lista), este input reemplaza
+   al switch de la fila mientras pide contraseña, y el switch mide 18px
+   (switch.toggle-row-switch, toggle_common.css) -- con 25px la fila en
+   modo contraseña quedaba más alta que el resto de filas de la lista. */
+.network-wifi-password-entry {
+    background-color: @mybackground;
+    color: @myforegroundhover;
+    border: none;
+    border-radius: 4px;
+    font-weight: 800;
+    padding: 0px 15px;
+    margin:0px;
+}
+
+/* Botón [check] de confirmar -- NO reusa la clase compartida .apply-btn
+   (theme_module.css/bluetooth_tab.css, min-height 25px) a propósito:
+   las tres hojas de estilo conviven en la misma pantalla (ver
+   waybar_lib.load_module_css) y una clase con el mismo nombre pero
+   valores DISTINTOS entre archivos se pisa entre sí según orden de
+   carga -- confirmado que rompía la altura acá. Nombre propio, mismo
+   motivo que min-height 18px del input de arriba (igualar al switch
+   de 18px que reemplaza). */
+.network-wifi-confirm-btn {
+    background-color: transparent;
+    color: @myforeground;
+    border: none;
+    border-radius: 4px;
+    min-width: 0;
+    min-height: 20px;
+    padding: 0px 15px;
+    margin:0px;
+}
+
+.network-wifi-confirm-btn:hover{
+    color: @myforegroundhover;
+}

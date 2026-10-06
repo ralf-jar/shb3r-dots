@@ -1,0 +1,820 @@
+@import url("../../themer/global.css");
+
+window {
+    background-color: transparent;
+}
+
+#container {
+    background-color: @mybackground;
+    border-radius: 4px;
+    padding: 24px 28px;
+    min-width: 560px;
+}
+
+#search-row {
+    margin-bottom: 14px;
+}
+
+/* "Buscar"/"Favoritos" (bandcamp_popup.py, tabs_row/_switch_tab) -- dos botones
+   normales, no un Gtk.Notebook (ver comentario en _build_ui). El activo
+   se distingue con @myforegroundhover de fondo, mismo criterio que
+   .genre-btn.active/.subgenre-btn.active. */
+#tabs-row {
+    margin-bottom: 14px;
+}
+
+/* Sin caja de fondo en reposo (pedido explícito del usuario, referencia
+   del launcher Android: "el espaciado es quien define el componente,
+   no requiere de un color hover, ni bordes") -- antes las dos pestañas
+   (activa e inactiva) tenían fondo propio, ahora solo la ACTIVA lo
+   conserva (.tab-btn.active más abajo), mismo criterio que el selector
+   de pestañas de dashboard.py (Sistema/Temas/etc., ver
+   .dashboard-tab-btn en dashboard.css). */
+.tab-btn {
+    background-color: transparent;
+    background-image: none;
+    color: alpha(@myforeground, 0.65);
+    border: none;
+    box-shadow: none;
+    outline: none;
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.tab-btn:hover {
+    background-color: transparent;
+    color: @myforegroundhover;
+}
+
+.tab-btn.active {
+    background-color: @myforegroundhover;
+    color: @mybackground;
+}
+
+.tab-btn.active:hover {
+    color: @mybackground;
+}
+
+/* Mismo estilo que .editor-name-entry en menu_module.css/"Aplicaciones"
+   (dashboard de Waybar) -- ahora la referencia para cualquier entry del
+   repo: sin borde, @mybackground + texto en acento y negrita. */
+entry {
+    color: @myforegroundhover;
+    background-color: @mybackground;
+    border: none;
+    border-radius: 4px;
+    font-weight: 800;
+    padding: 2px 12px;
+    min-height: 0;
+}
+
+combobox button {
+    background-color: @mybackground;
+    color: @myforegroundhover;
+    border: none;
+    box-shadow: none;
+    font-weight: 800;
+    border-radius: 4px;
+}
+
+/* Label: contador de saltadas / estado de búsqueda (bandcamp_popup.py, status_label) */
+/* Texto más pronunciado (antes 11px/0.6 de alpha, casi invisible) --
+   pedido explícito del usuario, ahora vive justo debajo del buscador. */
+#status-label {
+    color: alpha(@myforeground, 0.85);
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+/* Tarjeta "reproduciendo ahora" (bandcamp_popup.py, now_playing box) -- ahora
+   vertical (top_row con carátula+info, tags_row debajo), ya no solo la
+   fila de arriba. margin-bottom en 0: es la última cosa en la ventana
+   (progreso/controles/tags se mudaron adentro), el padding de
+   #container ya pone aire abajo. Sin fondo propio (pedido explícito del
+   usuario, 2026-08-20) -- ahora que "Reproductor" es su propia pestaña
+   (antes compartía con el buscador), el fondo con blur de #container ya
+   alcanza, un segundo fondo gris encima se sentía redundante. */
+#now-playing {
+    border-radius: 4px;
+    padding: 18px;
+}
+
+/* Fondo/color solo se ven mientras muestra el ícono placeholder
+   (PLACEHOLDER_ART_ICON, bandcamp_popup.py _set_placeholder_art) -- una carátula
+   real ya es un pixbuf a pantalla completa que los tapa, GTK3 no recorta
+   un Gtk.Image por CSS (ver _round_corners), pero SÍ pinta el fondo del
+   widget con el border-radius de acá. */
+#art-image {
+    background-color: alpha(@myforegroundhover, 0.12);
+    color: alpha(@myforeground, 0.55);
+    border-radius: 4px;
+    margin-right: 16px;
+}
+
+/* Label: título de la pista actual (bandcamp_popup.py, title_label) -- Gtk.Label
+   normal, no clickeable. */
+#title-label {
+    color: @myforeground;
+    font-weight: 800;
+    font-size: 22px;
+}
+
+/* artist_label/album_label son Gtk.Button (_build_info_button en
+   bandcamp_popup.py), no Gtk.Label -- clic en el álbum lo reproduce completo
+   (antes el botón separado "Reproducir álbum", eliminado a pedido del
+   usuario), clic en el artista busca su discografía. Reset del chrome
+   de botón genérico ("button"/"button:hover" más abajo) para que se
+   sigan viendo como el texto plano que eran. */
+/* margin/min-height en 0 -- un Gtk.Button sin esto reserva algo más de
+   alto que un Gtk.Label aunque el padding ya esté en 0, y eso desparejaba
+   el espaciado entre título/artista/álbum (título es Label, estos dos no). */
+#artist-label, #album-label {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+    min-height: 0;
+}
+
+/* Label: artista/sello (bandcamp_popup.py, artist_label) */
+#artist-label {
+    color: @myforegroundhover;
+    font-weight: 600;
+}
+
+/* El "font-size" de arriba no alcanza -- artist_label/album_label son
+   Gtk.Button con un Gtk.Label adentro (_build_info_button), y el "*"
+   universal de flipfrog/themer/global.css fija font-size:15px directo en cada
+   nodo label, ganándole a lo que se declare en el botón ancestro (ver
+   "Gotchas transversales" en CLAUDE.md: una regla que matchea directo
+   un nodo gana sobre una heredada, sin importar especificidad). Hay que
+   pisarlo en el label mismo. */
+#artist-label label, #album-label label {
+    font-size: 19px;
+}
+
+#artist-label:hover {
+    background-color: transparent;
+    color: @myforegroundhover;
+}
+
+/* Label: nombre del álbum (bandcamp_popup.py, album_label) */
+#album-label {
+    color: alpha(@myforeground, 0.55);
+    font-weight: 600;
+}
+
+#album-label:hover {
+    background-color: transparent;
+    color: @myforegroundhover;
+}
+
+button {
+    color: @myforeground;
+    background-color: @mybackgroundhover;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 14px;
+}
+
+button:hover {
+    background-color: @myforegroundhover;
+    color: @mybackground;
+}
+
+/* Un Gtk.Button recibe foco de teclado al clickearlo y el tema lo dibuja
+   con su propio :focus (outline/sombra) que queda pegado hasta que el
+   foco se mueve a otro lado -- pedido explícito del usuario: sin esto
+   quedaba una "decoración" visible en cualquier componente clickeable
+   (chips, flechas, controles, etc.) después de cada clic. Genérico sobre
+   "button" a propósito, para cubrir todos los botones del repo de una
+   sola vez en vez de repetirlo por clase. No toca "entry" -- el foco del
+   buscador sí debe verse. */
+button:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Histórico de usuarios de wishlist (bandcamp_popup.py, wishlist_flow/
+   _rebuild_wishlist_history) -- solo visible en modo "Wishlist" del
+   combo. Mismo mecanismo de tira que tags_flow (flechas, sin scrollbar,
+   _build_scroll_strip) pero sin fondo de color -- es una lista de
+   selección rápida, no una franja de género/subgénero. */
+#wishlist-history-row {
+    margin-bottom: 6px;
+}
+
+#wishlist-history-scroller {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+#wishlist-history-scroller scrollbar {
+    opacity: 0;
+    min-height: 0;
+    min-width: 0;
+}
+
+#wishlist-history-row .strip-arrow-btn:hover {
+    color: @myforegroundhover;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+/* Chip individual del histórico -- mismo tamaño/forma que .subgenre-btn,
+   reimplementado aparte (no reusar esa clase) para no atarlo
+   semánticamente a "subgénero". */
+.history-chip {
+    background-color: @mybackground;
+    color: alpha(@myforeground, 0.85);
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-size: 12px;
+    margin: 2px;
+}
+
+.history-chip:hover {
+    background-color: @mybackgroundhover;
+    color: @myforegroundhover;
+}
+
+/* Géneros predefinidos estilo Bandcamp (bandcamp_popup.py, genres_flow/
+   _build_genre_chip) -- clic busca ese género y despliega
+   subgenres_flow con sus subgéneros más populares. Cada fila es
+   "‹ [tira de chips, sin scrollbar] ›" (_build_scroll_strip en
+   bandcamp_popup.py) -- se navega con las flechas o la rueda del mouse
+   (_on_strip_scroll), nunca con un scrollbar visible. */
+/* Tira de géneros = @myforegroundhover, tira de subgéneros =
+   @myforegroundhover2 -- son las dos franjas de color fuerte, a
+   propósito distintas entre sí para que se note dónde termina una
+   sección y empieza la otra. El fondo/radio va en la FILA completa
+   (row), no solo en el scroller -- así las flechas quedan dentro de la
+   misma cápsula que los chips en vez de flotar sueltas afuera sobre el
+   fondo oscuro del contenedor (pedido explícito del usuario). Padding
+   en la fila (antes en el scroller) por el mismo motivo: tiene que
+   separar del borde redondeado tanto a los chips como a las flechas. */
+#genres-row {
+    background-color: @myforegroundhover;
+    border-radius: 4px;
+    padding: 4px 6px;
+    margin-bottom: 6px;
+}
+
+#subgenres-row {
+    background-color: @myforegroundhover2;
+    border-radius: 4px;
+    padding: 4px 6px;
+    margin-bottom: 12px;
+}
+
+#genres-scroller, #subgenres-scroller {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+/* Sigue siendo un ScrolledWindow real (policy AUTOMATIC, overlay
+   scrolling ON, ver bandcamp_popup.py) -- esto solo apaga la barra VISUAL, no
+   la capacidad de scrollear (se navega con las flechas/rueda del
+   mouse). opacity:0 en vez de display:none -- GTK no tiene esa
+   propiedad, y min-height/width:0 por si la versión de GTK reserva
+   algo de espacio pese al overlay scrolling. */
+#genres-scroller scrollbar, #subgenres-scroller scrollbar {
+    opacity: 0;
+    min-height: 0;
+    min-width: 0;
+}
+
+/* Flechas para desplazar la tira a mano (bandcamp_popup.py,
+   _on_strip_arrow_clicked) -- circulares y sin fondo propio, mismo
+   criterio que #prev-btn/#skip-btn del transporte de más abajo. El
+   color de hover usa el acento de SU tira (myforegroundhover en
+   géneros, myforegroundhover2 en subgéneros) para que se sienta parte
+   de esa franja en particular. */
+/* min-width/min-height en 0 -- sin esto el botón reserva el tamaño
+   mínimo default del tema (más grande que el ícono de 14px + el padding
+   de 6px declarados acá), y ese sobrante se veía como un margen enorme
+   entre la flecha y el primer chip dentro de la misma cápsula. */
+.strip-arrow-btn {
+    padding: 6px;
+    min-width: 0;
+    min-height: 0;
+    background-color: transparent;
+    color: alpha(@myforeground, 0.6);
+    border-radius: 4px;
+    border: none;
+    box-shadow: none;
+}
+
+#genres-row .strip-arrow-btn:hover {
+    color: @myforegroundhover;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+#subgenres-row .strip-arrow-btn:hover {
+    color: @myforegroundhover2;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+/* Chip sin seleccionar: fondo @mybackground (contraste contra la tira
+   de color) -- seleccionado: @mybackgroundhover de fondo y el mismo
+   color de la tira que lo contiene como texto (myforegroundhover en
+   géneros, myforegroundhover2 en subgéneros), para que quede claro a
+   cuál de las dos franjas pertenece ese chip activo. */
+.genre-btn {
+    background-color: @mybackground;
+    color: alpha(@myforeground, 0.85);
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-size: 13px;
+    margin: 2px;
+}
+
+.genre-btn:hover {
+    background-color: @mybackgroundhover;
+    color: @myforegroundhover;
+}
+
+.genre-btn.active {
+    background-color: @mybackgroundhover;
+    color: @myforegroundhover;
+}
+
+/* Subgéneros del género activo (bandcamp_popup.py, subgenres_flow/
+   _rebuild_subgenres) -- clic combina género+subgénero y busca. */
+.subgenre-btn {
+    background-color: @mybackground;
+    color: alpha(@myforeground, 0.85);
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-size: 12px;
+    margin: 2px;
+}
+
+.subgenre-btn:hover {
+    background-color: @mybackgroundhover;
+    color: @myforegroundhover2;
+}
+
+.subgenre-btn.active {
+    background-color: @mybackgroundhover;
+    color: @myforegroundhover2;
+}
+
+/* Tags navegables del álbum actual (bandcamp_popup.py, tags_flow/_build_tag_chip)
+   -- mismo mecanismo de tira que genres_flow/subgenres_flow (flechas,
+   sin scrollbar visible, lógica de :hover/.active en .tag-label-btn/
+   .tag-add-btn más abajo) pero SIN el fondo de color de esas dos --
+   ahora vive dentro de la tarjeta #now-playing (pedido explícito del
+   usuario), que ya tiene su propio fondo. */
+#tags-row {
+    margin-bottom: 0;
+}
+
+#tags-scroller {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+#tags-scroller scrollbar {
+    opacity: 0;
+    min-height: 0;
+    min-width: 0;
+}
+
+#tags-row .strip-arrow-btn:hover {
+    color: @myforegroundhover;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.tag-chip {
+    margin: 2px;
+}
+
+/* Button: nombre del tag -- clic busca SOLO ese tag (bandcamp_popup.py, _on_tag_search_clicked) */
+.tag-label-btn {
+    background-color: @mybackground;
+    color: alpha(@myforeground, 0.85);
+    border-radius: 4px 0 0 4px;
+    padding: 3px 10px;
+    font-size: 12px;
+}
+
+.tag-label-btn:hover {
+    background-color: @mybackgroundhover;
+    color: @myforegroundhover;
+}
+
+/* Button: "+" -- suma el tag a la búsqueda actual (bandcamp_popup.py, _on_tag_add_clicked) */
+.tag-add-btn {
+    background-color: @mybackground;
+    color: @myforegroundhover2;
+    border-radius: 0 4px 4px 0;
+    padding: 3px 8px;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.tag-add-btn:hover {
+    background-color: @mybackgroundhover;
+    color: @myforegroundhover2;
+}
+
+/* Secciones plegables (bandcamp_popup.py, _build_collapsible_section) --
+   Recomendaciones y Álbumes de <banda>, colapsadas por default. El
+   botón de título ocupa todo el ancho y queda alineado a la izquierda
+   (texto "▸/▾ <título>") en vez de centrado como un botón normal. */
+#recs-header, #artist-albums-header, #tags-header, #local-tracks-header {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 2px 0;
+    margin: 0;
+    min-height: 0;
+}
+
+#recs-header label, #artist-albums-header label, #tags-header label, #local-tracks-header label {
+    color: alpha(@myforeground, 0.75);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+#recs-header:hover label, #artist-albums-header:hover label, #tags-header:hover label, #local-tracks-header:hover label {
+    color: @myforegroundhover;
+}
+
+#recs-section, #artist-albums-section, #tags-section, #local-tracks-section {
+    margin-top: 4px;
+}
+
+/* Subtítulo de cada sub-tira de recomendaciones (ej. "If you like X,
+   you may also like:") -- texto real de Bandcamp, se muestra tal cual. */
+.recs-subtitle {
+    color: alpha(@myforeground, 0.55);
+    font-size: 13px;
+    margin-top: 2px;
+}
+
+/* Tiras de carátulas (recs-strip-0/1 -- a lo sumo 2 secciones reales,
+   ver bandcamp_api.RECS_SECTION_RE -- y artist-albums) sin fondo de
+   color, mismo criterio que #tags-scroller. */
+#recs-strip-0-scroller, #recs-strip-1-scroller, #artist-albums-scroller,
+#catalog-scroller {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+#recs-strip-0-scroller scrollbar, #recs-strip-1-scroller scrollbar,
+#artist-albums-scroller scrollbar, #catalog-scroller scrollbar {
+    opacity: 0;
+    min-height: 0;
+    min-width: 0;
+}
+
+#recs-strip-0-row .strip-arrow-btn:hover, #recs-strip-1-row .strip-arrow-btn:hover,
+#artist-albums-row .strip-arrow-btn:hover, #catalog-row .strip-arrow-btn:hover {
+    color: @myforegroundhover;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+/* Catálogo elegible (pestaña "Buscar", bandcamp_popup.py _rebuild_catalog) -- sin
+   colapsar como Recomendaciones/Álbumes (no hay #catalog-header, ver
+   _build_scroll_strip vs _build_collapsible_section), pero mismo aire
+   arriba que cualquier sección nueva de la tarjeta. */
+#catalog-row {
+    margin-top: 4px;
+}
+
+/* Chip de carátula chica (bandcamp_popup.py, _build_album_chip) -- min-width/
+   height en 0 por el mismo motivo que .strip-arrow-btn: sin esto el
+   botón reserva más espacio que la imagen de ALBUM_CHIP_SIZE, dejando
+   un margen enorme entre chips. */
+.album-chip {
+    padding: 2px;
+    margin: 2px;
+    min-width: 0;
+    min-height: 0;
+    background-color: transparent;
+    border-radius: 4px;
+    border: none;
+    box-shadow: none;
+}
+
+.album-chip:hover {
+    background-color: @mybackgroundhover;
+}
+
+/* Catálogo elegible (pestaña "Buscar") -- carátulas 2.3x más grandes que
+   el resto de las tiras (bandcamp_popup.py CATALOG_CHIP_SIZE/_build_album_chip),
+   mismo radio proporcional que ALBUM_CHIP_RADIUS horneado en el pixbuf. */
+.album-chip.catalog-chip {
+    border-radius: 4px;
+    margin: 3px;
+}
+
+/* Año debajo de la carátula chica (bandcamp_popup.py, _build_album_chip) -- solo
+   presente en discografía de artista, fetch_recommendations() no tiene
+   esa fecha disponible (ver comentario en bandcamp_popup.py). */
+.album-chip-year {
+    color: alpha(@myforeground, 0.5);
+    font-size: 11px;
+}
+
+/* Pista puntual que arrancaría (catálogo elegible, discover/wishlist --
+   ver bandcamp_popup.py _build_album_chip `subtitle`) -- mismo lugar/tamaño que
+   .album-chip-year, texto libre en vez de un año. */
+.album-chip-subtitle {
+    color: alpha(@myforeground, 0.5);
+    font-size: 11px;
+}
+
+/* Barra de progreso (bandcamp_popup.py, progress_scale/time_label) -- ahora
+   dentro de info_box/#now-playing (antes suelta bajo la tarjeta), así
+   que el margen de abajo bajó de 10 a 6px, la tarjeta ya no necesita
+   tanto aire interno como el que tenía como fila suelta. */
+#progress-row {
+    margin-bottom: 6px;
+}
+
+/* trough era @mybackgroundhover -- el mismo color que el fondo de la
+   tarjeta #now-playing, así que el tramo restante (sin tocar todavía
+   por highlight) quedaba invisible contra ese fondo. */
+#progress-scale trough {
+    background-color: @myforeground;
+    border-radius: 4px;
+    min-height: 6px;
+}
+
+#progress-scale highlight {
+    background-color: @mybackgroundhover;
+    border-radius: 4px;
+    border-bottom-right-radius: 0px;
+    border-top-right-radius: 0px;
+    min-height: 6px;
+    margin-left: -2px;
+}
+
+/* Marcador del progreso -- frog-marker.png lo genera bandcamp_popup.py
+   (_render_frog_marker), no editar a mano. */
+#progress-scale slider {
+    background-color: transparent;
+    background-image: url("frog-marker.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    outline: none;
+    min-width: 32px;
+    min-height: 32px;
+}
+
+/* Estado "sin canción" -- mismo motivo que #prev-btn:disabled/etc. más
+   abajo, opacity en el widget entero (GtkScale) alcanza para atenuar
+   trough/highlight/slider a la vez, sin repetir la regla por subnodo. */
+#progress-scale:disabled {
+    opacity: 0.3;
+}
+
+/* Labels: transcurrido a la izquierda del slider, total a la derecha
+   (bandcamp_popup.py, elapsed_label/total_label) -- antes un solo label
+   combinado "0:00 / 0:00" a la derecha. */
+#elapsed-label, #total-label {
+    color: alpha(@myforeground, 0.6);
+    font-size: 13px;
+}
+
+/* Ya no es la última fila de la ventana (ahora bottom_row, dentro de
+   info_box) -- el margen de 24px de abajo que tenía como fila suelta
+   sobraba acá adentro, el padding de #now-playing ya da aire propio. */
+#controls-row {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+/* Buttons: transporte con ícono real del tema (bandcamp_popup.py,
+   Gtk.Image.new_from_icon_name + set_pixel_size -- ver comentario ahí,
+   evita depender de la métrica de línea de la fuente que resuelve cada
+   glifo de texto). prev/skip sin fondo propio (pisa el "button"
+   genérico de arriba), solo un hover sutil en el mismo color del
+   ícono; play/pausa sigue siendo el único que parece un botón real
+   (círculo relleno, acento de color) -- el tamaño real del ícono se
+   controla en bandcamp_popup.py (set_pixel_size), acá solo el tamaño del botón. */
+#prev-btn, #skip-btn {
+    padding: 10px;
+    background-color: transparent;
+    border-radius: 4px;
+    border: none;
+    box-shadow: none;
+}
+
+#prev-btn:hover, #skip-btn:hover {
+    color: @myforegroundhover;
+    border: none;
+    box-shadow: none;
+}
+
+/* Button: "Autoecualizador" (bandcamp_popup.py, autoeq_btn) -- mismo tamaño/
+   forma que prev/skip, con un acento propio cuando está prendido
+   (:checked, es un ToggleButton) para que se note a simple vista sin
+   depender solo del tooltip. */
+#autoeq-btn {
+    padding: 10px;
+    background-color: transparent;
+    border-radius: 4px;
+    border: none;
+    box-shadow: none;
+}
+
+#autoeq-btn:hover {
+    color: @myforegroundhover;
+}
+
+#autoeq-btn:checked {
+    background-color: alpha(@myforegroundhover, 0.25);
+    color: @myforegroundhover;
+}
+
+#play-pause-btn {
+    min-height: 60px;
+    min-width: 60px;
+    padding: 0;
+    color: @myforeground;
+    border-radius: 4px;
+    border: none;
+    box-shadow: none;
+    background-color: transparent;
+}
+
+#play-pause-btn:hover {
+    color: @myforegroundhover;
+}
+
+/* Estado "sin canción" (bandcamp_popup.py, _apply_state deshabilita estos cuatro
+   + progress_scale) -- confirmado a mano con un Gtk.OffscreenWindow que
+   `set_sensitive(False)` por sí solo NO cambia un solo píxel acá (íconos
+   simbólicos con "color" fijo por CSS, sin ningún estilo propio para
+   :disabled): sin esto, los controles se veían idénticos a como si
+   estuvieran activos, aunque no hicieran nada al click. */
+#prev-btn:disabled, #skip-btn:disabled, #autoeq-btn:disabled, #play-pause-btn:disabled {
+    opacity: 0.3;
+}
+
+/* Button: logo de Bandcamp debajo del álbum (bandcamp_popup.py, buy_btn) --
+   "Comprar en Bandcamp" quedó solo como tooltip, ya no como label. Sin
+   fondo/padding de botón genérico -- el logo ya tiene su propio color
+   (BANDCAMP_COLOR), no necesita una píldora alrededor. */
+#buy-btn {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 4px 0;
+    margin-top: 2px;
+}
+
+#buy-btn:hover {
+    background-color: transparent;
+    box-shadow: none;
+    opacity: 0.75;
+}
+
+/* Estrella junto a artist_row/album_row (bandcamp_popup.py, _build_fav_toggle_
+   button) -- favoritea ESE artista/álbum. min-width/height en 0, mismo
+   motivo que .strip-arrow-btn: sin esto el botón reserva el tamaño
+   mínimo default del tema, más grande que el ícono de 15px. */
+.fav-toggle-btn {
+    min-width: 0;
+    min-height: 0;
+    padding: 6px;
+    background-color: transparent;
+    color: alpha(@myforeground, 0.05);
+    border-radius: 4px;
+    border: none;
+    box-shadow: none;
+}
+
+.fav-toggle-btn:hover {
+    background-color: transparent;
+    color: @myforegroundhover2;
+}
+
+/* Pestaña "Favoritos" (bandcamp_popup.py, _build_favorites_page) -- lista de
+   álbumes/artistas favoriteados, alto fijo con scroll (ver
+   FAVORITES_LIST_HEIGHT en bandcamp_popup.py). */
+#favorites-scroller {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+#favorites-scroller scrollbar {
+    opacity: 0;
+    min-height: 0;
+    min-width: 0;
+}
+
+.favorites-section-title {
+    color: alpha(@myforeground, 0.75);
+    font-size: 15px;
+    font-weight: 700;
+    margin-top: 10px;
+    margin-bottom: 6px;
+}
+
+.favorites-empty-label {
+    color: alpha(@myforeground, 0.5);
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+/* Fila de un favorito (álbum o artista) -- carátula/ícono + nombre a la
+   izquierda, reproducir + quitar a la derecha. Sin fondo propio (pedido
+   explícito del usuario, referencia del launcher Android) -- el título
+   pasa a acento en hover, mismo criterio que #menu-app-list row en
+   menu_module.css (dashboard de Waybar). */
+.favorite-row {
+    background-color: transparent;
+    padding: 6px 10px;
+    margin-bottom: 6px;
+}
+
+.favorite-row:hover {
+    background-color: red;
+    padding: 6px 10px;
+    margin-bottom: 6px;
+}
+
+.favorite-row:hover .favorite-row-title {
+    color: @myforegroundhover;
+}
+
+.favorite-row-title {
+    color: @myforeground;
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.favorite-row-subtitle {
+    color: alpha(@myforeground, 0.6);
+    font-size: 13px;
+}
+
+.favorite-play-btn, .favorite-remove-btn {
+    min-width: 0;
+    min-height: 0;
+    padding: 6px;
+    background-color: transparent;
+    color: alpha(@myforeground, 0.55);
+    border-radius: 4px;
+    border: none;
+    box-shadow: none;
+}
+
+.favorite-play-btn:hover {
+    background-color: transparent;
+    color: @myforegroundhover;
+}
+
+.favorite-remove-btn:hover {
+    background-color: transparent;
+    color: @myforegroundhover2;
+}
+
+/* Lista de canciones del modo Local (bandcamp_popup.py, _render_local_tracks). */
+#local-tracks-list {
+    background-color: transparent;
+}
+
+#local-tracks-list row {
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+#local-tracks-list row:hover {
+    background-color: @mybackgroundhover;
+}
+
+.local-track-num {
+    color: alpha(@myforeground, 0.45);
+    font-size: 12px;
+}
+
+.local-track-title {
+    color: @myforeground;
+    font-size: 13px;
+}
+
+#local-tracks-list row.current .local-track-num,
+#local-tracks-list row.current .local-track-title {
+    color: @myforegroundhover2;
+    font-weight: 700;
+}

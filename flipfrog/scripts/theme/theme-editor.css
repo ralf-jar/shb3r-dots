@@ -1,0 +1,183 @@
+@import url("../../themer/global.css");
+
+window {
+    background-color: transparent;
+}
+
+/* @mybackground directo, sin multiplicar -- ver #container en
+   dashboard.css (razón completa del cambio 2026-09-01: un factor fijo
+   ahí rompía el blur con alphas bajos configurados por el usuario). */
+#container {
+    background-color: @mybackground;
+    padding: 16px 20px 18px 20px;
+    min-width: 620px;
+}
+
+#container {
+    border-radius: 4px;
+}
+
+/* Box: fila de las 3 columnas de categoría (theme-editor.py, columns_row) */
+#columns-row {
+    margin-bottom: 4px;
+}
+
+/* Box: una columna de categoría -- sin separador vertical (pedido
+   explícito del usuario, referencia del launcher Android: "el
+   espaciado es quien define el componente, no requiere... ni bordes"),
+   el spacing=18 de columns_row (theme-editor.py) ya las distingue. */
+.section-column {
+}
+
+/* Label: título de cada columna, ej. "Fondos"/"Bordes"/"Textos"
+   (theme-editor.py, section_label) -- @myforeground (no
+   @myforegroundhover2, pedido explícito del usuario: evitar ese acento
+   secundario, la negrita + opacity ya lo distinguen del resto del
+   texto sin necesitar un tercer color). */
+.section-title {
+    color: @myforeground;
+    font-size: 13px;
+    font-weight: 800;
+    opacity: 0.75;
+    margin-bottom: 10px;
+}
+
+/* Label: "Editor de tema" (theme-editor.py) */
+#header {
+    color: @myforegroundhover;
+    margin-bottom: 16px;
+    font-weight: 900;
+    font-size: 17px;
+}
+
+/* Button: "Detección automática" (theme-editor.py, detect_btn) -- sin
+   caja ni borde (pedido explícito del usuario, referencia del launcher
+   Android), mismo patrón ícono+acento que .editor-btn en
+   theme_module.css: acento como señal de "esto es accionable", hover
+   pasa a color default; el ícono invierte igual pero eso lo maneja
+   _icon_text_button en Python (swap de pixbuf), no CSS. */
+.detect-btn {
+    background-color: transparent;
+    color: @myforegroundhover;
+    border: none;
+    padding: 8px 0;
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+.detect-btn:hover {
+    color: @myforeground;
+}
+
+.color-row {
+    margin-bottom: 15px;
+}
+
+/* Label: nombre de cada propiedad de color, ej. "Fondo", "Borde",
+   "Texto (hover)" (theme-editor.py, LABELS) */
+.row-name {
+    color: @myforeground;
+    font-size: 14px;
+}
+
+.color-swatch {
+    padding: 0;
+    border: 1px solid alpha(@myforeground, 0.3);
+    border-radius: 4px;
+}
+
+.alpha-row {
+    margin-bottom: 4px;
+}
+
+/* Label: "alpha" (theme-editor.py) */
+.alpha-label {
+    color: @myforeground;
+    font-size: 12px;
+    opacity: 0.5;
+}
+
+/* Label: valor numérico de alpha, ej. "0.80" (dinámico, theme-editor.py) */
+.alpha-value {
+    color: @myforeground;
+    font-size: 12px;
+    opacity: 0.6;
+    min-width: 28px;
+}
+
+/* Label: mensaje de estado, ej. "guardado y recargado ✓" (dinámico,
+   theme-editor.py, self.status) */
+#status {
+    color: @myforeground;
+    font-size: 13px;
+    opacity: 0.7;
+    margin: 8px 0 4px 0;
+}
+
+/* Button: "Guardar y recargar" (theme-editor.py, save_btn) */
+.save-btn {
+    color: @mybackground;
+    border: none;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+
+.save-btn {
+    background-color: @myforegroundhover;
+    border-radius: 4px;
+    padding: 8px 4px;
+    margin-top: 4px;
+}
+.save-btn:hover {
+    background-color: alpha(@myforegroundhover, 0.8);
+}
+
+/* Button: "Sobrescribir tema actual (nombre)" (dinámico, theme-editor.py)
+   -- mismo criterio sin caja que .detect-btn arriba. */
+.overwrite-btn {
+    background-color: transparent;
+    color: @myforegroundhover;
+    border: none;
+    padding: 8px 0;
+    font-weight: 600;
+    margin-top: 6px;
+}
+.overwrite-btn:hover {
+    color: @myforeground;
+}
+
+#theme-row {
+    margin-top: 10px;
+}
+
+/* Entry: nombre para guardar el tema, placeholder "nombre del tema"
+   (theme-editor.py, theme_name_entry) -- mismo estilo que
+   .editor-name-entry en menu_module.css/"Aplicaciones": sin borde,
+   @mybackground + texto en acento y negrita. margin:0 (no
+   margin-bottom) -- va inline junto a "Guardar Tema" en #theme-row, no
+   apilado sobre otro contenido. */
+entry {
+    background-color: @mybackground;
+    color: @myforegroundhover;
+    border: none;
+    border-radius: 4px;
+    font-weight: 800;
+    padding: 2px 8px;
+    min-height: 25px;
+    margin: 0;
+}
+
+/* Button: "Guardar como tema" (theme-editor.py, theme_btn) -- sin caja
+   (pedido explícito del usuario), mismo criterio que .detect-btn/
+   .overwrite-btn arriba -- acompaña al entry de nombre en #theme-row. */
+.theme-btn {
+    background-color: transparent;
+    color: @myforegroundhover;
+    border: none;
+    padding: 6px 10px;
+    font-weight: 600;
+    margin: 0;
+}
+.theme-btn:hover {
+    color: @myforeground;
+}

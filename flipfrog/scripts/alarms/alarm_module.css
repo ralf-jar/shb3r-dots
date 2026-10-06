@@ -1,0 +1,169 @@
+@import url("../../themer/global.css");
+
+window {
+    background-color: transparent;
+}
+
+#container {
+    background-color: @mybackground;
+    border-radius: 4px;
+    padding: 16px 20px 18px 20px;
+    min-width: 280px;
+}
+
+/* Label: "Alarmas" */
+#header {
+    color: @myforeground;
+    font-weight: 800;
+    font-size: 17px;
+    margin-bottom: 10px;
+}
+
+.listbox-alarms{
+    background-color: transparent;
+}
+
+/* Fila de alarma (hora + días/label + switch + editar + borrar) */
+.alarm-row {
+}
+
+.alarm-empty {
+    color: @myforegroundhover;
+    padding: 14px 0;
+}
+
+.alarm-time {
+    color: @myforeground;
+    font-weight: 800;
+    font-size: 19px;
+    font-family: monospace;
+}
+
+.alarm-days {
+    color: @myforegroundhover;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.alarm-label {
+    color: @myforegroundhover;
+    font-size: 13px;
+}
+
+/* Botones "editar"/"borrar" por fila -- sin caja, mismo criterio "sin
+   fondo, hover pasa a acento" que .editor-btn/.font-picker-btn de
+   theme_module.css. */
+.alarm-edit-btn,
+.alarm-delete-btn {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 4px;
+}
+.alarm-edit-btn:hover,
+.alarm-delete-btn:hover {
+    color: @myforegroundhover;
+}
+
+/* Botón "+ Agregar alarma" -- pastilla de ancho completo (a diferencia
+   de .apply-btn chico de themer/components.css, este SÍ necesita leerse
+   como la acción principal de la página lista). */
+.alarm-add-btn {
+    background-color: transparent;
+    color: @myforegroundhover;
+    border-radius: 4px;
+    font-weight: 700;
+    padding: 6px 0;
+}
+.alarm-add-btn:hover {
+    color: @myforeground;
+}
+
+.alarm-add-btn label {
+    padding-left: 10px;
+}
+
+/* ---- Editor (alta/edición) ---- */
+
+.alarm-editor-title {
+    color: @myforeground;
+    font-weight: 800;
+    font-size: 16px;
+}
+
+.alarm-time-row spinbutton,
+.alarm-time-row entry {
+    background-color: transparent;
+    color: @myforegroundhover;
+    border: none;
+    border-radius: 4px;
+    font-weight: 800;
+    font-size: 22px;
+    font-family: monospace;
+    padding: 4px 2px;
+    min-width: 46px;
+}
+
+.alarm-time-colon {
+    color: @myforeground;
+    font-weight: 800;
+    font-size: 22px;
+}
+
+/* Entry: nombre opcional de la alarma */
+#alarm-editor entry {
+    background-color: @mybackground;
+    color: @myforegroundhover;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 12px;
+}
+
+/* Cápsulas de día (Lun-Dom), mismo look "tecla física" que
+   .keybinds-keycap (keybinds_popup.css) pero clickeables
+   (Gtk.ToggleButton en vez de Gtk.Label). */
+.alarm-day-toggle {
+    background-color: alpha(@myforegroundhover, 0.14);
+    color: @myforegroundhover;
+    border: 1px solid alpha(@myforegroundhover, 0.35);
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 13px;
+    min-width: 12px;
+    padding: 4px 7px;
+    box-shadow: 2px 2px 0 0 alpha(@myforegroundhover, 0.35);
+}
+.alarm-day-toggle:checked {
+    background-color: @myforegroundhover;
+    color: @mybackground;
+}
+
+.alarm-cancel-btn {
+    background-color: transparent;
+    color: @myforegroundhover;
+    border: none;
+    box-shadow: none;
+    font-weight: 600;
+    padding: 6px 50px;
+}
+.alarm-cancel-btn:hover {
+    color: @myforeground;
+}
+
+.alarm-save-btn {
+    background-color: transparent;
+    color: @myforegroundhover;
+    border: none;
+    border-radius: 4px;
+    font-weight: 700;
+    padding: 6px 50px;
+}
+.alarm-save-btn:hover {
+    color: @myforeground;
+}
+
+button:focus {
+    outline: none;
+    box-shadow: none;
+}

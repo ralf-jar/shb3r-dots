@@ -1,0 +1,284 @@
+@import url("../../themer/global.css");
+/* @mybarbackground/@mystripbackground: los define bar.py según
+   "Fondo transparente"/"Barra completa" (bar-settings.json). */
+
+* {
+    font-size: 15px;
+}
+
+#bar-window {
+    background-color: transparent;
+    color: @myforeground;
+}
+
+#bar-window.full-width {
+    background-color: @mystripbackground;
+}
+
+tooltip {
+    background-color: @mybackground;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 15px;
+}
+
+tooltip label {
+    color: @myforegroundhover;
+    font-weight: 700;
+    padding: 5px 15px;
+}
+
+.pill {
+    background-color: @mybarbackground;
+    border-radius: 4px;
+}
+
+/* ---- Ranita ---- */
+#frog {
+    margin: 0 10px;
+}
+
+.islas #frog {
+    padding: 6px;
+    margin: 0 8px 0 0;
+}
+
+/* Margen al borde en el contenedor, no en la ranita: sin ella la
+   primera píldora quedaba pegada al borde. */
+#islas-left {
+    margin-left: 14px;
+}
+
+/* ---- Workspaces numerados ---- */
+#workspaces {
+    margin: 0 4px;
+}
+
+.islas #workspaces {
+    padding: 0 6px;
+    margin: 0;
+}
+
+.ws-button {
+    padding: 0 5px;
+    min-width: 30px;
+    margin: 3px 2px;
+    border-radius: 4px;
+    transition: background-color 200ms ease;
+}
+
+.ws-button.active,
+.ws-button.hover {
+    background-color: @mybackgroundhover;
+}
+
+.ws-label {
+    padding: 0 4px;
+}
+
+.ws-button.active label,
+.ws-button.hover label {
+    color: @myforegroundhover;
+    font-weight: 800;
+}
+
+.ws-icon {
+    margin: 0 2px;
+}
+
+/* Ventanas de la misma app ("Agrupar apps") y ventanas de un workspace
+   compactado ("Compactar workspaces"). */
+.app-count,
+.ws-count {
+    font-size: 11px;
+    font-weight: 700;
+    opacity: 0.75;
+}
+
+.app-count {
+    margin-left: 1px;
+}
+
+.ws-count {
+    margin-right: 2px;
+}
+
+/* ---- Fila de íconos de todas las ventanas ---- */
+#taskbar {
+    margin: 0 4px;
+    padding: 0 3px;
+}
+
+.islas #taskbar {
+    margin: 0;
+}
+
+.taskbar-button {
+    padding: 0 5px;
+    margin: 3px 2px;
+    border-radius: 4px;
+    transition: background-color 200ms ease;
+}
+
+.taskbar-button.active,
+.taskbar-button.hover {
+    background-color: @mybackgroundhover;
+}
+
+/* ---- Reloj ---- */
+#clock {
+    padding: 0 15px;
+    margin: 0 10px;
+    font-weight: 800;
+}
+
+.islas #clock {
+    padding: 0 20px;
+    margin: 0;
+}
+
+/* ---- Métricas de Uso ---- */
+#sysmon {
+    padding: 0 15px;
+    margin: 0 8px;
+}
+
+/* ---- Descubre Bandcamp ---- */
+#bandcamp-info {
+    padding: 0 25px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+#bandcamp-prev,
+#bandcamp-playpause,
+#bandcamp-next {
+    padding: 6px 8px 0 8px;
+    font-weight: 900;
+    font-size: 20px;
+}
+
+#bandcamp-next {
+    padding-right: 18px;
+}
+
+.islas #bandcamp-info,
+.islas #bandcamp-prev,
+.islas #bandcamp-playpause,
+.islas #bandcamp-next {
+    background-color: @mybarbackground;
+}
+
+.islas #bandcamp-info {
+    border-radius: 4px 0 0 4px;
+}
+
+.islas #bandcamp-next {
+    border-radius: 0 4px 4px 0;
+}
+
+/* ---- Sonido / Bluetooth / Red ----
+   Cápsula: ocultos hasta pasar el mouse por el grupo (clase "hover"
+   puesta a mano, ver bar_modules.track_hover). Islas: siempre visibles. */
+#right-cluster {
+    padding: 0 15px;
+    margin: 0 14px 0 15px;
+    background-color: transparent;
+    transition: background-color 200ms ease;
+}
+
+#right-cluster.hover {
+    background-color: @mybarbackground;
+}
+
+.islas #right-cluster {
+    background-color: @mybarbackground;
+    padding: 0 10px 0 13px;
+}
+
+#pulseaudio,
+#bluetooth,
+#red {
+    min-width: 20px;
+    margin-right: 2px;
+    font-size: 14px; /* sync_font_size: static */
+    opacity: 0;
+    transition: opacity 200ms ease;
+}
+
+#right-cluster label.last {
+    margin-right: 0;
+}
+
+#right-cluster.hover label,
+.islas #right-cluster label {
+    opacity: 1;
+}
+
+#right-cluster.hover label.off,
+.islas #right-cluster label.off {
+    opacity: 0.4;
+}
+
+/* ---- Tray ----
+   Mismo criterio que sonido/Bluetooth: en cápsula aparece con el hover
+   del grupo; needs-attention (p.ej. ZapZap con mensaje sin leer) siempre
+   visible. */
+#tray {
+    margin-right: 2px;
+}
+
+.tray-item {
+    color: @myforeground;
+    opacity: 0;
+    transition: opacity 200ms ease;
+}
+
+#right-cluster.hover .tray-item,
+.islas .tray-item {
+    opacity: 1;
+}
+
+#right-cluster .tray-item.needs-attention {
+    opacity: 1;
+    background-color: @myforegroundhover;
+    border-radius: 4px;
+}
+
+/* ---- VPN / No molestar / Audiolibro ----
+   Solo existen activos; siempre visibles (también en cápsula sin hover). */
+#vpn,
+#dnd,
+#audiobook {
+    min-width: 20px;
+    margin-right: 2px;
+    font-size: 14px; /* sync_font_size: static */
+}
+
+#vpn {
+    color: @myforeground;
+}
+
+/* ---- Power ---- */
+#power {
+    margin: 0 15px;
+    min-width: 20px;
+    min-height: 20px;
+    font-weight: 800;
+    font-size: 12px;
+}
+
+#power {
+    color: @myforegroundhover2;
+}
+
+.islas #power {
+    padding: 6px 14px;
+    margin: 0 14px 0 0;
+}
+
+.full-width #frog,
+.full-width #power {
+    padding-top: 0;
+    padding-bottom: 0;
+}

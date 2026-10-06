@@ -1,0 +1,38 @@
+/* brightness_module.css -- módulo "Brillo" embebido en la pestaña
+   "Sistema" del dashboard (build_brightness, top_row). Cargado con
+   waybar_lib.load_module_css() desde brightness_module.py -- comparte
+   pantalla con dashboard.css en vez de abrir una ventana propia (eso es
+   cosa de brightness.py, popup aparte con su propio brightness.css).
+   Look redondeado siempre -- el toggle "Bordes Redondeados"/trapezoide
+   ya no existe (eliminado). */
+
+/* Label: porcentaje de brillo, ej. "80%" (dinámico) */
+.module-pct {
+    color: @myforeground;
+    margin-top: -22px;
+    margin-bottom: 6px;
+}
+
+/* Gtk.Scale del slider de brillo. */
+scale trough {
+    background-color: @mybackgroundhover;
+    border-radius: 4px;
+    min-height: 6px;
+}
+scale highlight {
+    background-color: @myforegroundhover;
+    border-radius: 4px;
+}
+scale slider {
+    background-color: @myforegroundhover;
+    border-radius: 50%;
+    min-width: 14px;
+    min-height: 14px;
+    margin: -4px 0;
+    box-shadow: none;
+    border: none;
+}
+
+scale {
+    padding: 0 4px;
+}
