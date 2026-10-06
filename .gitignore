@@ -153,6 +153,13 @@
 !/kitty/kitty.conf
 
 # --- resto de dotfiles de shell/WM ---
+# fish: solo las funciones que usa Descargas (downloads/youtube.py)
+!/fish
+/fish/*
+!/fish/functions
+/fish/functions/*
+!/fish/functions/ytd.fish
+!/fish/functions/ytdv.fish
 !/dunst
 # frame_color lo reescribe sync_dunst.py en cada cambio de tema; el
 # resto de dunstrc (geometría, timeouts, reglas) queda solo con su

@@ -43,18 +43,21 @@ else
     echo "==> Descargando"
     git clone --depth 1 --branch "$BRANCH" "$REPO" "$CLONE/repo"
 
+    # Respaldo archivo por archivo: solo lo que el repo reemplaza (fish/
+    # trae dos funciones, el config.fish de CachyOS se queda). hypr/ se
+    # mueve completa: la config de fábrica no debe mezclarse con la nuestra.
     BACKUP="$HOME/.config-respaldo-$(date +%Y%m%d-%H%M%S)"
     mkdir -p "$TARGET"
-    shopt -s dotglob
-    for entry in "$CLONE"/repo/*; do
-        name="$(basename "$entry")"
-        [[ "$name" == ".git" ]] && continue
-        if [[ -e "$TARGET/$name" ]]; then
-            mkdir -p "$BACKUP"
-            mv "$TARGET/$name" "$BACKUP/"
+    if [[ -e "$TARGET/hypr" ]]; then
+        mkdir -p "$BACKUP"
+        mv "$TARGET/hypr" "$BACKUP/"
+    fi
+    while IFS= read -r -d '' rel; do
+        if [[ -e "$TARGET/$rel" || -L "$TARGET/$rel" ]]; then
+            mkdir -p "$BACKUP/$(dirname "$rel")"
+            mv "$TARGET/$rel" "$BACKUP/$rel"
         fi
-    done
-    shopt -u dotglob
+    done < <(git -C "$CLONE/repo" ls-files -z)
     [[ -d "$BACKUP" ]] && echo "==> Tu configuración anterior quedó en $BACKUP"
 
     cp -a "$CLONE/repo/." "$TARGET/"
