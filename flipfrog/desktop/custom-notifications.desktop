@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Notificaciones
+Name[en]=Notifications
+Exec=python3 "@HOME@/.config/flipfrog/scripts/notifications/notification_history.py"
+Icon=preferences-system-notifications
+Terminal=false
+Categories=Custom;

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Apagar
+Name[en]=Power off
+Exec=python3 "@HOME@/.config/flipfrog/scripts/power/power_menu.py"
+Icon=system-shutdown
+Terminal=false
+Categories=Custom;

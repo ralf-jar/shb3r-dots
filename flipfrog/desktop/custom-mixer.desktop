@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Mezclador de audio
+Name[en]=Audio mixer
+Exec=python3 "@HOME@/.config/flipfrog/scripts/audio/mixer.py"
+Icon=pavucontrol
+Terminal=false
+Categories=Custom;

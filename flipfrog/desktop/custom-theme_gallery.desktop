@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Temas
+Name[en]=Themes
+Exec=python3 "@HOME@/.config/flipfrog/scripts/theme/theme_gallery.py"
+Icon=preferences-desktop-wallpaper
+Terminal=false
+Categories=Custom;

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Salida de audio
+Name[en]=Audio output
+Exec=python3 "@HOME@/.config/flipfrog/scripts/audio/sink-selector.py"
+Icon=preferences-desktop-sound
+Terminal=false
+Categories=Custom;

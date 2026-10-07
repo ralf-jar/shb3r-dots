@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Editor de temas
+Name[en]=Theme editor
+Exec=python3 "@HOME@/.config/flipfrog/scripts/theme/theme-editor.py"
+Icon=preferences-desktop-color
+Terminal=false
+Categories=Custom;
+NoDisplay=true

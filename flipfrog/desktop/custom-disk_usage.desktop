@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Uso de disco
+Name[en]=Disk usage
+Exec=python3 "@HOME@/.config/flipfrog/scripts/disk/disk_usage_popup.py"
+Icon=baobab
+Terminal=false
+Categories=Custom;

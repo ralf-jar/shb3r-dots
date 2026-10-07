@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Calendario
+Name[en]=Calendar
+Exec=python3 "@HOME@/.config/flipfrog/scripts/calendar/calendar_popup.py"
+Icon=calendar
+Terminal=false
+Categories=Custom;

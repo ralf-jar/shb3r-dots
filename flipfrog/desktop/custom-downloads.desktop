@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Descargas
+Name[en]=Downloads
+Exec=python3 "@HOME@/.config/flipfrog/scripts/downloads/download_popup.py"
+Icon=downloader
+Terminal=false
+Categories=Custom;

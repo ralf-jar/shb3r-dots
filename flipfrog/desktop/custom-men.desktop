@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Menú
+Name[en]=Menu
+Exec=python3 "@HOME@/.config/flipfrog/scripts/dashboard.py"
+Icon=applications-electronics
+Terminal=false
+Categories=Custom;

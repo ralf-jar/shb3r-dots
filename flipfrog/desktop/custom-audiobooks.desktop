@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Audiolibros
+Name[en]=Audiobooks
+Exec=python3 "@HOME@/.config/flipfrog/scripts/audiobook/audiobook_popup.py"
+Icon=audiobook
+Terminal=false
+Categories=Custom;
+X-Flipfrog-Requires=piper-tts

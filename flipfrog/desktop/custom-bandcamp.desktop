@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Radio Bandcamp
+Name[en]=Bandcamp Radio
+Exec=python3 "@HOME@/.config/flipfrog/scripts/bandcamp/bandcamp_popup.py"
+Icon=musicbrainz
+Terminal=false
+Categories=Custom;

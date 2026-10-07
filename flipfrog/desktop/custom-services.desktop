@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Servicios
+Name[en]=Services
+Exec=python3 "@HOME@/.config/flipfrog/scripts/services/services_popup.py"
+Icon=preferences-system-services
+Terminal=false
+Categories=Custom;

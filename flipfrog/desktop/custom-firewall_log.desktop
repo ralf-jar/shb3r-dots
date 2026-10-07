@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Registro del firewall
+Name[en]=Firewall log
+Exec=python3 "@HOME@/.config/flipfrog/scripts/firewall/firewall_log_viewer.py"
+Icon=utilities-log-viewer
+Terminal=false
+Categories=Custom;

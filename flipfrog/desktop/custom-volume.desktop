@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Volumen
+Name[en]=Volume
+Exec=python3 "@HOME@/.config/flipfrog/scripts/audio/volume-simple.py"
+Icon=multimedia-volume-control
+Terminal=false
+Categories=Custom;

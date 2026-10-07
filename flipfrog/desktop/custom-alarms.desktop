@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Alarmas
+Name[en]=Alarms
+Exec=python3 "@HOME@/.config/flipfrog/scripts/alarms/alarm_popup.py"
+Icon=alarm-clock
+Terminal=false
+Categories=Custom;

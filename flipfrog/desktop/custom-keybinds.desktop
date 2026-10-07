@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Atajos de teclado
+Name[en]=Keyboard shortcuts
+Exec=python3 "@HOME@/.config/flipfrog/scripts/keybinds/keybinds_popup.py"
+Icon=preferences-desktop-keyboard-shortcuts
+Terminal=false
+Categories=Custom;

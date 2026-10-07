@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Ventanas
+Name[en]=Windows
+Exec=python3 "@HOME@/.config/flipfrog/scripts/windows/window_collage.py"
+Icon=preferences-system-windows
+Terminal=false
+Categories=Custom;

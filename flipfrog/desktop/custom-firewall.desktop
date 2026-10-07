@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Firewall
+Name[en]=Firewall
+Exec=python3 "@HOME@/.config/flipfrog/scripts/firewall/firewall_popup.py"
+Icon=gufw
+Terminal=false
+Categories=Custom;

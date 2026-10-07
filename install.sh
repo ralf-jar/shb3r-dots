@@ -325,6 +325,21 @@ RADICALE_RIGHTS
 else
     ok "Config de Radicale ya existe, no se toca"
 fi
+# Accesos a los popups en el lanzador (SUPER+Espacio). Solo si faltan:
+# una copia local puede estar oculta o renombrada desde la pestaña
+# "Aplicaciones" del panel. Los que piden un extra no instalado se omiten.
+APPS_DIR="$HOME/.local/share/applications"
+mkdir -p "$APPS_DIR"
+added=0
+for entry in "$TARGET"/flipfrog/desktop/*.desktop; do
+    dest="$APPS_DIR/$(basename "$entry")"
+    req="$(sed -n 's/^X-Flipfrog-Requires=//p' "$entry")"
+    [[ -e "$dest" ]] && continue
+    [[ -n "$req" ]] && ! command -v "$req" >/dev/null && continue
+    sed "s|@HOME@|$HOME|g" "$entry" > "$dest"
+    added=$((added + 1))
+done
+ok "Accesos a los popups en el lanzador: $added nuevos"
 WELCOME_FILE="$TARGET/flipfrog/scripts/keybinds/welcome.json"
 if [[ ! -f "$WELCOME_FILE" ]]; then
     echo '{"show_on_login": true}' > "$WELCOME_FILE"
