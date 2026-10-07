@@ -151,9 +151,9 @@ def grouped_by_category(apps_by_id):
 
 SETTINGS_DEFAULTS = {
     # Íconos junto al nombre en la lista principal.
-    "show_list_icons": False,
+    "show_list_icons": True,
     # Fila de las más abiertas (arriba de la lista).
-    "show_top_apps": True,
+    "show_top_apps": False,
 }
 
 
