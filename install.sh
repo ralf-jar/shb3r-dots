@@ -95,8 +95,8 @@ if [[ -z "$EXTRAS" ]]; then
     fi
 fi
 
-TOTAL_STEPS=9
-[[ $EXTRAS == 1 ]] && TOTAL_STEPS=11
+TOTAL_STEPS=10
+[[ $EXTRAS == 1 ]] && TOTAL_STEPS=12
 
 if [[ $HAS_TTY == 1 ]]; then
     echo
@@ -125,6 +125,20 @@ ok "Paquetes oficiales listos"
 # de mostrar cualquier diálogo (confirmado a mano). Se habilita como
 # servicio de usuario, WantedBy=graphical-session.target -- persiste
 # solo en cada login, no hace falta tocar autostart.lua.
+# Sin gestor de login la PC arranca en una terminal de texto: pasa al
+# instalar CachyOS con Hyprland sin el paquete de noctalia (probado en VM).
+step "Pantalla de inicio de sesión"
+if [[ -e /etc/systemd/system/display-manager.service ]]; then
+    ok "Ya hay una: $(basename "$(readlink -f /etc/systemd/system/display-manager.service)" .service)"
+elif sudo pacman -S --needed sddm && sudo systemctl enable sddm.service; then
+    # Sesión preseleccionada: Hyprland (no la variante con uwsm).
+    printf '[Last]\nSession=/usr/share/wayland-sessions/hyprland.desktop\n' | sudo tee /var/lib/sddm/state.conf >/dev/null
+    sudo chown sddm:sddm /var/lib/sddm/state.conf 2>/dev/null || true
+    ok "SDDM instalado y habilitado"
+else
+    warn "No se pudo instalar SDDM -- al reiniciar entra con tu usuario y escribe: Hyprland"
+fi
+
 step "Habilitar agente de polkit (hyprpolkitagent)"
 if systemctl --user enable --now hyprpolkitagent.service; then
     ok "hyprpolkitagent habilitado"
