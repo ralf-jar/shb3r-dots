@@ -9,6 +9,7 @@
 !/bootstrap.sh
 !/CLAUDE.md
 !/README.md
+!/LICENSE
 
 # --- .claude/: solo las skills del proyecto (settings.local.json es personal) ---
 !/.claude

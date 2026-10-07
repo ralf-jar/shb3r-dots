@@ -2,7 +2,7 @@
 # Instalación en una sola línea, pensada para alguien que recién instaló
 # CachyOS (edición Hyprland):
 #
-#   curl -fsSL https://raw.githubusercontent.com/ralf-jar/shb3r-dots/master/bootstrap.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/ralf-jar/shb3r-dots/main/bootstrap.sh | bash
 #
 # Clona el repo, mueve a ~/.config-respaldo-<fecha>/ lo que ya hubiera en
 # ~/.config con el mismo nombre (nada se borra) y corre install.sh.
@@ -10,7 +10,7 @@
 set -euo pipefail
 
 REPO="${FLIPFROG_REPO:-https://github.com/ralf-jar/shb3r-dots.git}"
-BRANCH="${FLIPFROG_BRANCH:-master}"
+BRANCH="${FLIPFROG_BRANCH:-main}"
 TARGET="$HOME/.config"
 
 if [[ -t 1 ]]; then
