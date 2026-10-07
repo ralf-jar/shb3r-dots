@@ -29,6 +29,10 @@ Además del escritorio instala Brave Origin, Steam, Vesktop (Discord), ZapZap (W
 | `SUPER + P` | Galería de temas |
 | `SUPER + Q` | Cierra la ventana |
 
+## Calendario en tu celular
+
+Las notas del calendario (clic en el reloj) se pueden sincronizar con Android: en el calendario toca **«Sincronizar con el celular»** y sigue los 4 pasos. Guía completa: [`calendar.md`](flipfrog/scripts/calendar/calendar.md).
+
 ## Más información
 
 - Paquetes que instala y para qué: [`flipfrog/DEPENDENCIAS.md`](flipfrog/DEPENDENCIAS.md)
