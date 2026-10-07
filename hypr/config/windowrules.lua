@@ -288,6 +288,13 @@ hl.layer_rule({
 })
 
 hl.layer_rule({
+    match = { namespace = "cursor-picker" },
+    blur = true,
+    xray = false,
+    ignore_alpha = 0.02
+})
+
+hl.layer_rule({
     match = { namespace = "firewall-popup" },
     blur = true,
     xray = false,
