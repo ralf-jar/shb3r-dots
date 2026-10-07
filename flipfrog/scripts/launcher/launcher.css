@@ -12,14 +12,14 @@ window {
    multiplicar (ver #container en dashboard.css, cambio 2026-09-01). */
 #launcher-container {
     background-color: @mybackground;
-    border-radius: 25px;
+    border-radius: 4px;
     padding: 20px 26px 22px 26px;
     min-width: 390px;
 }
 
 /* Cualquier Gtk.Entry del popup (por ahora solo la barra de búsqueda). */
 entry {
-    border-radius: 25px;
+    border-radius: 4px;
 }
 
 /* Barra de búsqueda (Gtk.SearchEntry) arriba del todo -- padding-right
@@ -42,7 +42,7 @@ entry {
     border: none;
     box-shadow: none;
     padding: 4px;
-    border-radius: 25px;
+    border-radius: 4px;
 }
 
 .launcher-top-icon-btn:hover {
@@ -61,7 +61,7 @@ entry {
     border: none;
     box-shadow: none;
     padding: 6px;
-    border-radius: 25px;
+    border-radius: 4px;
 }
 
 .launcher-view-toggle-btn:hover {
@@ -102,14 +102,14 @@ entry {
 
 /* EventBox clickeable del header en modo Categorías (colapsa/expande). */
 .launcher-category-header {
-    border-radius: 25px;
+    border-radius: 4px;
 }
 
 /* EventBox clickeable de cada app dentro de una columna (clic
    izquierdo lanza, derecho abre el menú de categoría). */
 .launcher-app-cell {
     padding: 6px 10px;
-    border-radius: 25px;
+    border-radius: 4px;
 }
 
 /* Label con el nombre de la app dentro de .launcher-app-cell. */

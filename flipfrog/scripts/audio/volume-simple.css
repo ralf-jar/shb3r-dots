@@ -10,7 +10,7 @@ window {
 }
 
 #container {
-    border-radius: 25px;
+    border-radius: 4px;
 }
 
 /* Label: "Volumen" (volume-simple.py) */
@@ -46,7 +46,7 @@ scale slider {
 
 scale trough,
 scale highlight {
-    border-radius: 25px;
+    border-radius: 4px;
 }
 
 scale slider {

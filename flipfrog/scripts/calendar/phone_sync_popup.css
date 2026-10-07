@@ -6,7 +6,7 @@ window {
 
 #sync-container {
     background-color: @mybackground;
-    border-radius: 25px;
+    border-radius: 4px;
     padding: 18px 24px 20px 24px;
     min-width: 820px;
 }
@@ -38,7 +38,7 @@ window {
     color: @mybackground;
     background-color: @myforegroundhover;
     font-weight: 900;
-    border-radius: 25px;
+    border-radius: 4px;
     min-width: 26px;
     min-height: 26px;
 }
@@ -56,7 +56,7 @@ window {
 /* Box: tarjeta de cada app de Android (QR + nombre + descripción) */
 .sync-card {
     background-color: alpha(@myforegroundhover, 0.08);
-    border-radius: 25px;
+    border-radius: 4px;
     padding: 12px;
 }
 
@@ -68,7 +68,7 @@ window {
 /* Box: fondo blanco del QR -- los lectores fallan con los colores del tema */
 .qr {
     background-color: #ffffff;
-    border-radius: 25px;
+    border-radius: 4px;
     padding: 6px;
 }
 
@@ -84,7 +84,7 @@ window {
     font-weight: 700;
     background-color: alpha(@myforegroundhover, 0.14);
     border: 1px solid alpha(@myforegroundhover, 0.35);
-    border-radius: 25px;
+    border-radius: 4px;
     padding: 3px 8px;
     box-shadow: 2px 2px 0 0 alpha(@myforegroundhover, 0.35);
 }
@@ -101,7 +101,7 @@ window {
 .sync-copy:hover {
     color: @myforegroundhover;
     background-color: @mybackgroundhover;
-    border-radius: 25px;
+    border-radius: 4px;
 }
 
 button:focus {

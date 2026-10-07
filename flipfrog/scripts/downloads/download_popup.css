@@ -7,7 +7,7 @@ window {
 /* Mismo contenedor que #launcher-container/#keybinds-container. */
 #dl-container {
     background-color: @mybackground;
-    border-radius: 25px;
+    border-radius: 4px;
     padding: 18px 24px 20px 24px;
     min-width: 640px;
 }
@@ -24,7 +24,7 @@ window {
     background-color: alpha(@myforegroundhover, 0.55);
     font-size: 12px;
     font-weight: 800;
-    border-radius: 25px;
+    border-radius: 4px;
     padding: 1px 8px;
 }
 
@@ -41,7 +41,7 @@ window {
 
 #dl-text-scroller {
     background-color: alpha(@myforeground, 0.06);
-    border-radius: 25px;
+    border-radius: 4px;
 }
 
 #dl-textview,
@@ -66,7 +66,7 @@ window {
     color: @myforeground;
     border: none;
     box-shadow: none;
-    border-radius: 25px;
+    border-radius: 4px;
     padding: 6px 12px;
 }
 
@@ -79,7 +79,7 @@ window {
     color: @myforeground;
     border: none;
     box-shadow: none;
-    border-radius: 25px;
+    border-radius: 4px;
     padding: 4px 10px;
 }
 
@@ -173,14 +173,14 @@ progressbar trough {
     background-color: alpha(@myforeground, 0.1);
     min-height: 5px;
     border: none;
-    border-radius: 25px;
+    border-radius: 4px;
 }
 
 progressbar progress {
     background-color: @myforegroundhover;
     min-height: 5px;
     border: none;
-    border-radius: 25px;
+    border-radius: 4px;
 }
 
 .dl-error progressbar progress {

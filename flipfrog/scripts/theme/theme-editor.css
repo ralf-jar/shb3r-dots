@@ -14,7 +14,7 @@ window {
 }
 
 #container {
-    border-radius: 25px;
+    border-radius: 4px;
 }
 
 /* Box: fila de las 3 columnas de categoría (theme-editor.py, columns_row) */
@@ -82,7 +82,7 @@ window {
 .color-swatch {
     padding: 0;
     border: 1px solid alpha(@myforeground, 0.3);
-    border-radius: 25px;
+    border-radius: 4px;
 }
 
 .alpha-row {
@@ -124,7 +124,7 @@ window {
 
 .save-btn {
     background-color: @myforegroundhover;
-    border-radius: 25px;
+    border-radius: 4px;
     padding: 8px 4px;
     margin-top: 4px;
 }
@@ -160,7 +160,7 @@ entry {
     background-color: @mybackground;
     color: @myforegroundhover;
     border: none;
-    border-radius: 25px;
+    border-radius: 4px;
     font-weight: 800;
     padding: 2px 8px;
     min-height: 25px;

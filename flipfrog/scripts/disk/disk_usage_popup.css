@@ -7,7 +7,7 @@ window {
 /* Mismo contenedor que #nh-container/#dl-container. */
 #du-container {
     background-color: @mybackground;
-    border-radius: 25px;
+    border-radius: 4px;
     padding: 16px 18px 12px 18px;
 }
 
@@ -67,7 +67,7 @@ window {
     background-color: alpha(@myforeground, 0.08);
     background-image: none;
     border: none;
-    border-radius: 25px;
+    border-radius: 4px;
     min-height: 6px;
 }
 
@@ -75,7 +75,7 @@ window {
     background-color: alpha(@myforegroundhover, 0.65);
     background-image: none;
     border: none;
-    border-radius: 25px;
+    border-radius: 4px;
     color: @myforeground;
 }
 

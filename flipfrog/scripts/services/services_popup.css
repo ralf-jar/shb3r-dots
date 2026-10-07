@@ -14,7 +14,7 @@ window {
 }
 
 #services-container {
-    border-radius: 25px;
+    border-radius: 4px;
 }
 
 /* Gtk.Notebook (services_popup.py) -- mismo criterio visual que
@@ -43,7 +43,7 @@ window {
 #services-notebook tab {
     background-color: alpha(@myforegroundhover, 0.12);
     border: none;
-    border-radius: 25px 25px 0 0;
+    border-radius: 4px 4px 0 0;
     box-shadow: none;
     padding: 6px 14px;
     margin: 0 2px;
@@ -63,7 +63,7 @@ window {
 #services-notebook tab:checked {
     background-color: @myforegroundhover;
     border: none;
-    border-radius: 25px 25px 0 0;
+    border-radius: 4px 4px 0 0;
     box-shadow: none;
     outline: none;
     margin-bottom: 1px;
@@ -76,7 +76,7 @@ entry {
     background-color: @mybackground;
     color: @myforegroundhover;
     border: none;
-    border-radius: 25px;
+    border-radius: 4px;
     font-weight: 800;
     padding: 2px 8px;
     min-height: 25px;
@@ -109,7 +109,7 @@ entry {
 }
 
 #services-scroller {
-    border-radius: 25px;
+    border-radius: 4px;
 }
 
 #services-list {
@@ -150,7 +150,7 @@ entry {
     color: @myforeground;
     background-color: @mybackground;
     border: none;
-    border-radius: 25px;
+    border-radius: 4px;
     font-size: 13px;
     padding: 3px 10px;
 }
