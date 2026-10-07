@@ -3,7 +3,7 @@
    "Fondo transparente"/"Barra completa" (bar-settings.json). */
 
 * {
-    font-size: 15px;
+    font-size: 13px;
 }
 
 #bar-window {
@@ -39,7 +39,7 @@ tooltip label {
 }
 
 .islas #frog {
-    padding: 6px;
+    padding: 4px;
     margin: 0 8px 0 0;
 }
 
@@ -153,9 +153,9 @@ tooltip label {
 #bandcamp-prev,
 #bandcamp-playpause,
 #bandcamp-next {
-    padding: 6px 8px 0 8px;
+    padding: 4px 8px 0 8px;
     font-weight: 900;
-    font-size: 20px;
+    font-size: 16px;
 }
 
 #bandcamp-next {

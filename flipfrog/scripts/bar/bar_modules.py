@@ -30,7 +30,7 @@ import sysmon
 import vpn_status
 
 FROG_GIF = os.path.normpath(os.path.join(SCRIPTS_DIR, "..", "themer", "105651-Transparent.gif"))
-FROG_SIZE = 32
+FROG_SIZE = 24
 FROG_ORANGE = b"\xff\x63\x00"
 POWER_ICON = ""
 PREV_ICON = "⏮"
