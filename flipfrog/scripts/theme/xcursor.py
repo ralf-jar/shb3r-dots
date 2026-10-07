@@ -28,11 +28,11 @@ PREVIEW_ROLES = (
 )
 
 
-def theme_dirs(theme):
+def theme_dirs(theme, bases=None):
     """Todas las carpetas del tema: libXcursor busca en cada una (aquí
     "default" está en ~/.icons sin Inherits y en /usr/share/icons con
     Inherits=Adwaita)."""
-    paths = (os.path.join(base, theme) for base in look_settings.CURSOR_DIRS)
+    paths = (os.path.join(base, theme) for base in bases or look_settings.CURSOR_DIRS)
     return [path for path in paths if os.path.isdir(path)]
 
 
@@ -46,12 +46,12 @@ def _inherits(path):
     return [name.strip() for name in value.split(",") if name.strip()]
 
 
-def find_cursor(theme, names, _depth=0):
+def find_cursor(theme, names, bases=None, _depth=0):
     """Ruta del primer nombre de `names` que exista en el tema o en los
     que hereda (index.theme, Inherits=)."""
     if _depth > MAX_INHERIT_DEPTH:
         return None
-    paths = theme_dirs(theme)
+    paths = theme_dirs(theme, bases)
     for path in paths:
         for name in names:
             candidate = os.path.join(path, "cursors", name)
@@ -59,16 +59,16 @@ def find_cursor(theme, names, _depth=0):
                 return candidate
     for path in paths:
         for parent in _inherits(path):
-            found = find_cursor(parent, names, _depth + 1)
+            found = find_cursor(parent, names, bases, _depth + 1)
             if found:
                 return found
     return None
 
 
-def resolved_theme(theme):
+def resolved_theme(theme, bases=None):
     """Nombre del tema que realmente pone los cursores ("default" →
     "Adwaita"), o None si no hay ninguno."""
-    found = find_cursor(theme, PREVIEW_ROLES[0])
+    found = find_cursor(theme, PREVIEW_ROLES[0], bases)
     return os.path.basename(os.path.dirname(os.path.dirname(found))) if found else None
 
 
@@ -98,11 +98,13 @@ def read_image(path, size):
     return width, height, xhot, yhot, pixels
 
 
-def preview_images(theme, size):
-    """Una imagen por rol de PREVIEW_ROLES que el tema tenga."""
+def preview_images(theme, size, bases=None):
+    """Una imagen por rol de PREVIEW_ROLES que el tema tenga. `bases`:
+    carpetas donde buscar en vez de las del sistema (paquetes sin
+    instalar, ver cursor_packages.py)."""
     images = []
     for names in PREVIEW_ROLES:
-        path = find_cursor(theme, names)
+        path = find_cursor(theme, names, bases)
         if path is None:
             continue
         try:
