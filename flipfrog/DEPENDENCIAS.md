@@ -60,6 +60,9 @@ Pedido explícito del usuario para que una instalación nueva quede lista para u
 | `brave-origin-bin` | Navegador (SUPER+B) |
 | `steam` (multilib) | Juegos; los íconos de juegos los genera `steam/steam-icons-sync.py` |
 | `vesktop-bin` | Discord (autostart). `vesktop` sin `-bin` no está en los repos, solo en AUR |
+| `heroic-games-launcher` | Juegos de Epic, GOG y Amazon |
+| `modrinth-app` | Minecraft con mods (en esta máquina, `modrinth-app-git` de AUR) |
+| `gamescope`, `mangohud`, `lib32-mangohud` | Escalado/resolución por juego y FPS en pantalla |
 | `zapzap` (AUR) | WhatsApp (autostart) |
 | `bibata-cursor-theme-bin` (AUR) | Cursor que espera `uwsm/env` |
 | `millennium-bin` (AUR, *extra*) | Temas de Steam (`sync_millennium.py`) |
