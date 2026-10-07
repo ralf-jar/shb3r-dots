@@ -16,7 +16,7 @@ Escritorio completo sobre **Hyprland** para **CachyOS**: barra propia, panel de 
 3. Contesta dos preguntas (teclado y extras). Si pregunta algo más, presiona Enter.
 4. Reinicia. Al entrar se abre una ventana con los atajos de teclado.
 
-Lo que ya tenías en `~/.config` con el mismo nombre se mueve a `~/.config-respaldo-<fecha>/`; no se borra nada.
+Lo que ya tenías en `~/.config` con el mismo nombre se mueve a `~/.config-respaldo-<fecha>/`; no se borra nada. Al terminar puedes ver el detalle de todo lo que se instaló y modificó (paquetes, servicios, archivos); queda guardado en `~/.cache/flipfrog-install-resumen.txt`.
 
 Además del escritorio instala Brave Origin, Steam, Vesktop (Discord), gamescope y Thunar con acciones de clic derecho (rotar y escalar imágenes, poner de fondo, extraer archivos).
 
