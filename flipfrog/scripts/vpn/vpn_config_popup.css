@@ -7,7 +7,7 @@ window {
 #vpn-container {
     background-color: @mybackground;
     padding: 16px 20px 18px 20px;
-    border-radius: 5px;
+    border-radius: 25px;
 }
 
 #vpn-title,
@@ -46,7 +46,7 @@ entry {
     background-color: alpha(@myforeground, 0.08);
     color: @myforegroundhover;
     border: none;
-    border-radius: 5px;
+    border-radius: 25px;
     box-shadow: none;
     font-family: monospace;
     padding: 2px 8px;
@@ -63,7 +63,7 @@ combobox button.combo {
     color: @myforegroundhover;
     border: none;
     box-shadow: none;
-    border-radius: 5px;
+    border-radius: 25px;
 }
 
 combobox arrow {
@@ -97,7 +97,7 @@ button:focus {
 .vpn-primary-btn {
     color: @mybackground;
     background-color: @myforegroundhover;
-    border-radius: 5px;
+    border-radius: 25px;
     font-weight: 800;
     padding: 4px 15px;
 }

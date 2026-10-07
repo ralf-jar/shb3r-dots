@@ -8,7 +8,7 @@ window {
    ahí rompía el blur con alphas bajos configurados por el usuario). */
 #container {
     background-color: @mybackground;
-    border-radius: 5px;
+    border-radius: 25px;
     padding: 16px 20px 18px 20px;
     min-width: 420px;
 }
@@ -27,7 +27,7 @@ entry {
     background-color: @mybackground;
     color: @myforegroundhover;
     border: none;
-    border-radius: 5px;
+    border-radius: 25px;
     font-weight: 800;
     padding: 2px 8px;
     min-height: 25px;
@@ -43,7 +43,7 @@ entry {
 .gf-result-btn {
     background-color: transparent;
     border: none;
-    border-radius: 5px;
+    border-radius: 25px;
     color: @myforeground;
     padding: 6px 10px;
 }
@@ -83,7 +83,7 @@ entry {
 
 .gf-load-more-btn {
     border: 1px solid @myborderinactive;
-    border-radius: 5px;
+    border-radius: 25px;
     padding: 6px 10px;
     margin-top: 2px;
 }
@@ -99,7 +99,7 @@ entry {
 }
 
 #preview-box {
-    border-radius: 5px;
+    border-radius: 25px;
 }
 
 /* Label: nombre de la familia elegida + categoría (dinámico,
@@ -142,7 +142,7 @@ label.gf-pangram {
 }
 
 .install-btn {
-    border-radius: 5px;
+    border-radius: 25px;
 }
 .install-btn label {
     font-size: 15px;

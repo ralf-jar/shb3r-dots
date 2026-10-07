@@ -6,7 +6,7 @@ window {
 
 #container {
     background-color: @mybackground;
-    border-radius: 5px;
+    border-radius: 25px;
     padding: 24px 28px;
     min-width: 560px;
 }
@@ -62,7 +62,7 @@ entry {
     color: @myforegroundhover;
     background-color: @mybackground;
     border: none;
-    border-radius: 5px;
+    border-radius: 25px;
     font-weight: 800;
     padding: 2px 12px;
     min-height: 0;
@@ -74,7 +74,7 @@ combobox button {
     border: none;
     box-shadow: none;
     font-weight: 800;
-    border-radius: 5px;
+    border-radius: 25px;
 }
 
 /* Label: contador de saltadas / estado de búsqueda (bandcamp_popup.py, status_label) */
@@ -96,7 +96,7 @@ combobox button {
    (antes compartía con el buscador), el fondo con blur de #container ya
    alcanza, un segundo fondo gris encima se sentía redundante. */
 #now-playing {
-    border-radius: 5px;
+    border-radius: 25px;
     padding: 18px;
 }
 
@@ -108,7 +108,7 @@ combobox button {
 #art-image {
     background-color: alpha(@myforegroundhover, 0.12);
     color: alpha(@myforeground, 0.55);
-    border-radius: 5px;
+    border-radius: 25px;
     margin-right: 16px;
 }
 
@@ -175,7 +175,7 @@ button {
     color: @myforeground;
     background-color: @mybackgroundhover;
     border: none;
-    border-radius: 5px;
+    border-radius: 25px;
     padding: 8px 14px;
 }
 
@@ -230,7 +230,7 @@ button:focus {
 .history-chip {
     background-color: @mybackground;
     color: alpha(@myforeground, 0.85);
-    border-radius: 5px;
+    border-radius: 25px;
     padding: 3px 10px;
     font-size: 12px;
     margin: 2px;
@@ -258,14 +258,14 @@ button:focus {
    separar del borde redondeado tanto a los chips como a las flechas. */
 #genres-row {
     background-color: @myforegroundhover;
-    border-radius: 5px;
+    border-radius: 25px;
     padding: 4px 6px;
     margin-bottom: 6px;
 }
 
 #subgenres-row {
     background-color: @myforegroundhover2;
-    border-radius: 5px;
+    border-radius: 25px;
     padding: 4px 6px;
     margin-bottom: 12px;
 }
@@ -304,7 +304,7 @@ button:focus {
     min-height: 0;
     background-color: transparent;
     color: alpha(@myforeground, 0.6);
-    border-radius: 5px;
+    border-radius: 25px;
     border: none;
     box-shadow: none;
 }
@@ -329,7 +329,7 @@ button:focus {
 .genre-btn {
     background-color: @mybackground;
     color: alpha(@myforeground, 0.85);
-    border-radius: 5px;
+    border-radius: 25px;
     padding: 4px 12px;
     font-size: 13px;
     margin: 2px;
@@ -350,7 +350,7 @@ button:focus {
 .subgenre-btn {
     background-color: @mybackground;
     color: alpha(@myforeground, 0.85);
-    border-radius: 5px;
+    border-radius: 25px;
     padding: 3px 10px;
     font-size: 12px;
     margin: 2px;
@@ -402,7 +402,7 @@ button:focus {
 .tag-label-btn {
     background-color: @mybackground;
     color: alpha(@myforeground, 0.85);
-    border-radius: 5px 0 0 5px;
+    border-radius: 25px 0 0 25px;
     padding: 3px 10px;
     font-size: 12px;
 }
@@ -416,7 +416,7 @@ button:focus {
 .tag-add-btn {
     background-color: @mybackground;
     color: @myforegroundhover2;
-    border-radius: 0 5px 5px 0;
+    border-radius: 0 25px 25px 0;
     padding: 3px 8px;
     font-size: 12px;
     font-weight: 900;
@@ -504,7 +504,7 @@ button:focus {
     min-width: 0;
     min-height: 0;
     background-color: transparent;
-    border-radius: 5px;
+    border-radius: 25px;
     border: none;
     box-shadow: none;
 }
@@ -517,7 +517,7 @@ button:focus {
    el resto de las tiras (bandcamp_popup.py CATALOG_CHIP_SIZE/_build_album_chip),
    mismo radio proporcional que ALBUM_CHIP_RADIUS horneado en el pixbuf. */
 .album-chip.catalog-chip {
-    border-radius: 5px;
+    border-radius: 25px;
     margin: 3px;
 }
 
@@ -550,13 +550,13 @@ button:focus {
    por highlight) quedaba invisible contra ese fondo. */
 #progress-scale trough {
     background-color: @myforeground;
-    border-radius: 5px;
+    border-radius: 25px;
     min-height: 6px;
 }
 
 #progress-scale highlight {
     background-color: @mybackgroundhover;
-    border-radius: 5px;
+    border-radius: 25px;
     border-bottom-right-radius: 0px;
     border-top-right-radius: 0px;
     min-height: 6px;
@@ -612,7 +612,7 @@ button:focus {
 #prev-btn, #skip-btn {
     padding: 10px;
     background-color: transparent;
-    border-radius: 5px;
+    border-radius: 25px;
     border: none;
     box-shadow: none;
 }
@@ -630,7 +630,7 @@ button:focus {
 #autoeq-btn {
     padding: 10px;
     background-color: transparent;
-    border-radius: 5px;
+    border-radius: 25px;
     border: none;
     box-shadow: none;
 }
@@ -649,7 +649,7 @@ button:focus {
     min-width: 60px;
     padding: 0;
     color: @myforeground;
-    border-radius: 5px;
+    border-radius: 25px;
     border: none;
     box-shadow: none;
     background-color: transparent;
@@ -697,7 +697,7 @@ button:focus {
     padding: 6px;
     background-color: transparent;
     color: alpha(@myforeground, 0.05);
-    border-radius: 5px;
+    border-radius: 25px;
     border: none;
     box-shadow: none;
 }
@@ -774,7 +774,7 @@ button:focus {
     padding: 6px;
     background-color: transparent;
     color: alpha(@myforeground, 0.55);
-    border-radius: 5px;
+    border-radius: 25px;
     border: none;
     box-shadow: none;
 }
@@ -796,7 +796,7 @@ button:focus {
 
 #local-tracks-list row {
     padding: 3px 8px;
-    border-radius: 5px;
+    border-radius: 25px;
 }
 
 #local-tracks-list row:hover {

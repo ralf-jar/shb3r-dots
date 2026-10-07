@@ -18,7 +18,7 @@
 .eq-preset-combo button {
     background-color: @mybackgroundhover;
     color: @myforeground;
-    border-radius: 5px;
+    border-radius: 25px;
 }
 
 /* Button: basura junto al combo, borra el preajuste PROPIO seleccionado
@@ -82,7 +82,7 @@ scale.vertical slider {
 }
 scale.vertical trough,
 scale.vertical highlight {
-    border-radius: 5px;
+    border-radius: 25px;
 }
 scale.vertical slider {
     border-radius: 50%;

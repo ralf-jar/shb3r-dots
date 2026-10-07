@@ -60,7 +60,7 @@
 switch.toggle-row-switch {
     background-color: @mybackground;
     border: 1px solid @myborderinactive;
-    border-radius: 5px;
+    border-radius: 25px;
     min-width: 34px;
     min-height: 18px;
     box-shadow: none;
@@ -71,7 +71,7 @@ switch.toggle-row-switch:checked {
 }
 switch.toggle-row-switch slider {
     background-color: @myforeground;
-    border-radius: 5px;
+    border-radius: 25px;
     min-width: 14px;
     min-height: 14px;
     margin: 1px;

@@ -85,7 +85,7 @@
    redondeadas en hover pese a tener el slider en 0. */
 #process-list row {
     background-color: transparent;
-    border-radius: 5px;
+    border-radius: 25px;
 }
 
 #process-list row:hover {

@@ -7,7 +7,7 @@ window {
 /* Mismo contenedor que #dl-container/#launcher-container. */
 #nh-container {
     background-color: @mybackground;
-    border-radius: 5px;
+    border-radius: 25px;
     padding: 16px 18px 14px 18px;
     min-width: 420px;
 }
@@ -23,7 +23,7 @@ window {
     background-color: alpha(@myforegroundhover, 0.55);
     font-size: 12px;
     font-weight: 800;
-    border-radius: 5px;
+    border-radius: 25px;
     padding: 1px 8px;
 }
 
@@ -53,7 +53,7 @@ window {
 
 .nh-row {
     background-color: alpha(@myforeground, 0.05);
-    border-radius: 5px;
+    border-radius: 25px;
     border: 1px solid transparent;
     padding: 10px 8px 10px 12px;
     margin-bottom: 6px;

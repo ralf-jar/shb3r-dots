@@ -16,12 +16,12 @@
 /* Gtk.Scale del slider de brillo. */
 scale trough {
     background-color: @mybackgroundhover;
-    border-radius: 5px;
+    border-radius: 25px;
     min-height: 6px;
 }
 scale highlight {
     background-color: @myforegroundhover;
-    border-radius: 5px;
+    border-radius: 25px;
 }
 scale slider {
     background-color: @myforegroundhover;

@@ -18,7 +18,7 @@
 tooltip {
     background-color: @mybackground;
     border: none;
-    border-radius: 5px;
+    border-radius: 25px;
     padding: 5px 15px;
 }
 
@@ -30,7 +30,7 @@ tooltip label {
 
 .pill {
     background-color: @mybarbackground;
-    border-radius: 5px;
+    border-radius: 25px;
 }
 
 /* ---- Ranita ---- */
@@ -63,7 +63,7 @@ tooltip label {
     padding: 0 5px;
     min-width: 30px;
     margin: 3px 2px;
-    border-radius: 5px;
+    border-radius: 25px;
     transition: background-color 200ms ease;
 }
 
@@ -116,7 +116,7 @@ tooltip label {
 .taskbar-button {
     padding: 0 5px;
     margin: 3px 2px;
-    border-radius: 5px;
+    border-radius: 25px;
     transition: background-color 200ms ease;
 }
 
@@ -170,11 +170,11 @@ tooltip label {
 }
 
 .islas #bandcamp-info {
-    border-radius: 5px 0 0 5px;
+    border-radius: 25px 0 0 25px;
 }
 
 .islas #bandcamp-next {
-    border-radius: 0 5px 5px 0;
+    border-radius: 0 25px 25px 0;
 }
 
 /* ---- Sonido / Bluetooth / Red ----
@@ -242,7 +242,7 @@ tooltip label {
 #right-cluster .tray-item.needs-attention {
     opacity: 1;
     background-color: @myforegroundhover;
-    border-radius: 5px;
+    border-radius: 25px;
 }
 
 /* ---- VPN / No molestar / Audiolibro ----

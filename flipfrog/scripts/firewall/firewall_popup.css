@@ -23,7 +23,7 @@ window {
 }
 
 #firewall-container {
-    border-radius: 5px;
+    border-radius: 25px;
 }
 
 /* Centrado, mismo tamaño/negrita que #header en theme-editor.css
@@ -52,7 +52,7 @@ entry {
     background-color: @mybackground;
     color: @myforegroundhover;
     border: none;
-    border-radius: 5px;
+    border-radius: 25px;
     font-weight: 800;
     padding: 2px 8px;
     min-height: 25px;
@@ -181,7 +181,7 @@ combobox button.combo {
     border: none;
     box-shadow: none;
     outline: none;
-    border-radius: 5px;
+    border-radius: 25px;
     font-weight: 800;
     padding: 2px 8px;
     min-height: 25px;
@@ -203,7 +203,7 @@ combobox arrow {
     color: @mybackground;
     background-color: @myforegroundhover;
     border: none;
-    border-radius: 5px;
+    border-radius: 25px;
     font-weight: 800;
     padding: 4px 15px;
     margin-top: 4px;

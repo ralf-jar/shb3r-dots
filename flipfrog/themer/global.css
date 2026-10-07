@@ -1,7 +1,7 @@
 @import url("colors.css");
 
 * {
-    font-family: "FantasqueSansM Nerd Font Propo", "Symbols Nerd Font", sans-serif;
+    font-family: "Geologica", "Symbols Nerd Font", sans-serif;
     font-size: 15px;
 }
 
@@ -31,6 +31,6 @@ menu,
 menu menuitem,
 combobox window.popup,
 combobox window.popup row {
-    border-radius: 5px;
+    border-radius: 25px;
 }
 
