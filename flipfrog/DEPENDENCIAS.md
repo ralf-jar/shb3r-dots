@@ -32,14 +32,12 @@ Ya vienen por defecto y no se listan: `ffmpeg`, `ffmpegthumbnailer`, `grim`, `uf
 | Calendario | `python-caldav`, `radicale` | Cliente CalDAV; servidor local de notas |
 | Alarmas | -- | |
 | Volumen / Mezclador / Salida de audio | -- | |
-| Asistente de voz | `python-caldav`, `python-webrtcvad` (*extra*), `whisper-cpp` (*extra*), `piper-tts` (AUR, *extra*), `claude` (CLI, fuera de pacman) | Calendario por voz; detección de silencio; transcripción; voz; respuestas |
 
 `piper-tts` depende de un proveedor de `python-onnxruntime`: si no está instalado antes, paru pregunta cuál usar y un `paru -S piper-tts` sin atender se queda esperando. `install.sh` instala `python-onnxruntime-cpu` primero por eso.
 
 ### Archivos que no son paquetes
 
-- `~/.cache/waybar-voice-assistant/whisper-small.bin` -- modelo de Whisper.
-- `~/.cache/waybar-voice-assistant/*.onnx(.json)` -- voces de Piper (las baja `install.sh`; Audiolibros baja las que falten).
+- `~/.local/share/flipfrog/audiobooks/voices/es_ES-sharvard-medium.onnx(.json)` -- voz de Piper en español para Audiolibros (la baja `install.sh` con los extras; Audiolibros baja las que falten).
 
 ## Acciones de Thunar (`Thunar/uca.xml`)
 
@@ -58,8 +56,9 @@ Pedido explícito del usuario para que una instalación nueva quede lista para u
 | Paquete | Para qué |
 |---|---|
 | `brave-origin-bin` | Navegador (SUPER+B) |
-| `steam` (multilib) | Juegos; los íconos de juegos los genera `steam/steam-icons-sync.py` |
-| `vesktop-bin` | Discord (autostart). `vesktop` sin `-bin` no está en los repos, solo en AUR |
+| `steam` (multilib, *extra*) | Juegos; los íconos de juegos los genera `steam/steam-icons-sync.py` |
+| `vesktop-bin` (*extra*) | Discord (autostart). `vesktop` sin `-bin` no está en los repos, solo en AUR |
 | `gamescope` | Resolución y escalado por juego |
 | `bibata-cursor-theme-bin` (AUR) | Cursor que espera `uwsm/env` |
 | `millennium-bin` (AUR, *extra*) | Temas de Steam (`sync_millennium.py`) |
+| `zapzap` (AUR, *extra*) | WhatsApp (autostart) |
