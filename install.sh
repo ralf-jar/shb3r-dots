@@ -138,6 +138,16 @@ elif sudo pacman -S --needed sddm && sudo systemctl enable sddm.service; then
 else
     warn "No se pudo instalar SDDM -- al reiniciar entra con tu usuario y escribe: Hyprland"
 fi
+# Instalación normal de CachyOS: noctalia viene incluido y su panel lo
+# arranca la config de Hyprland de fábrica (qs -c noctalia-shell), que
+# bootstrap.sh ya movió al respaldo -- queda instalado pero sin arrancar.
+if pacman -Q noctalia-shell >/dev/null 2>&1; then
+    if grep -rqs 'noctalia-shell' "$TARGET/hypr/"; then
+        warn "Tu config de Hyprland todavía arranca noctalia -- quita esa línea de hypr/config/autostart.lua"
+    else
+        ok "noctalia está instalado pero ya no arranca (su panel lo reemplaza esta barra)"
+    fi
+fi
 
 step "Habilitar agente de polkit (hyprpolkitagent)"
 if systemctl --user enable --now hyprpolkitagent.service; then
