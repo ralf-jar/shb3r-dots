@@ -61,6 +61,5 @@ Pedido explícito del usuario para que una instalación nueva quede lista para u
 | `steam` (multilib) | Juegos; los íconos de juegos los genera `steam/steam-icons-sync.py` |
 | `vesktop-bin` | Discord (autostart). `vesktop` sin `-bin` no está en los repos, solo en AUR |
 | `gamescope` | Resolución y escalado por juego |
-| `zapzap` (AUR) | WhatsApp (autostart) |
 | `bibata-cursor-theme-bin` (AUR) | Cursor que espera `uwsm/env` |
 | `millennium-bin` (AUR, *extra*) | Temas de Steam (`sync_millennium.py`) |

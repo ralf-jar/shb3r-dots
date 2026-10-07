@@ -18,7 +18,7 @@ Escritorio completo sobre **Hyprland** para **CachyOS**: barra propia, panel de 
 
 Lo que ya tenías en `~/.config` con el mismo nombre se mueve a `~/.config-respaldo-<fecha>/`; no se borra nada.
 
-Además del escritorio instala Brave Origin, Steam, Vesktop (Discord), ZapZap (WhatsApp) y Thunar con acciones de clic derecho (rotar y escalar imágenes, poner de fondo, extraer archivos).
+Además del escritorio instala Brave Origin, Steam, Vesktop (Discord), gamescope y Thunar con acciones de clic derecho (rotar y escalar imágenes, poner de fondo, extraer archivos).
 
 ## Atajos básicos
 
