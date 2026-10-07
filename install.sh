@@ -283,9 +283,8 @@ if [[ ${#APPS_PACMAN[@]} -gt 0 ]]; then
 fi
 
 # realesrgan: acción "Escalar imagen con IA" de Thunar (Thunar/uca.xml).
-stage $W_AUR "Instalando WhatsApp, cursor y escalado de imágenes (AUR)"
+stage $W_AUR "Instalando cursor y escalado de imágenes (AUR)"
 APPS_AUR=(bibata-cursor-theme-bin realesrgan-ncnn-vulkan-bin)
-command -v zapzap >/dev/null || APPS_AUR+=(zapzap)
 run paru -S --needed --noconfirm --skipreview "${APPS_AUR[@]}" \
     || warn "Falló algo de AUR (${APPS_AUR[*]}) -- reinténtalo con: paru -S ${APPS_AUR[*]}"
 
