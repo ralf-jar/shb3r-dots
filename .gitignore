@@ -72,8 +72,6 @@
 /flipfrog/scripts/audio/eq-custom-presets.json
 /flipfrog/scripts/audio/eq-device-gains.json
 /flipfrog/scripts/audio/sink-names.json
-# preferencias del asistente de voz (ciudad, sistema operativo, notas):
-/flipfrog/scripts/assistant/assistant-config.json
 # alarmas programadas por el usuario (alarm_popup.py/alarm_daemon.py) --
 # estado personal, no código:
 /flipfrog/scripts/alarms/alarms.json

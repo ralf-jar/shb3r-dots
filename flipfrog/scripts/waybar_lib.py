@@ -173,7 +173,6 @@ GROUP_LOCKS = [
     "/tmp/firewall-log-viewer.pid",
     "/tmp/firewall-popup.pid",
     "/tmp/services-popup.pid",
-    "/tmp/voice-assistant.pid",
     "/tmp/bandcamp-radio-popup.pid",
     "/tmp/keybinds-popup.pid",
     "/tmp/app-launcher.pid",

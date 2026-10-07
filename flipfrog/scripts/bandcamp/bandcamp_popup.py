@@ -1536,7 +1536,7 @@ class Popup:
         if event.button == 3 and self._item_url:
             # wl-copy por subprocess, nunca Gtk.Clipboard -- no sobrevive
             # el cierre del proceso bajo Wayland (mismo criterio que
-            # updates_module.py/voice_assistant.py).
+            # updates_module.py).
             subprocess.run(["wl-copy"], input=self._item_url, text=True)
         return False
 

@@ -1,6 +1,6 @@
-"""Voces de Piper para audiolibros, sin GTK. Reusa las que ya bajó el
-asistente de voz (~/.cache/waybar-voice-assistant/) y guarda las nuevas
-en la biblioteca. Una voz = modelo .onnx + locutor (los modelos
+"""Voces de Piper para audiolibros, sin GTK. Guarda las nuevas en la
+biblioteca (también lee ~/.cache/waybar-voice-assistant/, donde se bajaban
+antes). Una voz = modelo .onnx + locutor (los modelos
 multi-locutor, como sharvard, cuentan como una voz por locutor)."""
 
 import glob
@@ -23,8 +23,7 @@ DOWNLOADABLE = {
     "it": "it/it_IT/paola/medium/it_IT-paola-medium",
     "de": "de/de_DE/thorsten/medium/de_DE-thorsten-medium",
 }
-# Voz elegida por el asistente de voz (sharvard, locutora) -- mismo
-# criterio acá como default en español.
+# Default en español: sharvard, locutora (la baja install.sh con los extras).
 PREFERRED = {"es": ("es_ES-sharvard-medium", 1)}
 
 

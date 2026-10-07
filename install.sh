@@ -100,8 +100,8 @@ if [[ -z "$EXTRAS" ]]; then
     if [[ $HAS_TTY == 1 ]]; then
         screen
         echo
-        echo "${BOLD}¿Instalar extras?${RESET} Asistente de voz, audiolibros narrados y temas"
-        echo "para Steam. Bajan ~1 GB más y no hacen falta para empezar."
+        echo "${BOLD}¿Instalar extras?${RESET} Steam (con temas), Discord (Vesktop), WhatsApp"
+        echo "(ZapZap) y audiolibros narrados. Bajan ~600 MB más y no hacen falta para empezar."
         ask extras_choice "¿Instalar extras? [s/N]: "
         [[ "$extras_choice" =~ ^[sSyY] ]] && EXTRAS=1
     fi
@@ -135,8 +135,8 @@ echo
 # (pacman/paru) el avance y la etiqueta salen de su salida en el log
 # (LC_ALL=C para leerla en inglés): "(12/58) installing foo", "foo
 # downloading...", "==> Making package: foo".
-W_BASE=30; W_LOGIN=3; W_SERVICES=2; W_PARU=3; W_APPS=25; W_AUR=20
-W_EXTRAS=20; W_MODELS=10; W_CONFIG=4; W_FONTS=2
+W_BASE=30; W_LOGIN=3; W_SERVICES=2; W_PARU=3; W_APPS=15; W_AUR=20
+W_EXTRAS=35; W_MODELS=5; W_CONFIG=4; W_FONTS=2
 TOTAL_W=$((W_BASE + W_LOGIN + W_SERVICES + W_PARU + W_APPS + W_AUR + W_CONFIG + W_FONTS))
 [[ $EXTRAS == 1 ]] && TOTAL_W=$((TOTAL_W + W_EXTRAS + W_MODELS))
 DONE_W=0; STAGE_W=0; STAGE_FRAC=0; LABEL=""; LAST_LINE=""
@@ -282,14 +282,13 @@ if ! command -v paru >/dev/null; then
     pac paru || fail "paru no está en tus repos -- instálalo desde AUR: git clone https://aur.archlinux.org/paru.git && cd paru && makepkg -si"
 fi
 
-# Apps del día a día (pedido explícito del usuario, rutina para amigos).
-# Cada una se salta si su comando ya existe: en la máquina de origen
-# vesktop vino de AUR y vesktop-bin chocaría con él.
-stage $W_APPS "Instalando Brave, Steam, Discord y gamescope"
+# Apps de la instalación base (pedido explícito del usuario). Steam,
+# Vesktop y ZapZap van en los extras. Cada una se salta si su comando ya
+# existe: en la máquina de origen vesktop y zapzap vinieron de AUR y los
+# paquetes de los repos chocarían con ellos.
+stage $W_APPS "Instalando Brave y gamescope"
 APPS_PACMAN=()
 command -v brave-origin >/dev/null || APPS_PACMAN+=(brave-origin-bin)
-command -v steam        >/dev/null || APPS_PACMAN+=(steam)
-command -v vesktop      >/dev/null || APPS_PACMAN+=(vesktop-bin)
 # gamescope: resolución y escalado por juego.
 command -v gamescope    >/dev/null || APPS_PACMAN+=(gamescope)
 if [[ ${#APPS_PACMAN[@]} -gt 0 ]]; then
@@ -307,34 +306,35 @@ if [[ $EXTRAS == 1 ]]; then
     # python-onnxruntime-cpu ANTES de piper-tts a propósito -- piper-tts
     # depende de un proveedor de python-onnxruntime y, sin resolverlo
     # primero, paru pregunta de forma interactiva (cpu/cuda/rocm...).
-    stage $W_EXTRAS "Instalando extras (voz, audiolibros, temas de Steam)"
-    { pac whisper-cpp python-webrtcvad python-onnxruntime-cpu \
-        && run paru -S --needed --noconfirm --skipreview millennium-bin piper-tts; } \
-        || warn "Falló algo de los extras -- instala manualmente lo que quedó pendiente"
+    stage $W_EXTRAS "Instalando Steam, Discord, WhatsApp y audiolibros"
+    EXTRAS_PACMAN=(python-onnxruntime-cpu)
+    command -v steam   >/dev/null || EXTRAS_PACMAN+=(steam)
+    command -v vesktop >/dev/null || EXTRAS_PACMAN+=(vesktop-bin)
+    EXTRAS_AUR=(millennium-bin piper-tts)
+    command -v zapzap  >/dev/null || EXTRAS_AUR+=(zapzap)
+    pac "${EXTRAS_PACMAN[@]}" \
+        || warn "Falló la instalación de ${EXTRAS_PACMAN[*]} -- reinténtalo con: sudo pacman -S ${EXTRAS_PACMAN[*]}"
+    run paru -S --needed --noconfirm --skipreview "${EXTRAS_AUR[@]}" \
+        || warn "Falló algo de AUR (${EXTRAS_AUR[*]}) -- reinténtalo con: paru -S ${EXTRAS_AUR[*]}"
 
-    # Modelos del asistente de voz (flipfrog/scripts/assistant/): ~465 MiB
-    # + ~73 MiB, a un .part y renombrados al final para no dejar un archivo
-    # truncado si se corta a la mitad.
-    VOICE_ASSISTANT_CACHE="$HOME/.cache/waybar-voice-assistant"
-    stage $W_MODELS "Descargando modelos de voz"
-    mkdir -p "$VOICE_ASSISTANT_CACHE"
-    _dl() {
-        local url="$1" dest="$2"
-        [[ -f "$dest" ]] && return
+    # Voz en español para Audiolibros (~73 MiB): sin ella bajaría otra al
+    # abrir el primer libro. A un .part y renombrada al final para no dejar
+    # un archivo truncado si se corta a la mitad.
+    VOICES_DIR="$HOME/.local/share/flipfrog/audiobooks/voices"
+    VOICE_URL="https://huggingface.co/rhasspy/piper-voices/resolve/main/es/es_ES/sharvard/medium/es_ES-sharvard-medium.onnx"
+    stage $W_MODELS "Descargando la voz para audiolibros"
+    mkdir -p "$VOICES_DIR"
+    for ext in onnx onnx.json; do
+        dest="$VOICES_DIR/es_ES-sharvard-medium.$ext"
+        [[ -f "$dest" ]] && continue
         LABEL="Descargando $(basename "$dest")"
-        if run curl -fsSL -o "$dest.part" "$url"; then
+        if run curl -fsSL -o "$dest.part" "${VOICE_URL%.onnx}.$ext"; then
             mv "$dest.part" "$dest"
         else
             rm -f "$dest.part"
-            warn "Falló la descarga de $(basename "$dest") -- el asistente de voz no va a funcionar hasta bajarlo a mano en $VOICE_ASSISTANT_CACHE"
+            warn "Falló la descarga de $(basename "$dest") -- Audiolibros bajará otra voz al abrir el primer libro"
         fi
-    }
-    _dl "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin" \
-        "$VOICE_ASSISTANT_CACHE/whisper-small.bin"
-    _dl "https://huggingface.co/rhasspy/piper-voices/resolve/main/es/es_ES/sharvard/medium/es_ES-sharvard-medium.onnx" \
-        "$VOICE_ASSISTANT_CACHE/es_ES-sharvard-medium.onnx"
-    _dl "https://huggingface.co/rhasspy/piper-voices/resolve/main/es/es_ES/sharvard/medium/es_ES-sharvard-medium.onnx.json" \
-        "$VOICE_ASSISTANT_CACHE/es_ES-sharvard-medium.onnx.json"
+    done
 fi
 
 stage $W_CONFIG "Copiando la configuración"

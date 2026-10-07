@@ -342,7 +342,7 @@ hl.layer_rule({
 })
 
 -- keybinds_popup.py (SUPER+SHIFT+K) -- primero del TO DO de ventanas que
--- todavía no tenían la línea de diseño (Bandcamp/asistente de voz/
+-- todavía no tenían la línea de diseño (Bandcamp/
 -- keybinds), mismo mecanismo que el resto de arriba.
 hl.layer_rule({
     match = { namespace = "keybinds-popup" },
@@ -351,13 +351,6 @@ hl.layer_rule({
     ignore_alpha = 0.02
 })
 
--- voice_assistant.py (SUPER+V) -- segundo del TO DO.
-hl.layer_rule({
-    match = { namespace = "voice-assistant" },
-    blur = true,
-    xray = false,
-    ignore_alpha = 0.02
-})
 
 -- bandcamp/bandcamp_popup.py (SUPER+M) -- mismo mecanismo,
 -- build_layer_window() con namespace "bandcamp-radio".

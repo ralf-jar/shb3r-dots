@@ -1,9 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Asistente de voz
-Name[en]=Voice assistant
-Exec=python3 "@HOME@/.config/flipfrog/scripts/assistant/voice_assistant.py"
-Icon=assistant
-Terminal=false
-Categories=Custom;
-X-Flipfrog-Requires=whisper-cli
