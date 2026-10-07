@@ -9,6 +9,7 @@ Ya vienen por defecto y no se listan: `ffmpeg`, `ffmpegthumbnailer`, `grim`, `uf
 | Paquete | Para qué |
 |---|---|
 | `gtk-layer-shell` | Ventana tipo popup sobre Wayland (`waybar_lib.build_layer_window`) y la barra (`bar/bar.py`) |
+| `sddm` | Pantalla de inicio de sesión, solo si no hay otro gestor (`display-manager.service`); sin él CachyOS arranca en terminal de texto si se quitó noctalia al instalar |
 | `hyprpolkitagent` | Agente de polkit (servicio de usuario, `systemctl --user enable --now hyprpolkitagent`): sin él, todo `pkexec` falla con "No authentication agent found" antes de pedir contraseña |
 
 ## Por popup
