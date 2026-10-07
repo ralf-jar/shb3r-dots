@@ -43,6 +43,10 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("radicale --config " .. home .. "/.config/radicale/config")
     -- name: Seguridad UI
     hl.exec_cmd("systemctl --user start hyprpolkitagent")
+    -- En Wayland lo copiado se pierde al cerrar la app de donde salió;
+    -- wl-clip-persist se queda con una copia.
+    -- name: Portapapeles persistente
+    hl.exec_cmd("wl-clip-persist --clipboard regular")
     -- Solo abre si flipfrog/scripts/keybinds/welcome.json lo pide (lo
     -- crea install.sh en una instalación nueva; el switch del popup lo apaga).
     -- name: Atajos al iniciar sesión

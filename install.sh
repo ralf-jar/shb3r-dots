@@ -224,7 +224,7 @@ pac \
     xdg-desktop-portal-hyprland gtk-layer-shell \
     python-gobject python-pillow python-cairo \
     pacman-contrib ffmpegthumbnailer icoutils \
-    bluez bluez-utils ddcutil dunst wl-clipboard \
+    bluez bluez-utils ddcutil dunst wl-clipboard wl-clip-persist \
     thunar tumbler gvfs fish micro \
     adw-gtk-theme papirus-icon-theme awww mpvpaper \
     noto-fonts-emoji ttf-jetbrains-mono-nerd \
