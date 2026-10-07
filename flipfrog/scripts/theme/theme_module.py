@@ -47,6 +47,7 @@ ROTATION_CONFIG = os.path.join(THEMER_DIR, "rotation.json")
 ROTATOR_SCRIPT = os.path.join(SCRIPT_DIR, "theme-rotator.py")
 THEME_EDITOR_SCRIPT = os.path.join(SCRIPT_DIR, "theme-editor.py")
 THEME_GALLERY_SCRIPT = os.path.join(SCRIPT_DIR, "theme_gallery.py")
+CURSOR_PICKER_SCRIPT = os.path.join(SCRIPT_DIR, "cursor_picker.py")
 
 GOOGLE_FONTS_SCRIPT = os.path.join(SCRIPT_DIR, "..", "fonts", "google-fonts.py")
 RADIUS_SYNC_SCRIPT = os.path.join(THEMER_DIR, "sync_radius.py")
@@ -530,24 +531,19 @@ def _build_icon_pack_combo():
 
 def _build_cursor_controls(look):
     box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-    combo = _combo(t("temas", "cursor_tooltip"))
-    themes = look_settings.list_cursor_themes()
-    if look["cursor_theme"] not in themes:
-        themes.insert(0, look["cursor_theme"])
-    for name in themes:
-        combo.append(name, name)
-    combo.set_active_id(look["cursor_theme"])
-    state = {"size": look["cursor_size"]}
-
-    def apply(theme, size):
-        common.run_async(lambda: look_settings.apply_cursor(theme, size))
+    picker_btn = _action_button(look["cursor_theme"], lambda _b: subprocess.Popen(
+        ["python3", CURSOR_PICKER_SCRIPT], start_new_session=True,
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL), t("temas", "cursor_elegir_tooltip"))
+    label = picker_btn.get_child()
+    label.set_ellipsize(Pango.EllipsizeMode.END)
+    label.set_width_chars(min(len(look["cursor_theme"]), COMBO_WIDTH_CHARS))
+    label.set_max_width_chars(COMBO_WIDTH_CHARS)
 
     def on_size(v):
-        state["size"] = v
-        apply(combo.get_active_id(), v)
+        theme = look_settings.load()["cursor_theme"]
+        common.run_async(lambda: look_settings.apply_cursor(theme, v))
 
-    combo.connect("changed", lambda c: apply(c.get_active_id(), state["size"]))
-    box.pack_start(combo, False, False, 0)
+    box.pack_start(picker_btn, False, False, 0)
     box.pack_start(_number_field(look["cursor_size"], t("temas", "px"), 16, 96, on_size,
                                  t("temas", "tamano_cursor_tooltip")), False, False, 0)
     return box
