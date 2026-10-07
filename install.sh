@@ -14,8 +14,8 @@
 # Pregunta dos cosas (teclado y extras); sin terminal o para no preguntar:
 #   FLIPFROG_KB=latam|es|us|us-intl   FLIPFROG_EXTRAS=0|1
 #
-# En la propia máquina de origen, correrlo de nuevo es inofensivo (todo
-# aquí es idempotente: instala con --needed).
+# Salida: una barra de progreso con lo que está haciendo; todo lo demás
+# va a ~/.cache/flipfrog-install.log. Idempotente (instala con --needed).
 set -euo pipefail
 
 TARGET="$HOME/.config"
@@ -25,31 +25,22 @@ if [[ "$(cd "$(dirname "$(readlink -f "$0")")" && pwd)" != "$TARGET" ]]; then
     exit 1
 fi
 
-# --- Salida: colores solo si hay una terminal real detrás (no al redirigir
-# a un log) -- y contador de pasos para que se vea cuánto falta. Si sumas
-# o quitas un step() actualiza TOTAL_STEPS a mano (abajo, tras las
-# preguntas), son pocos y así no hace falta un pre-cálculo más elaborado.
-STEP=0
-
 if [[ -t 1 ]]; then
-    BOLD=$'\033[1m'; RESET=$'\033[0m'
+    BOLD=$'\033[1m'; RESET=$'\033[0m'; DIM=$'\033[2m'
     GREEN=$'\033[32m'; YELLOW=$'\033[33m'; RED=$'\033[31m'; CYAN=$'\033[36m'
+    BAR_MODE=1
 else
-    BOLD=""; RESET=""; GREEN=""; YELLOW=""; RED=""; CYAN=""
+    BOLD=""; RESET=""; DIM=""; GREEN=""; YELLOW=""; RED=""; CYAN=""
+    BAR_MODE=0
 fi
 
+LOG="$HOME/.cache/flipfrog-install.log"
+mkdir -p "$(dirname "$LOG")"
+: > "$LOG"
+log() { printf '%s\n' "$*" >> "$LOG"; }
+
 WARNINGS=()
-
-step() {
-    STEP=$((STEP + 1))
-    echo
-    echo "${BOLD}${CYAN}[$STEP/$TOTAL_STEPS]${RESET} ${BOLD}$1${RESET}"
-}
-
-ok()   { echo "      ${GREEN}✔${RESET} $1"; }
-info() { echo "      ${CYAN}→${RESET} $1"; }
-warn() { echo "      ${YELLOW}⚠${RESET} $1"; WARNINGS+=("$1"); }
-err()  { echo "      ${RED}✘${RESET} $1" >&2; }
+warn() { WARNINGS+=("$1"); log "AVISO: $1"; }
 
 # Preguntas por /dev/tty: con `curl ... | bash` (bootstrap.sh) stdin es el
 # propio script y `read` se lo comería.
@@ -95,32 +86,111 @@ if [[ -z "$EXTRAS" ]]; then
     fi
 fi
 
-TOTAL_STEPS=10
-[[ $EXTRAS == 1 ]] && TOTAL_STEPS=12
-
-if [[ $HAS_TTY == 1 ]]; then
-    echo
-    echo "${BOLD}Escribe tu contraseña (solo se pide una vez). Si después pregunta algo,"
-    echo "presiona Enter: la opción por defecto está bien.${RESET}"
-fi
-
 # Contraseña una sola vez: las compilaciones de AUR tardan más que el
 # tiempo que sudo recuerda la contraseña.
+echo
+echo "${BOLD}Escribe tu contraseña${RESET} (solo se pide una vez):"
 if [[ $HAS_TTY == 1 ]]; then sudo -v < /dev/tty; else sudo -v; fi
 ( while sleep 50; do sudo -n true 2>/dev/null || exit; kill -0 $$ 2>/dev/null || exit; done ) &
 SUDO_KEEPALIVE=$!
-trap 'kill $SUDO_KEEPALIVE 2>/dev/null' EXIT
+trap 'kill $SUDO_KEEPALIVE 2>/dev/null; [[ $BAR_MODE == 1 ]] && printf "\033[?25h"' EXIT
+echo
+
+# --- Barra de progreso. Cada etapa tiene un peso; dentro de las largas
+# (pacman/paru) el avance y la etiqueta salen de su salida en el log
+# (LC_ALL=C para leerla en inglés): "(12/58) installing foo", "foo
+# downloading...", "==> Making package: foo".
+W_BASE=30; W_LOGIN=3; W_SERVICES=2; W_PARU=3; W_APPS=25; W_AUR=20
+W_EXTRAS=20; W_MODELS=10; W_CONFIG=4; W_FONTS=2
+TOTAL_W=$((W_BASE + W_LOGIN + W_SERVICES + W_PARU + W_APPS + W_AUR + W_CONFIG + W_FONTS))
+[[ $EXTRAS == 1 ]] && TOTAL_W=$((TOTAL_W + W_EXTRAS + W_MODELS))
+DONE_W=0; STAGE_W=0; STAGE_FRAC=0; LABEL=""; LAST_LINE=""
+SPIN=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏); SPIN_I=0
+
+draw() {  # draw <fracción 0-1000 dentro de la etapa> <etiqueta>
+    # Nunca hacia atrás: con varios paquetes, la lectura de cada uno empieza de cero.
+    (( $1 > STAGE_FRAC )) && STAGE_FRAC=$1
+    local pct=$(( (DONE_W * 1000 + STAGE_W * STAGE_FRAC) / (TOTAL_W * 10) ))
+    (( pct > 100 )) && pct=100
+    if [[ $BAR_MODE == 0 ]]; then
+        local line="[$pct%] $2"
+        [[ "$line" != "$LAST_LINE" ]] && echo "$line"
+        LAST_LINE="$line"
+        return
+    fi
+    local width=30 filled=$(( pct * 30 / 100 ))
+    local bar="${GREEN}$(printf '█%.0s' $(seq 1 $filled 2>/dev/null))${RESET}${DIM}$(printf '░%.0s' $(seq 1 $((width - filled)) 2>/dev/null))${RESET}"
+    (( filled == 0 )) && bar="${DIM}$(printf '░%.0s' $(seq 1 $width))${RESET}"
+    (( filled == width )) && bar="${GREEN}$(printf '█%.0s' $(seq 1 $width))${RESET}"
+    local cols; cols=$(tput cols 2>/dev/null || echo 80)
+    local text="$2"
+    (( ${#text} > cols - 42 )) && text="${text:0:$((cols - 43))}…"
+    SPIN_I=$(( (SPIN_I + 1) % ${#SPIN[@]} ))
+    printf '\r\033[K\033[?25l[%s] %3d%%  %s %s' "$bar" "$pct" "${CYAN}${SPIN[$SPIN_I]}${RESET}" "$text"
+}
+
+stage() {  # stage <peso> <etiqueta>
+    DONE_W=$((DONE_W + STAGE_W))
+    STAGE_W=$1; STAGE_FRAC=0; LABEL="$2"
+    log ""; log "=== $2"
+    draw 0 "$LABEL"
+}
+
+# Avance y etiqueta a partir de lo que pacman/paru escribieron desde `off`.
+parse_progress() {  # parse_progress <offset>
+    tail -c +"$(( $1 + 1 ))" "$LOG" 2>/dev/null | tr '\r' '\n' | awk -v base="$LABEL" '
+        /^Packages \([0-9]+\)/ { match($0, /\(([0-9]+)\)/, m); total = m[1]; dl = 0 }
+        / downloading\.\.\.$/  { dl++; state = "dl" }
+        /^\( *[0-9]+\/[0-9]+\) checking/ { state = "check" }
+        /^\( *[0-9]+\/[0-9]+\) (installing|upgrading|reinstalling) / {
+            match($0, /\( *([0-9]+)\/([0-9]+)\) [a-z]+ ([^ ]+)/, m); n = m[1]; t = m[2]; pkg = m[3]; state = "inst" }
+        /==> Making package: /  { split($0, a, "Making package: "); split(a[2], b, " "); build = b[1]; state = "build" }
+        /==> Retrieving sources/ { if (build != "") state = "src" }
+        END {
+            if (state == "dl" && total > 0) printf "%d|Descargando paquetes (%d/%d)\n", 500 * dl / total, dl, total
+            else if (state == "check") print "500|Verificando paquetes"
+            else if (state == "inst" && t > 0) printf "%d|Instalando %s (%d/%d)\n", 500 + 500 * n / t, pkg, n, t
+            else if (state == "build") printf "300|Compilando %s\n", build
+            else if (state == "src") printf "150|Descargando el código de %s\n", build
+            else printf "0|%s\n", base
+        }'
+}
+
+run() {  # run <comando...> -- en segundo plano, con la barra viva
+    local off; off=$(stat -c %s "$LOG")
+    LC_ALL=C "$@" >> "$LOG" 2>&1 < /dev/null &
+    local pid=$! info frac text
+    while kill -0 "$pid" 2>/dev/null; do
+        info=$(parse_progress "$off" || true)
+        frac=${info%%|*}; text=${info#*|}
+        draw "${frac:-0}" "${text:-$LABEL}"
+        sleep 0.3
+    done
+    wait "$pid"
+}
+
+# Para la barra para mostrar algo en pantalla (un error o una pregunta).
+break_bar() { [[ $BAR_MODE == 1 ]] && printf '\r\033[K\033[?25h'; return 0; }
+
+fail() {  # fail <mensaje> -- error que impide seguir
+    break_bar
+    echo "${RED}✘ $1${RESET}" >&2
+    echo "${DIM}Últimas líneas del registro ($LOG):${RESET}" >&2
+    tail -n 15 "$LOG" >&2
+    exit 1
+}
 
 # pacman sin "¿Continuar? [S/n]". --noconfirm contesta "no" si hay que
 # quitar un paquete en conflicto y la instalación falla: solo entonces se
-# repite preguntando.
+# repite preguntando, fuera de la barra.
 pac() {
-    sudo pacman -S --needed --noconfirm "$@" && return
-    echo "      ${YELLOW}⚠${RESET} pacman necesita que confirmes algo, repitiendo con preguntas:"
-    sudo pacman -S --needed "$@"
+    run sudo pacman -S --needed --noconfirm "$@" && return
+    break_bar
+    echo "${YELLOW}⚠ pacman necesita que confirmes algo:${RESET}"
+    sudo pacman -S --needed "$@" < /dev/tty
 }
 
-step "Paquetes oficiales (pacman) -- requiere repos estilo CachyOS para awww/mpvpaper"
+stage $W_BASE "Instalando el escritorio y sus dependencias"
 pac \
     hyprland kitty \
     xdg-desktop-portal-hyprland gtk-layer-shell \
@@ -132,129 +202,84 @@ pac \
     noto-fonts-emoji ttf-jetbrains-mono-nerd \
     radicale python-caldav python-icalendar python-httpx \
     hyprpolkitagent nethogs python-psutil \
-    mpv python-requests yt-dlp imagemagick libjpeg-turbo
-ok "Paquetes oficiales listos"
+    mpv python-requests yt-dlp imagemagick libjpeg-turbo \
+    || fail "No se pudieron instalar los paquetes del escritorio"
 
-# hyprpolkitagent: agente de autenticación de polkit -- sin esto, pkexec
-# (usado por firewall/ufw_actions.py para prender/apagar UFW y agregar/
-# borrar reglas) falla en seco con "No authentication agent found" antes
-# de mostrar cualquier diálogo (confirmado a mano). Se habilita como
-# servicio de usuario, WantedBy=graphical-session.target -- persiste
-# solo en cada login, no hace falta tocar autostart.lua.
 # Sin gestor de login la PC arranca en una terminal de texto: pasa al
 # instalar CachyOS con Hyprland sin el paquete de noctalia (probado en VM).
-step "Pantalla de inicio de sesión"
+stage $W_LOGIN "Revisando la pantalla de inicio de sesión"
 if [[ -e /etc/systemd/system/display-manager.service ]]; then
-    ok "Ya hay una: $(basename "$(readlink -f /etc/systemd/system/display-manager.service)" .service)"
-elif pac sddm && sudo systemctl enable sddm.service; then
+    log "Ya hay gestor de login: $(readlink -f /etc/systemd/system/display-manager.service)"
+elif pac sddm && run sudo systemctl enable sddm.service; then
     # Sesión preseleccionada: Hyprland (no la variante con uwsm).
     printf '[Last]\nSession=/usr/share/wayland-sessions/hyprland.desktop\n' | sudo tee /var/lib/sddm/state.conf >/dev/null
     sudo chown sddm:sddm /var/lib/sddm/state.conf 2>/dev/null || true
-    ok "SDDM instalado y habilitado"
 else
     warn "No se pudo instalar SDDM -- al reiniciar entra con tu usuario y escribe: Hyprland"
 fi
 # Instalación normal de CachyOS: noctalia viene incluido y su panel lo
 # arranca la config de Hyprland de fábrica (qs -c noctalia-shell), que
 # bootstrap.sh ya movió al respaldo -- queda instalado pero sin arrancar.
-if pacman -Q noctalia-shell >/dev/null 2>&1; then
-    if grep -rqs 'noctalia-shell' "$TARGET/hypr/"; then
-        warn "Tu config de Hyprland todavía arranca noctalia -- quita esa línea de hypr/config/autostart.lua"
-    else
-        ok "noctalia está instalado pero ya no arranca (su panel lo reemplaza esta barra)"
-    fi
+if pacman -Q noctalia-shell >/dev/null 2>&1 && grep -rqs 'noctalia-shell' "$TARGET/hypr/"; then
+    warn "Tu config de Hyprland todavía arranca noctalia -- quita esa línea de hypr/config/autostart.lua"
 fi
 
-step "Habilitar agente de polkit (hyprpolkitagent)"
-if systemctl --user enable --now hyprpolkitagent.service; then
-    ok "hyprpolkitagent habilitado"
-else
-    warn "No se pudo habilitar hyprpolkitagent.service -- pkexec (UFW en el dashboard) no va a funcionar hasta resolverlo a mano"
-fi
+# hyprpolkitagent: sin agente de polkit, pkexec (UFW en el panel, uso de
+# disco como administrador) falla con "No authentication agent found".
+# filter-chain: ecualizador de la pestaña "Sonido" (sink-eq6.conf), proceso
+# aparte de pipewire.service -- habilitarlo no corta el audio.
+stage $W_SERVICES "Activando servicios (contraseñas, ecualizador)"
+run systemctl --user enable --now hyprpolkitagent.service \
+    || warn "No se pudo habilitar hyprpolkitagent -- las acciones con contraseña del panel no van a funcionar"
+run systemctl --user enable --now filter-chain.service \
+    || warn "No se pudo habilitar el ecualizador (filter-chain.service)"
 
-# filter-chain.service: proceso APARTE del pipewire.service principal
-# (BindsTo=pipewire.service) que carga el ecualizador de 6 bandas de la
-# pestaña "Sonido" (~/.config/pipewire/filter-chain.conf.d/sink-eq6.conf,
-# plantilla de fábrica de PipeWire -- sin plugins externos). Habilitarlo
-# no reinicia pipewire ni corta audio en curso (confirmado a mano).
-step "Habilitar ecualizador de audio (filter-chain.service)"
-if systemctl --user enable --now filter-chain.service; then
-    ok "filter-chain.service habilitado"
-else
-    warn "No se pudo habilitar filter-chain.service -- la pestaña 'Sonido' del dashboard no va a tener sink que controlar hasta resolverlo a mano"
-fi
-
-step "paru (AUR helper)"
-if command -v paru >/dev/null; then
-    ok "paru ya está instalado"
-else
-    if pac paru; then
-        ok "paru instalado"
-    else
-        err "paru no está en tus repos -- bootstrap manual desde AUR:"
-        echo "        git clone https://aur.archlinux.org/paru.git && cd paru && makepkg -si" >&2
-        exit 1
-    fi
+stage $W_PARU "Preparando el instalador de AUR (paru)"
+if ! command -v paru >/dev/null; then
+    pac paru || fail "paru no está en tus repos -- instálalo desde AUR: git clone https://aur.archlinux.org/paru.git && cd paru && makepkg -si"
 fi
 
 # Apps del día a día (pedido explícito del usuario, rutina para amigos).
 # Cada una se salta si su comando ya existe: en la máquina de origen
 # vesktop vino de AUR y vesktop-bin chocaría con él.
-step "Apps: Brave Origin, Steam y Vesktop (Discord)"
+stage $W_APPS "Instalando Brave, Steam y Discord"
 APPS_PACMAN=()
 command -v brave-origin >/dev/null || APPS_PACMAN+=(brave-origin-bin)
 command -v steam        >/dev/null || APPS_PACMAN+=(steam)
 command -v vesktop      >/dev/null || APPS_PACMAN+=(vesktop-bin)
-if [[ ${#APPS_PACMAN[@]} -eq 0 ]]; then
-    ok "Ya estaban instaladas"
-elif pac "${APPS_PACMAN[@]}"; then
-    ok "Instalado: ${APPS_PACMAN[*]}"
-else
-    warn "Falló la instalación de ${APPS_PACMAN[*]} -- reinténtalo con: sudo pacman -S ${APPS_PACMAN[*]}"
+if [[ ${#APPS_PACMAN[@]} -gt 0 ]]; then
+    pac "${APPS_PACMAN[@]}" \
+        || warn "Falló la instalación de ${APPS_PACMAN[*]} -- reinténtalo con: sudo pacman -S ${APPS_PACMAN[*]}"
 fi
 
 # realesrgan: acción "Escalar imagen con IA" de Thunar (Thunar/uca.xml).
-step "Paquetes AUR: ZapZap (WhatsApp), cursor, escalado de imágenes con IA"
+stage $W_AUR "Instalando WhatsApp, cursor y escalado de imágenes (AUR)"
 APPS_AUR=(bibata-cursor-theme-bin realesrgan-ncnn-vulkan-bin)
 command -v zapzap >/dev/null || APPS_AUR+=(zapzap)
-if paru -S --needed --noconfirm --skipreview "${APPS_AUR[@]}"; then
-    ok "Instalado: ${APPS_AUR[*]}"
-else
-    warn "Falló algo de AUR (${APPS_AUR[*]}) -- reinténtalo con: paru -S ${APPS_AUR[*]}"
-fi
+run paru -S --needed --noconfirm --skipreview "${APPS_AUR[@]}" \
+    || warn "Falló algo de AUR (${APPS_AUR[*]}) -- reinténtalo con: paru -S ${APPS_AUR[*]}"
 
 if [[ $EXTRAS == 1 ]]; then
     # python-onnxruntime-cpu ANTES de piper-tts a propósito -- piper-tts
     # depende de un proveedor de python-onnxruntime y, sin resolverlo
-    # primero, paru pregunta de forma interactiva (cpu/cuda/opt-cuda/rocm/
-    # opt-rocm). CPU alcanza de sobra para Piper -- CUDA además puede no
-    # cargar según el estado del driver de NVIDIA en ese momento.
-    step "Extras: asistente de voz, audiolibros, temas de Steam"
-    if pac whisper-cpp python-webrtcvad python-onnxruntime-cpu \
-        && paru -S --needed --noconfirm --skipreview millennium-bin piper-tts; then
-        ok "Extras listos"
-    else
-        warn "Falló algo de los extras -- instala manualmente lo que quedó pendiente, no bloquea el resto"
-    fi
+    # primero, paru pregunta de forma interactiva (cpu/cuda/rocm...).
+    stage $W_EXTRAS "Instalando extras (voz, audiolibros, temas de Steam)"
+    { pac whisper-cpp python-webrtcvad python-onnxruntime-cpu \
+        && run paru -S --needed --noconfirm --skipreview millennium-bin piper-tts; } \
+        || warn "Falló algo de los extras -- instala manualmente lo que quedó pendiente"
 
-    # Modelos del asistente de voz (flipfrog/scripts/assistant/) -- no
-    # vienen con los paquetes whisper-cpp/piper-tts, se bajan aparte a
-    # ~/.cache. Tamaños grandes (~465MiB + ~73MiB) -- solo si faltan, cada
-    # uno primero a un .part y recién al final se renombra (para no dejar
-    # un archivo truncado si se corta a la mitad).
+    # Modelos del asistente de voz (flipfrog/scripts/assistant/): ~465 MiB
+    # + ~73 MiB, a un .part y renombrados al final para no dejar un archivo
+    # truncado si se corta a la mitad.
     VOICE_ASSISTANT_CACHE="$HOME/.cache/waybar-voice-assistant"
-    step "Modelos de voz (whisper GGML + voz de Piper en español)"
+    stage $W_MODELS "Descargando modelos de voz"
     mkdir -p "$VOICE_ASSISTANT_CACHE"
     _dl() {
         local url="$1" dest="$2"
-        if [[ -f "$dest" ]]; then
-            ok "$(basename "$dest") ya existe"
-            return
-        fi
-        info "Descargando $(basename "$dest")…"
-        if curl -fL --progress-bar -o "$dest.part" "$url"; then
+        [[ -f "$dest" ]] && return
+        LABEL="Descargando $(basename "$dest")"
+        if run curl -fsSL -o "$dest.part" "$url"; then
             mv "$dest.part" "$dest"
-            ok "$(basename "$dest") listo"
         else
             rm -f "$dest.part"
             warn "Falló la descarga de $(basename "$dest") -- el asistente de voz no va a funcionar hasta bajarlo a mano en $VOICE_ASSISTANT_CACHE"
@@ -268,38 +293,26 @@ if [[ $EXTRAS == 1 ]]; then
         "$VOICE_ASSISTANT_CACHE/es_ES-sharvard-medium.onnx.json"
 fi
 
-step "Distribución de teclado"
+stage $W_CONFIG "Copiando la configuración"
 if [[ -n "$KB" ]]; then
     case "$KB" in
         us-intl) kb_layout=us; kb_variant=intl ;;
         *)       kb_layout="$KB"; kb_variant="" ;;
     esac
     printf 'return { layout = "%s", variant = "%s" }\n' "$kb_layout" "$kb_variant" > "$KEYBOARD_FILE"
-    ok "Teclado: $kb_layout${kb_variant:+ ($kb_variant)}"
-elif [[ -f "$KEYBOARD_FILE" ]]; then
-    ok "hypr/keyboard.lua ya existe, no se toca"
-else
-    ok "Sin elegir: queda Español Latinoamérica (latam)"
+    log "Teclado: $kb_layout $kb_variant"
 fi
 
-step "Bootstrap de estado runtime (no versionado por diseño, ver .gitignore)"
+# Desde la terminal de texto (sin sesión gráfica) el fondo y dunst no se
+# pueden recargar en vivo: el tema queda guardado y se aplica al entrar.
 if [[ ! -f "$TARGET/flipfrog/themer/colors.css" ]]; then
-    info "Aplicando tema por defecto (forest-road) para tener un colors.css válido"
-    # Desde la terminal de texto (sin sesión gráfica) el fondo y dunst no
-    # se pueden recargar en vivo y lo dicen con errores que asustan: la
-    # salida va a un log, el tema queda guardado y se aplica al entrar.
-    THEME_LOG="$HOME/.cache/flipfrog-install-theme.log"
-    mkdir -p "$(dirname "$THEME_LOG")"
-    if bash "$TARGET/flipfrog/themer/apply-theme.sh" "$TARGET/flipfrog/themer/themes/forest-road.theme" > "$THEME_LOG" 2>&1; then
-        if [[ -n "${WAYLAND_DISPLAY:-}" ]]; then ok "Tema aplicado"; else ok "Tema guardado (el fondo y los colores aparecen al iniciar sesión)"; fi
-    else
-        warn "No se pudo aplicar el tema por defecto -- detalles en $THEME_LOG"
-    fi
-else
-    ok "colors.css ya existe, no se toca"
+    LABEL="Aplicando el tema forest-road"
+    run bash "$TARGET/flipfrog/themer/apply-theme.sh" "$TARGET/flipfrog/themer/themes/forest-road.theme" \
+        || warn "No se pudo aplicar el tema por defecto -- detalles en $LOG"
 fi
+
 if [[ ! -f "$TARGET/radicale/config" ]]; then
-    info "Config de Radicale no existe, creando (calendario CalDAV local, sin auth)"
+    draw 500 "Creando la configuración del calendario"
     mkdir -p "$TARGET/radicale" "$HOME/.local/share/radicale/collections"
     cat > "$TARGET/radicale/config" <<'RADICALE_CONFIG'
 [server]
@@ -321,44 +334,40 @@ user: .*
 collection: .*
 permissions: RrWw
 RADICALE_RIGHTS
-    info "Radicale solo escucha en esta PC. Para sincronizar el celular (DAVx5): hosts = 0.0.0.0:5232 en radicale/config + regla de firewall solo-LAN (ver CLAUDE.md, sección calendario)"
-else
-    ok "Config de Radicale ya existe, no se toca"
 fi
+
 # Accesos a los popups en el lanzador (SUPER+Espacio). Solo si faltan:
 # una copia local puede estar oculta o renombrada desde la pestaña
 # "Aplicaciones" del panel. Los que piden un extra no instalado se omiten.
 APPS_DIR="$HOME/.local/share/applications"
 mkdir -p "$APPS_DIR"
-added=0
 for entry in "$TARGET"/flipfrog/desktop/*.desktop; do
     dest="$APPS_DIR/$(basename "$entry")"
     req="$(sed -n 's/^X-Flipfrog-Requires=//p' "$entry")"
     [[ -e "$dest" ]] && continue
     [[ -n "$req" ]] && ! command -v "$req" >/dev/null && continue
+    draw 800 "Copiando acceso: $(sed -n 's/^Name=//p' "$entry")"
     sed "s|@HOME@|$HOME|g" "$entry" > "$dest"
-    added=$((added + 1))
 done
-ok "Accesos a los popups en el lanzador: $added nuevos"
+
 WELCOME_FILE="$TARGET/flipfrog/scripts/keybinds/welcome.json"
-if [[ ! -f "$WELCOME_FILE" ]]; then
-    echo '{"show_on_login": true}' > "$WELCOME_FILE"
-    ok "La ventana de atajos se abrirá al iniciar sesión"
-fi
+[[ -f "$WELCOME_FILE" ]] || echo '{"show_on_login": true}' > "$WELCOME_FILE"
 
-step "Recargando fuentes"
-fc-cache -f >/dev/null
-ok "Cache de fuentes actualizada"
+stage $W_FONTS "Actualizando las fuentes"
+run fc-cache -f || true
 
-echo
-echo "${BOLD}${GREEN}==> Instalación completa ($TOTAL_STEPS/$TOTAL_STEPS)${RESET}"
+DONE_W=$TOTAL_W; STAGE_W=0; STAGE_FRAC=0
+draw 0 "${GREEN}Listo${RESET}"
+break_bar
+echo "[${GREEN}$(printf '█%.0s' $(seq 1 30))${RESET}] 100%  ${GREEN}${BOLD}Instalación completa${RESET}"
 
 if [[ ${#WARNINGS[@]} -gt 0 ]]; then
     echo
-    echo "${BOLD}${YELLOW}Avisos durante la instalación:${RESET}"
+    echo "${BOLD}${YELLOW}Avisos:${RESET}"
     for w in "${WARNINGS[@]}"; do
         echo "  ${YELLOW}⚠${RESET} $w"
     done
+    echo "  ${DIM}Detalles en $LOG${RESET}"
 fi
 
 cat <<EOF
@@ -369,6 +378,7 @@ Lo más útil: SUPER + Espacio abre apps, SUPER + + abre el panel de ajustes.
 EOF
 
 if [[ $HAS_TTY == 1 ]]; then
+    echo
     ask reboot_choice "¿Reiniciar ahora? [S/n]: "
     if [[ ! "$reboot_choice" =~ ^[nN] ]]; then
         systemctl reboot
