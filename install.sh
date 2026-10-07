@@ -391,6 +391,29 @@ permissions: RrWw
 RADICALE_RIGHTS
 fi
 
+# Tema de SDDM (flipfrog/sddm/flipfrog). SDDM corre con su propio usuario y
+# no lee ~/: sync_sddm.py (lo llama reload.sh en cada cambio de tema) deja
+# fondo, colores y textos en /var/lib/flipfrog-sddm, con este usuario como
+# dueño, y el theme.conf.user del tema apunta ahí.
+if [[ "$(readlink -f /etc/systemd/system/display-manager.service 2>/dev/null)" == *sddm.service ]]; then
+    draw 400 "Instalando la pantalla de inicio de sesión"
+    if sudo rm -rf /usr/share/sddm/themes/flipfrog \
+        && sudo cp -r "$TARGET/flipfrog/sddm/flipfrog" /usr/share/sddm/themes/flipfrog \
+        && sudo install -d -m 755 -o "$USER" -g "$(id -gn)" /var/lib/flipfrog-sddm \
+        && sudo ln -sf /var/lib/flipfrog-sddm/theme.conf.user /usr/share/sddm/themes/flipfrog/theme.conf.user \
+        && sudo mkdir -p /etc/sddm.conf.d \
+        && printf '[Theme]\nCurrent=flipfrog\n' | sudo tee /etc/sddm.conf.d/10-flipfrog-theme.conf >/dev/null; then
+        python3 "$TARGET/flipfrog/themer/sync_sddm.py" >> "$LOG" 2>&1 \
+            || warn "No se pudieron copiar el fondo y los colores a la pantalla de inicio de sesión"
+        # /etc/sddm.conf se lee al final y gana sobre sddm.conf.d.
+        if grep -qs '^Current=' /etc/sddm.conf; then
+            warn "/etc/sddm.conf elige otro tema de SDDM (línea Current=): bórrala para usar el de flipfrog"
+        fi
+    else
+        warn "No se pudo instalar el tema de la pantalla de inicio de sesión"
+    fi
+fi
+
 # Accesos a los popups en el lanzador (SUPER+Espacio). Solo si faltan:
 # una copia local puede estar oculta o renombrada desde la pestaña
 # "Aplicaciones" del panel. Los que piden un extra no instalado se omiten.

@@ -37,6 +37,9 @@ python3 "$(dirname "$0")/sync_zen.py"
 echo "Sincronizando Brave Origin (extensión de tema, aplica la próxima vez que reinicies Brave)..."
 python3 "$(dirname "$0")/sync_brave.py"
 
+echo "Sincronizando la pantalla de inicio de sesión (SDDM)..."
+python3 "$(dirname "$0")/sync_sddm.py"
+
 # Tus configs .lua de Hyprland leen colors.css a través de color.lua,
 # que se ejecuta como parte de la carga del config de Hyprland. Si
 # `hyprctl reload` ya vuelve a ejecutar ese .lua (típico si usas un

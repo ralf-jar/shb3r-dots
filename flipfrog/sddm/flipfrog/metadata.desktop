@@ -1,0 +1,11 @@
+[SddmGreeterTheme]
+Name=flipfrog
+Description=Pantalla de inicio de sesión de shb3r-dots: mismo tema, fondo y colores que el escritorio.
+Author=shb3r-dots
+License=GPL-3.0
+Type=sddm-theme
+Version=1.0
+MainScript=Main.qml
+ConfigFile=theme.conf
+QtVersion=6
+X-SDDM-Theme-InterfaceVersion=2
