@@ -103,6 +103,7 @@
 # generados/guardados desde el editor y no deben subirse:
 /flipfrog/themer/themes/*
 !/flipfrog/themer/themes/dragon-blue.theme
+!/flipfrog/themer/themes/forest-road.theme
 # packs de íconos de terceros (candy-icons, Miya-black, pixelitos,
 # etc.) descargados a mano + sus .tar.xz/.tar.gz -- assets binarios de
 # terceros, no creados por mí, no van en el repo:

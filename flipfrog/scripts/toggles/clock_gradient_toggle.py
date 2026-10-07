@@ -23,9 +23,9 @@ STATE_FILE = os.path.expanduser("~/.config/waybar/clock-gradient.json")
 def clock_gradient_enabled():
     try:
         with open(STATE_FILE) as f:
-            return bool(json.load(f).get("enabled", False))
+            return bool(json.load(f).get("enabled", True))
     except (FileNotFoundError, json.JSONDecodeError):
-        return False
+        return True
 
 
 def set_clock_gradient(enabled):

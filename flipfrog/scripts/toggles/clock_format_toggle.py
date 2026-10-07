@@ -23,9 +23,9 @@ STATE_FILE = os.path.expanduser("~/.config/waybar/clock-format.json")
 def clock_extended_enabled():
     try:
         with open(STATE_FILE) as f:
-            return bool(json.load(f).get("extended", False))
+            return bool(json.load(f).get("extended", True))
     except (FileNotFoundError, json.JSONDecodeError):
-        return False
+        return True
 
 
 def set_clock_extended(enabled):

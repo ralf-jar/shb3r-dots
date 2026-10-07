@@ -19,18 +19,18 @@ LOCK_FILE = os.path.join(SCRIPT_DIR, ".bar-settings.lock")
 BAR_LOCK = "/tmp/ff-bar.pid"
 
 DEFAULTS = {
-    "layout": "capsula",
+    "layout": "islas",
     "visible": True,
     "frog": True,
-    "workspaces": True,
-    "ws_icons": False,
-    "group_apps": True,
-    "compact_ws": True,
+    "workspaces": False,
+    "ws_icons": True,
+    "group_apps": False,
+    "compact_ws": False,
     "sysmon": False,
     "bandcamp": False,
     "bluetooth": True,
     "red": False,
-    "transparent": False,
+    "transparent": True,
     "full_width": False,
 }
 LAYOUTS = ("capsula", "islas")

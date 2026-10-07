@@ -284,13 +284,13 @@ fi
 
 step "Bootstrap de estado runtime (no versionado por diseño, ver .gitignore)"
 if [[ ! -f "$TARGET/flipfrog/themer/colors.css" ]]; then
-    info "Aplicando tema por defecto (dragon-blue) para tener un colors.css válido"
+    info "Aplicando tema por defecto (forest-road) para tener un colors.css válido"
     # Desde la terminal de texto (sin sesión gráfica) el fondo y dunst no
     # se pueden recargar en vivo y lo dicen con errores que asustan: la
     # salida va a un log, el tema queda guardado y se aplica al entrar.
     THEME_LOG="$HOME/.cache/flipfrog-install-theme.log"
     mkdir -p "$(dirname "$THEME_LOG")"
-    if bash "$TARGET/flipfrog/themer/apply-theme.sh" "$TARGET/flipfrog/themer/themes/dragon-blue.theme" > "$THEME_LOG" 2>&1; then
+    if bash "$TARGET/flipfrog/themer/apply-theme.sh" "$TARGET/flipfrog/themer/themes/forest-road.theme" > "$THEME_LOG" 2>&1; then
         if [[ -n "${WAYLAND_DISPLAY:-}" ]]; then ok "Tema aplicado"; else ok "Tema guardado (el fondo y los colores aparecen al iniciar sesión)"; fi
     else
         warn "No se pudo aplicar el tema por defecto -- detalles en $THEME_LOG"

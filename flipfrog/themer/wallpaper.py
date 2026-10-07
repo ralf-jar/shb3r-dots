@@ -27,7 +27,7 @@ import common
 
 STATE_FILE = os.path.join(THEMER_DIR, "wallpaper.json")
 VIDEO_EXTS = {"mp4", "webm", "mkv", "mov", "m4v", "avi"}
-DEMO_WALLPAPER = os.path.join(THEMER_DIR, "wallpaperdemo", "aishot-1313.jpg")
+DEMO_WALLPAPER = os.path.join(THEMER_DIR, "wallpaperdemo", "aishot-2062.jpg")
 
 # Mismas opciones que tenía waypaper/config.ini (fill = fill, transición random).
 AWWW_OPTIONS = [

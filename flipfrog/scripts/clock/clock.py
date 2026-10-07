@@ -56,17 +56,17 @@ def format_extended_text(dt):
 def is_extended_clock():
     try:
         with open(CLOCK_FORMAT_FILE) as f:
-            return bool(json.load(f).get("extended", False))
+            return bool(json.load(f).get("extended", True))
     except (FileNotFoundError, json.JSONDecodeError):
-        return False
+        return True
 
 
 def is_gradient_clock():
     try:
         with open(CLOCK_GRADIENT_FILE) as f:
-            return bool(json.load(f).get("enabled", False))
+            return bool(json.load(f).get("enabled", True))
     except (FileNotFoundError, json.JSONDecodeError):
-        return False
+        return True
 
 
 def gradient_markup(text):
