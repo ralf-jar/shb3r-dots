@@ -100,12 +100,28 @@ TOTAL_STEPS=10
 
 if [[ $HAS_TTY == 1 ]]; then
     echo
-    echo "${BOLD}Va a pedir tu contraseña y a veces preguntará algo: si no sabes qué"
-    echo "contestar, solo presiona Enter (la opción por defecto está bien).${RESET}"
+    echo "${BOLD}Escribe tu contraseña (solo se pide una vez). Si después pregunta algo,"
+    echo "presiona Enter: la opción por defecto está bien.${RESET}"
 fi
 
+# Contraseña una sola vez: las compilaciones de AUR tardan más que el
+# tiempo que sudo recuerda la contraseña.
+if [[ $HAS_TTY == 1 ]]; then sudo -v < /dev/tty; else sudo -v; fi
+( while sleep 50; do sudo -n true 2>/dev/null || exit; kill -0 $$ 2>/dev/null || exit; done ) &
+SUDO_KEEPALIVE=$!
+trap 'kill $SUDO_KEEPALIVE 2>/dev/null' EXIT
+
+# pacman sin "¿Continuar? [S/n]". --noconfirm contesta "no" si hay que
+# quitar un paquete en conflicto y la instalación falla: solo entonces se
+# repite preguntando.
+pac() {
+    sudo pacman -S --needed --noconfirm "$@" && return
+    echo "      ${YELLOW}⚠${RESET} pacman necesita que confirmes algo, repitiendo con preguntas:"
+    sudo pacman -S --needed "$@"
+}
+
 step "Paquetes oficiales (pacman) -- requiere repos estilo CachyOS para awww/mpvpaper"
-sudo pacman -S --needed \
+pac \
     hyprland kitty \
     xdg-desktop-portal-hyprland gtk-layer-shell \
     python-gobject python-pillow python-cairo \
@@ -130,7 +146,7 @@ ok "Paquetes oficiales listos"
 step "Pantalla de inicio de sesión"
 if [[ -e /etc/systemd/system/display-manager.service ]]; then
     ok "Ya hay una: $(basename "$(readlink -f /etc/systemd/system/display-manager.service)" .service)"
-elif sudo pacman -S --needed sddm && sudo systemctl enable sddm.service; then
+elif pac sddm && sudo systemctl enable sddm.service; then
     # Sesión preseleccionada: Hyprland (no la variante con uwsm).
     printf '[Last]\nSession=/usr/share/wayland-sessions/hyprland.desktop\n' | sudo tee /var/lib/sddm/state.conf >/dev/null
     sudo chown sddm:sddm /var/lib/sddm/state.conf 2>/dev/null || true
@@ -172,7 +188,7 @@ step "paru (AUR helper)"
 if command -v paru >/dev/null; then
     ok "paru ya está instalado"
 else
-    if sudo pacman -S --needed paru; then
+    if pac paru; then
         ok "paru instalado"
     else
         err "paru no está en tus repos -- bootstrap manual desde AUR:"
@@ -191,7 +207,7 @@ command -v steam        >/dev/null || APPS_PACMAN+=(steam)
 command -v vesktop      >/dev/null || APPS_PACMAN+=(vesktop-bin)
 if [[ ${#APPS_PACMAN[@]} -eq 0 ]]; then
     ok "Ya estaban instaladas"
-elif sudo pacman -S --needed "${APPS_PACMAN[@]}"; then
+elif pac "${APPS_PACMAN[@]}"; then
     ok "Instalado: ${APPS_PACMAN[*]}"
 else
     warn "Falló la instalación de ${APPS_PACMAN[*]} -- reinténtalo con: sudo pacman -S ${APPS_PACMAN[*]}"
@@ -214,7 +230,7 @@ if [[ $EXTRAS == 1 ]]; then
     # opt-rocm). CPU alcanza de sobra para Piper -- CUDA además puede no
     # cargar según el estado del driver de NVIDIA en ese momento.
     step "Extras: asistente de voz, audiolibros, temas de Steam"
-    if sudo pacman -S --needed whisper-cpp python-webrtcvad python-onnxruntime-cpu \
+    if pac whisper-cpp python-webrtcvad python-onnxruntime-cpu \
         && paru -S --needed --noconfirm --skipreview millennium-bin piper-tts; then
         ok "Extras listos"
     else

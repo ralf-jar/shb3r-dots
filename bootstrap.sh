@@ -28,7 +28,7 @@ command -v pacman >/dev/null || die "Esto es solo para CachyOS/Arch."
 echo "${BOLD}${GREEN}==> Instalando flipfrog (Hyprland + barra + panel)${RESET}"
 
 if ! command -v git >/dev/null; then
-    sudo pacman -S --needed git < /dev/tty
+    sudo pacman -S --needed --noconfirm git < /dev/tty
 fi
 
 # Ya instalado antes (p. ej. se cortó a la mitad): solo actualiza y sigue.
