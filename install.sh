@@ -337,6 +337,33 @@ if [[ ! -f "$TARGET/flipfrog/themer/colors.css" ]]; then
     LABEL="Aplicando el tema forest-road"
     run bash "$TARGET/flipfrog/themer/apply-theme.sh" "$TARGET/flipfrog/themer/themes/forest-road.theme" \
         || warn "No se pudo aplicar el tema por defecto -- detalles en $LOG"
+
+    # Apariencia de las apps GTK (botones, listas desplegables): sin esto
+    # usan el Adwaita claro de fábrica. Mismo valor en gsettings (lo lee
+    # GTK primero) y en settings.ini. Solo en la primera instalación: luego
+    # se cambia desde "Personalización" del panel.
+    draw 300 "Aplicando el tema oscuro a las apps"
+    set_ini() {  # set_ini <archivo> <clave> <valor>
+        mkdir -p "$(dirname "$1")"
+        [[ -f "$1" ]] || printf '[Settings]\n' > "$1"
+        if grep -q "^$2=" "$1"; then
+            sed -i "s|^$2=.*|$2=$3|" "$1"
+        else
+            printf '%s=%s\n' "$2" "$3" >> "$1"
+        fi
+    }
+    for ini in "$TARGET/gtk-3.0/settings.ini" "$TARGET/gtk-4.0/settings.ini"; do
+        set_ini "$ini" gtk-theme-name adw-gtk3-dark
+        set_ini "$ini" gtk-icon-theme-name Papirus-Dark
+        set_ini "$ini" gtk-font-name "Adwaita Sans 11"
+        set_ini "$ini" gtk-application-prefer-dark-theme 1
+    done
+    if command -v gsettings >/dev/null; then
+        gsettings set org.gnome.desktop.interface gtk-theme adw-gtk3-dark 2>> "$LOG" || true
+        gsettings set org.gnome.desktop.interface color-scheme prefer-dark 2>> "$LOG" || true
+        gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark 2>> "$LOG" || true
+        gsettings set org.gnome.desktop.interface font-name "Adwaita Sans 11" 2>> "$LOG" || true
+    fi
 fi
 
 if [[ ! -f "$TARGET/radicale/config" ]]; then
