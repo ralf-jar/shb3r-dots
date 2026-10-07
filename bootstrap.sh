@@ -29,7 +29,7 @@ if [[ -d /run/archiso ]] || [[ "$(findmnt -no FSTYPE / 2>/dev/null)" == "overlay
 fi
 { : < /dev/tty; } 2>/dev/null || die "Córrelo desde una terminal."
 
-echo "${BOLD}${GREEN}==> Instalando flipfrog (Hyprland + barra + panel)${RESET}"
+echo "${BOLD}${GREEN}Descargando flipfrog...${RESET}"
 
 if ! command -v git >/dev/null; then
     sudo pacman -S --needed --noconfirm git < /dev/tty
@@ -37,15 +37,13 @@ fi
 
 # Ya instalado antes (p. ej. se cortó a la mitad): solo actualiza y sigue.
 if git -C "$TARGET" remote get-url origin 2>/dev/null | grep -q "${REPO%.git}"; then
-    echo "==> Ya estaba descargado, actualizando"
-    git -C "$TARGET" pull --ff-only || echo "No se pudo actualizar, sigo con lo que hay"
+    git -C "$TARGET" pull -q --ff-only || echo "No se pudo actualizar, sigo con lo que hay"
 else
     [[ -e "$TARGET/.git" ]] && die "$TARGET ya es otro repositorio git, no lo toco."
 
     CLONE="$(mktemp -d)"
     trap 'rm -rf "$CLONE"' EXIT
-    echo "==> Descargando"
-    git clone --depth 1 --branch "$BRANCH" "$REPO" "$CLONE/repo"
+    git clone -q --depth 1 --branch "$BRANCH" "$REPO" "$CLONE/repo"
 
     # Respaldo archivo por archivo: solo lo que el repo reemplaza (fish/
     # trae dos funciones, el config.fish de CachyOS se queda). hypr/ se
@@ -62,7 +60,8 @@ else
             mv "$TARGET/$rel" "$BACKUP/$rel"
         fi
     done < <(git -C "$CLONE/repo" ls-files -z)
-    [[ -d "$BACKUP" ]] && echo "==> Tu configuración anterior quedó en $BACKUP"
+    # install.sh limpia la pantalla: el aviso del respaldo va en su resumen.
+    [[ -d "$BACKUP" ]] && export FLIPFROG_BACKUP="$BACKUP"
 
     cp -a "$CLONE/repo/." "$TARGET/"
 fi

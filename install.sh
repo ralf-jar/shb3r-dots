@@ -56,9 +56,21 @@ ask() {  # ask <variable> <texto>
     printf -v "$1" '%s' "$answer"
 }
 
+# Pantalla: cada pregunta se borra al contestarla y queda solo el resumen
+# (título + respuestas), con la barra debajo.
+SUMMARY=()
+[[ -n "${FLIPFROG_BACKUP:-}" ]] && SUMMARY+=("Tu configuración anterior quedó en ${FLIPFROG_BACKUP/#$HOME/\~}")
+screen() {
+    [[ $BAR_MODE == 1 ]] && printf '\033[H\033[2J\033[3J'
+    echo "${BOLD}${GREEN}Instalando flipfrog (Hyprland + barra + panel)${RESET}"
+    local line
+    for line in "${SUMMARY[@]}"; do echo "$line"; done
+}
+
 KEYBOARD_FILE="$TARGET/hypr/keyboard.lua"
 KB="${FLIPFROG_KB:-}"
 if [[ -z "$KB" && ! -f "$KEYBOARD_FILE" && $HAS_TTY == 1 ]]; then
+    screen
     echo
     echo "${BOLD}¿Qué teclado tienes?${RESET}"
     echo "  1) Español Latinoamérica (tiene Ñ, y ¿ junto al 0)"
@@ -73,11 +85,20 @@ if [[ -z "$KB" && ! -f "$KEYBOARD_FILE" && $HAS_TTY == 1 ]]; then
         *) KB=latam ;;
     esac
 fi
+case "$KB" in
+    latam)   SUMMARY+=("Teclado: Español Latinoamérica") ;;
+    es)      SUMMARY+=("Teclado: Español España") ;;
+    us)      SUMMARY+=("Teclado: Inglés") ;;
+    us-intl) SUMMARY+=("Teclado: Inglés internacional") ;;
+    "")      SUMMARY+=("Teclado: sin cambios") ;;
+    *)       SUMMARY+=("Teclado: $KB") ;;
+esac
 
 EXTRAS="${FLIPFROG_EXTRAS:-}"
 if [[ -z "$EXTRAS" ]]; then
     EXTRAS=0
     if [[ $HAS_TTY == 1 ]]; then
+        screen
         echo
         echo "${BOLD}¿Instalar extras?${RESET} Asistente de voz, audiolibros narrados y temas"
         echo "para Steam. Bajan ~1 GB más y no hacen falta para empezar."
@@ -85,15 +106,22 @@ if [[ -z "$EXTRAS" ]]; then
         [[ "$extras_choice" =~ ^[sSyY] ]] && EXTRAS=1
     fi
 fi
+if [[ $EXTRAS == 1 ]]; then SUMMARY+=("Extras: Sí"); else SUMMARY+=("Extras: No"); fi
 
 # Contraseña una sola vez: las compilaciones de AUR tardan más que el
 # tiempo que sudo recuerda la contraseña.
+screen
 echo
-echo "${BOLD}Escribe tu contraseña${RESET} (solo se pide una vez):"
-if [[ $HAS_TTY == 1 ]]; then sudo -v < /dev/tty; else sudo -v; fi
+if [[ $HAS_TTY == 1 ]]; then
+    sudo -v -p "${BOLD}Escribe tu contraseña${RESET} (solo se pide una vez): " < /dev/tty
+else
+    sudo -v
+fi
 ( while sleep 50; do sudo -n true 2>/dev/null || exit; kill -0 $$ 2>/dev/null || exit; done ) &
 SUDO_KEEPALIVE=$!
 trap 'kill $SUDO_KEEPALIVE 2>/dev/null; [[ $BAR_MODE == 1 ]] && printf "\033[?25h"' EXIT
+SUMMARY+=("Contraseña ingresada, iniciando proceso...")
+screen
 echo
 
 # --- Barra de progreso. Cada etapa tiene un peso; dentro de las largas
@@ -370,16 +398,12 @@ if [[ ${#WARNINGS[@]} -gt 0 ]]; then
     echo "  ${DIM}Detalles en $LOG${RESET}"
 fi
 
-cat <<EOF
-
-${BOLD}Siguiente paso:${RESET} reinicia la PC. Al volver a entrar se abre una
-ventana con los atajos de teclado (también con SUPER + H cuando quieras).
-Lo más útil: SUPER + Espacio abre apps, SUPER + + abre el panel de ajustes.
-EOF
+echo
+echo "${BOLD}Siguiente paso:${RESET} reinicia la PC."
 
 if [[ $HAS_TTY == 1 ]]; then
     echo
-    ask reboot_choice "¿Reiniciar ahora? [S/n]: "
+    ask reboot_choice "¿Reiniciar ahora? (S/n) "
     if [[ ! "$reboot_choice" =~ ^[nN] ]]; then
         systemctl reboot
     fi
