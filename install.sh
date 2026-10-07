@@ -269,12 +269,19 @@ fi
 
 # Apps del día a día (pedido explícito del usuario, rutina para amigos).
 # Cada una se salta si su comando ya existe: en la máquina de origen
-# vesktop vino de AUR y vesktop-bin chocaría con él.
-stage $W_APPS "Instalando Brave, Steam y Discord"
+# vesktop y modrinth-app vinieron de AUR (vesktop, modrinth-app-git) y los
+# paquetes de los repos chocarían con ellos. Heroic: Epic, GOG y Amazon;
+# Modrinth: Minecraft con mods.
+stage $W_APPS "Instalando Brave, Steam, Discord y apps de juegos"
 APPS_PACMAN=()
 command -v brave-origin >/dev/null || APPS_PACMAN+=(brave-origin-bin)
 command -v steam        >/dev/null || APPS_PACMAN+=(steam)
 command -v vesktop      >/dev/null || APPS_PACMAN+=(vesktop-bin)
+command -v heroic       >/dev/null || APPS_PACMAN+=(heroic-games-launcher)
+command -v modrinth-app >/dev/null || APPS_PACMAN+=(modrinth-app)
+# gamescope (resolución/escalado por juego) y MangoHud (FPS en pantalla), con
+# su versión de 32 bits para juegos viejos.
+APPS_PACMAN+=(gamescope mangohud lib32-mangohud)
 if [[ ${#APPS_PACMAN[@]} -gt 0 ]]; then
     pac "${APPS_PACMAN[@]}" \
         || warn "Falló la instalación de ${APPS_PACMAN[*]} -- reinténtalo con: sudo pacman -S ${APPS_PACMAN[*]}"
