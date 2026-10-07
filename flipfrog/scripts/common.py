@@ -100,6 +100,7 @@ def atomic_write(path, content, binary=False):
     ".tmp"`) -- para el caso de dos escritores concurrentes sobre el
     MISMO archivo, usar tempfile.mkstemp(dir=...) en su lugar (ver
     theme-editor.py/sync_radius.py/eq_actions.py, entre otros)."""
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     tmp = path + ".tmp"
     with open(tmp, "wb" if binary else "w") as f:
         f.write(content)
