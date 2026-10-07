@@ -6,7 +6,7 @@ window {
 
 #container {
     background-color: @mybackground;
-    border-radius: 4px;
+    border-radius: 25px;
     padding: 16px 20px 18px 20px;
     min-width: 420px;
 }
@@ -22,7 +22,7 @@ window {
     background-color: transparent;
     background-image: none;
     border: 1px solid @myborderinactive;
-    border-radius: 4px;
+    border-radius: 25px;
     box-shadow: none;
     padding: 10px 14px;
     transition: background-color 200ms ease, border-color 200ms ease;
