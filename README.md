@@ -8,8 +8,10 @@ Escritorio completo sobre **Hyprland** para **CachyOS**: barra propia, panel de 
 2. Abre una terminal y pega:
 
    ```bash
-   curl -fsSL https://raw.githubusercontent.com/ralf-jar/shb3r-dots/main/bootstrap.sh | bash
+   curl -fsSL shb3r.github.io/i | bash
    ```
+
+   (Es lo mismo que `curl -fsSL https://raw.githubusercontent.com/ralf-jar/shb3r-dots/main/bootstrap.sh | bash`.)
 
 3. Contesta dos preguntas (teclado y extras). Si pregunta algo más, presiona Enter.
 4. Reinicia. Al entrar se abre una ventana con los atajos de teclado.
