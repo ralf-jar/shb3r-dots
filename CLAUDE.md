@@ -68,7 +68,7 @@ flipfrog/scripts/
 Helpers sin GTK, para daemons headless y módulos GTK por igual:
 - `set_process_name(name)` -- `prctl(PR_SET_NAME)` vía ctypes, límite duro de 15 caracteres útiles (16 bytes con `\0`).
 - `theme_color_hex(name)` / `theme_color_rgba(name, css=None)` -- lee un `@define-color` de `colors.css` por nombre.
-- `atomic_write(path, content, binary=False)` -- archivo temporal + `os.replace()`.
+- `atomic_write(path, content, binary=False)` -- archivo temporal + `os.replace()`; crea la carpeta si falta (en una instalación nueva no existen las gitignored, como `themer/brave/theme/`).
 - `run_async(fn)` -- encola `fn` en un solo hilo worker compartido (FIFO), global a todo el proceso. Ver sección "Separar trabajo pesado del hilo de GTK" más abajo.
 
 ## Traducciones (`flipfrog/scripts/i18n.py`, 2026-08-27)
