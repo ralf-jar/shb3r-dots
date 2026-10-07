@@ -49,12 +49,16 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("sleep 3 && python3 " .. home .. "/.config/flipfrog/scripts/keybinds/keybinds_popup.py --welcome")
 
     -- Extras
+    -- Las tres arrancan minimizadas a la bandeja: Vesktop con
+    -- --start-minimized, Steam con -silent, ZapZap con su ajuste
+    -- system/start_background (no tiene opción de línea de comandos;
+    -- --setSettings lo guarda y sigue abriendo la app).
     -- name: Vesktop (Discord)
     hl.exec_cmd("sleep 2 && vesktop --enable-features=UseOzonePlatform --ozone-platform=wayland --start-minimized")
     -- name: Steam
     hl.exec_cmd("steam -silent")
     -- name: ZapZap (WhatsApp)
-    hl.exec_cmd("zapzap")
+    hl.exec_cmd("zapzap --setSettings system/start_background true")
     -- name: OpenRGB (perfil)
     hl.exec_cmd("openrgb --startminimized --profile white")
     -- name: OpenRGB (tira LED)
