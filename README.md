@@ -8,7 +8,7 @@ Escritorio completo sobre **Hyprland** para **CachyOS**: barra propia, panel de 
 2. Abre una terminal y pega:
 
    ```bash
-   curl -fsSL https://raw.githubusercontent.com/ralf-jar/shb3r-dots/master/bootstrap.sh | bash
+   curl -fsSL https://raw.githubusercontent.com/ralf-jar/shb3r-dots/main/bootstrap.sh | bash
    ```
 
 3. Contesta dos preguntas (teclado y extras). Si pregunta algo más, presiona Enter.
@@ -33,3 +33,7 @@ Además del escritorio instala Brave Origin, Steam, Vesktop (Discord), ZapZap (W
 
 - Paquetes que instala y para qué: [`flipfrog/DEPENDENCIAS.md`](flipfrog/DEPENDENCIAS.md)
 - Cómo está hecho por dentro: [`CLAUDE.md`](CLAUDE.md)
+
+## Licencia
+
+[GPLv3](LICENSE)
