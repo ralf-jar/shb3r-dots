@@ -155,6 +155,7 @@ class BarWindow(Gtk.Window):
     def _right_cluster(self, state):
         box = Gtk.Box(spacing=0)
         box.set_name("right-cluster")
+        _add_class(box, "pill")
         box.pack_start(bar_tray.TrayWidget(self._tray, self._scale()), False, False, 0)
         box.pack_start(bar_modules.vpn_module()[0], False, False, 0)
         box.pack_start(bar_modules.dnd_module()[0], False, False, 0)
@@ -201,9 +202,7 @@ class BarWindow(Gtk.Window):
         clock, clock_label = bar_modules.clock_module()
         _add_class(clock_label, "pill")
 
-        cluster, cluster_box = self._right_cluster(state)
-        _add_class(cluster_box, "pill")
-        right.pack_start(cluster, False, False, 0)
+        right.pack_start(self._right_cluster(state)[0], False, False, 0)
         power, power_label = bar_modules.power_module()
         _add_class(power_label, "pill")
         right.pack_start(power, False, False, 0)
