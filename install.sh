@@ -485,20 +485,16 @@ DETAIL="$HOME/.cache/flipfrog-install-resumen.txt"
 
     new_pkgs="$(comm -13 <(printf '%s\n' "$PKGS_BEFORE" | sort) <(pacman -Q | sort))"
     explicit="$(pacman -Qeq)"
-    requested="" deps="" n_req=0 n_dep=0
+    # Solo los que pidió el instalador (pacman los marca como explícitos);
+    # las dependencias son cientos y no se listan.
+    requested="" n_req=0
     while read -r name version; do
         [[ -z "$name" ]] && continue
-        if grep -qx "$name" <<< "$explicit"; then
-            requested+="  $name $version"$'\n'; n_req=$((n_req + 1))
-        else
-            deps+="  $name $version"$'\n'; n_dep=$((n_dep + 1))
-        fi
+        grep -qx "$name" <<< "$explicit" || continue
+        requested+="  $name $version"$'\n'; n_req=$((n_req + 1))
     done <<< "$new_pkgs"
-    echo "== Paquetes nuevos que pidió el instalador ($n_req)"
+    echo "== Paquetes nuevos ($n_req)"
     if (( n_req )); then printf '%s' "$requested"; else echo "  (ninguno, ya estaban instalados)"; fi
-    echo
-    echo "== Paquetes nuevos instalados como dependencia ($n_dep)"
-    if (( n_dep )); then printf '%s' "$deps"; else echo "  (ninguno)"; fi
     echo
 
     echo "== Servicios activados"
