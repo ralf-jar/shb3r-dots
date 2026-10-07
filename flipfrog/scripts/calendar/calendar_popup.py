@@ -8,6 +8,7 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GLib
 import os
+import subprocess
 import sys
 import threading
 from datetime import date, datetime, timedelta
@@ -20,6 +21,7 @@ from i18n import t
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 CSS_FILE = os.path.join(SCRIPT_DIR, "calendar_popup.css")
+PHONE_SYNC_SCRIPT = os.path.join(SCRIPT_DIR, "phone_sync_popup.py")
 LOCK = "/tmp/calendar.pid"
 
 CALDAV_URL = "http://127.0.0.1:5232/"
@@ -151,6 +153,16 @@ class CalendarPopup:
         self.entry = None
         self._build_note_row_loading()
         container.pack_start(self.note_row, False, False, 0)
+
+        sync_btn = Gtk.Button()
+        sync_btn.set_name("sync-btn")
+        sync_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        sync_box.set_halign(Gtk.Align.CENTER)
+        sync_box.pack_start(Gtk.Image.new_from_icon_name("phone-symbolic", Gtk.IconSize.MENU), False, False, 0)
+        sync_box.pack_start(Gtk.Label(label=t("calendario", "sync_abrir")), False, False, 0)
+        sync_btn.add(sync_box)
+        sync_btn.connect("clicked", self._on_open_phone_sync)
+        container.pack_start(sync_btn, False, False, 0)
 
         self._rebuild_grid()
         self._sync_entry_for_selected_day()
@@ -321,6 +333,10 @@ class CalendarPopup:
                 self.note_events.pop(key, None)
             self.notes.pop(key, None)
         self._rebuild_grid()
+
+    def _on_open_phone_sync(self, _btn):
+        subprocess.Popen(["python3", PHONE_SYNC_SCRIPT], start_new_session=True)
+        self.window.destroy()
 
     def _on_key(self, _, event):
         if event.keyval == Gdk.KEY_Escape:

@@ -318,6 +318,14 @@ hl.layer_rule({
     ignore_alpha = 0.02
 })
 
+-- calendar/phone_sync_popup.py (botón del calendario / lanzador)
+hl.layer_rule({
+    match = { namespace = "calendar-sync" },
+    blur = true,
+    xray = false,
+    ignore_alpha = 0.02
+})
+
 -- La barra (flipfrog/scripts/bar/bar.py), pedido explícito del usuario.
 -- Mismo motivo de ignore_alpha que el resto de arriba: en islas la barra
 -- es UNA superficie transparente de ancho completo con píldoras pintadas

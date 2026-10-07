@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Calendario en el celular
+Name[en]=Calendar on your phone
+Exec=python3 "@HOME@/.config/flipfrog/scripts/calendar/phone_sync_popup.py"
+Icon=phone
+Terminal=false
+Categories=Custom;

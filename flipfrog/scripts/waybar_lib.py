@@ -167,6 +167,7 @@ GROUP_LOCKS = [
     "/tmp/brightness.pid",
     "/tmp/dashboard.pid",
     "/tmp/calendar.pid",
+    "/tmp/calendar-sync.pid",
     "/tmp/theme-editor.pid",
     "/tmp/google-fonts.pid",
     "/tmp/firewall-log-viewer.pid",

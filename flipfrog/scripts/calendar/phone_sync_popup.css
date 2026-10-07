@@ -1,0 +1,116 @@
+@import url("../../themer/global.css");
+
+window {
+    background-color: transparent;
+}
+
+#sync-container {
+    background-color: @mybackground;
+    border-radius: 4px;
+    padding: 18px 24px 20px 24px;
+    min-width: 820px;
+}
+
+/* Label: "Calendario en tu celular" */
+#sync-title {
+    color: @myforegroundhover;
+    font-weight: 900;
+    font-size: 17px;
+}
+
+#sync-subtitle {
+    color: @myforeground;
+    opacity: 0.8;
+    margin: 4px 0 14px 0;
+}
+
+/* Box: un paso (número + título + contenido) */
+.sync-step {
+    padding: 10px 0;
+}
+
+.sync-step:disabled {
+    opacity: 0.35;
+}
+
+/* Label: número del paso, chip de acento */
+.sync-badge {
+    color: @mybackground;
+    background-color: @myforegroundhover;
+    font-weight: 900;
+    border-radius: 4px;
+    min-width: 26px;
+    min-height: 26px;
+}
+
+.sync-step-title {
+    color: @myforegroundhover;
+    font-weight: 800;
+    font-size: 14px;
+}
+
+.sync-text {
+    color: @myforeground;
+}
+
+/* Box: tarjeta de cada app de Android (QR + nombre + descripción) */
+.sync-card {
+    background-color: alpha(@myforegroundhover, 0.08);
+    border-radius: 4px;
+    padding: 12px;
+}
+
+.sync-app-name {
+    color: @myforegroundhover;
+    font-weight: 800;
+}
+
+/* Box: fondo blanco del QR -- los lectores fallan con los colores del tema */
+.qr {
+    background-color: #ffffff;
+    border-radius: 4px;
+    padding: 6px;
+}
+
+.sync-key {
+    color: @myforeground;
+    opacity: 0.8;
+}
+
+/* Label: URL / usuario para escribir en DAVx⁵ -- tipo "tecla física" */
+.sync-value {
+    color: @myforegroundhover;
+    font-family: monospace;
+    font-weight: 700;
+    background-color: alpha(@myforegroundhover, 0.14);
+    border: 1px solid alpha(@myforegroundhover, 0.35);
+    border-radius: 4px;
+    padding: 3px 8px;
+    box-shadow: 2px 2px 0 0 alpha(@myforegroundhover, 0.35);
+}
+
+.sync-copy {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    color: @myforeground;
+    min-width: 0;
+    padding: 2px 6px;
+}
+
+.sync-copy:hover {
+    color: @myforegroundhover;
+    background-color: @mybackgroundhover;
+    border-radius: 4px;
+}
+
+button:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.sync-hint {
+    color: @myforeground;
+    opacity: 0.7;
+    font-size: 11px;
+}
