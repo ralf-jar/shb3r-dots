@@ -23,6 +23,10 @@ die() { echo "${RED}✘ $1${RESET}" >&2; exit 1; }
 
 [[ $EUID -ne 0 ]] || die "Córrelo con tu usuario normal, sin sudo (la contraseña se pide cuando haga falta)."
 command -v pacman >/dev/null || die "Esto es solo para CachyOS/Arch."
+# Live USB: corre en RAM (se queda sin espacio y todo se pierde al reiniciar).
+if [[ -d /run/archiso ]] || [[ "$(findmnt -no FSTYPE / 2>/dev/null)" == "overlay" ]]; then
+    die "Estás en el USB de instalación (live). Primero instala CachyOS, reinicia y corre esto ya en tu sistema."
+fi
 { : < /dev/tty; } 2>/dev/null || die "Córrelo desde una terminal."
 
 echo "${BOLD}${GREEN}==> Instalando flipfrog (Hyprland + barra + panel)${RESET}"
