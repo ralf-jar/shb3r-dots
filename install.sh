@@ -121,6 +121,13 @@ fi
 SUDO_KEEPALIVE=$!
 trap 'kill $SUDO_KEEPALIVE 2>/dev/null; [[ $BAR_MODE == 1 ]] && printf "\033[?25h"' EXIT
 SUMMARY+=("Contraseña ingresada, iniciando proceso...")
+
+# Para el detalle final (opcional): paquetes de antes, servicios activados y
+# archivos tocados fuera del repo ("ruta|qué es").
+PKGS_BEFORE="$(pacman -Q)"
+SERVICES=()
+CHANGED=()
+changed() { CHANGED+=("$1|$2"); }
 screen
 echo
 
@@ -242,6 +249,8 @@ elif pac sddm && run sudo systemctl enable sddm.service; then
     # Sesión preseleccionada: Hyprland (no la variante con uwsm).
     printf '[Last]\nSession=/usr/share/wayland-sessions/hyprland.desktop\n' | sudo tee /var/lib/sddm/state.conf >/dev/null
     sudo chown sddm:sddm /var/lib/sddm/state.conf 2>/dev/null || true
+    SERVICES+=("sddm.service (pantalla de inicio de sesión)")
+    changed /var/lib/sddm/state.conf "sesión preseleccionada: Hyprland"
 else
     warn "No se pudo instalar SDDM -- al reiniciar entra con tu usuario y escribe: Hyprland"
 fi
@@ -257,10 +266,16 @@ fi
 # filter-chain: ecualizador de la pestaña "Sonido" (sink-eq6.conf), proceso
 # aparte de pipewire.service -- habilitarlo no corta el audio.
 stage $W_SERVICES "Activando servicios (contraseñas, ecualizador)"
-run systemctl --user enable --now hyprpolkitagent.service \
-    || warn "No se pudo habilitar hyprpolkitagent -- las acciones con contraseña del panel no van a funcionar"
-run systemctl --user enable --now filter-chain.service \
-    || warn "No se pudo habilitar el ecualizador (filter-chain.service)"
+if run systemctl --user enable --now hyprpolkitagent.service; then
+    SERVICES+=("hyprpolkitagent.service, de usuario (ventana de contraseña de pkexec)")
+else
+    warn "No se pudo habilitar hyprpolkitagent -- las acciones con contraseña del panel no van a funcionar"
+fi
+if run systemctl --user enable --now filter-chain.service; then
+    SERVICES+=("filter-chain.service, de usuario (ecualizador de la pestaña Sonido)")
+else
+    warn "No se pudo habilitar el ecualizador (filter-chain.service)"
+fi
 
 stage $W_PARU "Preparando el instalador de AUR (paru)"
 if ! command -v paru >/dev/null; then
@@ -329,6 +344,7 @@ if [[ -n "$KB" ]]; then
         *)       kb_layout="$KB"; kb_variant="" ;;
     esac
     printf 'return { layout = "%s", variant = "%s" }\n' "$kb_layout" "$kb_variant" > "$KEYBOARD_FILE"
+    changed "$KEYBOARD_FILE" "distribución de teclado"
     log "Teclado: $kb_layout $kb_variant"
 fi
 
@@ -338,6 +354,7 @@ if [[ ! -f "$TARGET/flipfrog/themer/colors.css" ]]; then
     LABEL="Aplicando el tema forest-road"
     run bash "$TARGET/flipfrog/themer/apply-theme.sh" "$TARGET/flipfrog/themer/themes/forest-road.theme" \
         || warn "No se pudo aplicar el tema por defecto -- detalles en $LOG"
+    changed "$TARGET/flipfrog/themer/colors.css" "tema activo (forest-road); también recolorea dunst, kitty, GTK, Qt, btop y fastfetch"
 
     # Apariencia de las apps GTK (botones, listas desplegables): sin esto
     # usan el Adwaita claro de fábrica. Mismo valor en gsettings (lo lee
@@ -358,12 +375,14 @@ if [[ ! -f "$TARGET/flipfrog/themer/colors.css" ]]; then
         set_ini "$ini" gtk-icon-theme-name Papirus-Dark
         set_ini "$ini" gtk-font-name "Adwaita Sans 11"
         set_ini "$ini" gtk-application-prefer-dark-theme 1
+        changed "$ini" "tema GTK oscuro, íconos Papirus-Dark, fuente Adwaita Sans"
     done
     if command -v gsettings >/dev/null; then
         gsettings set org.gnome.desktop.interface gtk-theme adw-gtk3-dark 2>> "$LOG" || true
         gsettings set org.gnome.desktop.interface color-scheme prefer-dark 2>> "$LOG" || true
         gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark 2>> "$LOG" || true
         gsettings set org.gnome.desktop.interface font-name "Adwaita Sans 11" 2>> "$LOG" || true
+        changed "gsettings org.gnome.desktop.interface" "gtk-theme, color-scheme, icon-theme, font-name"
     fi
 fi
 
@@ -390,6 +409,7 @@ user: .*
 collection: .*
 permissions: RrWw
 RADICALE_RIGHTS
+    changed "$TARGET/radicale/config" "calendario local (Radicale, solo en esta PC)"
 fi
 
 # Tema de SDDM (flipfrog/sddm/flipfrog). SDDM corre con su propio usuario y
@@ -404,6 +424,9 @@ if [[ "$(readlink -f /etc/systemd/system/display-manager.service 2>/dev/null)" =
         && sudo ln -sf /var/lib/flipfrog-sddm/theme.conf.user /usr/share/sddm/themes/flipfrog/theme.conf.user \
         && sudo mkdir -p /etc/sddm.conf.d \
         && printf '[Theme]\nCurrent=flipfrog\n' | sudo tee /etc/sddm.conf.d/10-flipfrog-theme.conf >/dev/null; then
+        changed /usr/share/sddm/themes/flipfrog "tema de la pantalla de inicio de sesión"
+        changed /etc/sddm.conf.d/10-flipfrog-theme.conf "activa ese tema"
+        changed /var/lib/flipfrog-sddm "fondo y colores del tema para SDDM (dueño: tu usuario)"
         python3 "$TARGET/flipfrog/themer/sync_sddm.py" >> "$LOG" 2>&1 \
             || warn "No se pudieron copiar el fondo y los colores a la pantalla de inicio de sesión"
         # /etc/sddm.conf se lee al final y gana sobre sddm.conf.d.
@@ -427,10 +450,15 @@ for entry in "$TARGET"/flipfrog/desktop/*.desktop; do
     [[ -n "$req" ]] && ! command -v "$req" >/dev/null && continue
     draw 800 "Copiando acceso: $(sed -n 's/^Name=//p' "$entry")"
     sed "s|@HOME@|$HOME|g" "$entry" > "$dest"
+    added_entries=$(( ${added_entries:-0} + 1 ))
 done
+(( ${added_entries:-0} )) && changed "$APPS_DIR/custom-*.desktop" "$added_entries accesos a los popups en el lanzador"
 
 WELCOME_FILE="$TARGET/flipfrog/scripts/keybinds/welcome.json"
-[[ -f "$WELCOME_FILE" ]] || echo '{"show_on_login": true}' > "$WELCOME_FILE"
+if [[ ! -f "$WELCOME_FILE" ]]; then
+    echo '{"show_on_login": true}' > "$WELCOME_FILE"
+    changed "$WELCOME_FILE" "abrir la ventana de atajos al iniciar sesión"
+fi
 
 stage $W_FONTS "Actualizando las fuentes"
 run fc-cache -f || true
@@ -447,6 +475,76 @@ if [[ ${#WARNINGS[@]} -gt 0 ]]; then
         echo "  ${YELLOW}⚠${RESET} $w"
     done
     echo "  ${DIM}Detalles en $LOG${RESET}"
+fi
+
+# Detalle de la instalación: siempre se guarda; verlo es opcional.
+DETAIL="$HOME/.cache/flipfrog-install-resumen.txt"
+{
+    echo "DETALLE DE LA INSTALACIÓN DE FLIPFROG -- $(date '+%Y-%m-%d %H:%M')"
+    echo
+
+    new_pkgs="$(comm -13 <(printf '%s\n' "$PKGS_BEFORE" | sort) <(pacman -Q | sort))"
+    explicit="$(pacman -Qeq)"
+    requested="" deps="" n_req=0 n_dep=0
+    while read -r name version; do
+        [[ -z "$name" ]] && continue
+        if grep -qx "$name" <<< "$explicit"; then
+            requested+="  $name $version"$'\n'; n_req=$((n_req + 1))
+        else
+            deps+="  $name $version"$'\n'; n_dep=$((n_dep + 1))
+        fi
+    done <<< "$new_pkgs"
+    echo "== Paquetes nuevos que pidió el instalador ($n_req)"
+    if (( n_req )); then printf '%s' "$requested"; else echo "  (ninguno, ya estaban instalados)"; fi
+    echo
+    echo "== Paquetes nuevos instalados como dependencia ($n_dep)"
+    if (( n_dep )); then printf '%s' "$deps"; else echo "  (ninguno)"; fi
+    echo
+
+    echo "== Servicios activados"
+    if (( ${#SERVICES[@]} )); then printf '  %s\n' "${SERVICES[@]}"; else echo "  (ninguno nuevo)"; fi
+    echo
+
+    echo "== Archivos creados o modificados fuera del repo"
+    if (( ${#CHANGED[@]} )); then
+        for item in "${CHANGED[@]}"; do
+            path="${item%%|*}"
+            printf '  %s\n      %s\n' "${path/#$HOME/\~}" "${item#*|}"
+        done
+    else
+        echo "  (ninguno)"
+    fi
+    echo
+
+    echo "== Configuración copiada a ~/.config (archivos por carpeta)"
+    if git -C "$TARGET" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        git -C "$TARGET" ls-files | awk -F/ '{print ($2 == "" ? $1 : $1 "/")}' | sort | uniq -c \
+            | awk '{printf "  %-28s %d\n", $2, $1}' || true
+    else
+        echo "  (no se encontró el repo de git en ~/.config)"
+    fi
+    echo
+
+    echo "== Respaldo y registro"
+    if [[ -n "${FLIPFROG_BACKUP:-}" ]]; then
+        echo "  Tu configuración anterior: ${FLIPFROG_BACKUP/#$HOME/\~}"
+    else
+        echo "  No hubo configuración anterior que respaldar"
+    fi
+    echo "  Registro completo (salida de pacman y paru): ${LOG/#$HOME/\~}"
+    echo "  Este detalle: ${DETAIL/#$HOME/\~}"
+} > "$DETAIL" 2>> "$LOG"
+
+if [[ $HAS_TTY == 1 ]]; then
+    echo
+    ask see_detail "¿Ver el detalle de la instalación? (s/N) "
+    if [[ "$see_detail" =~ ^[sSyY] ]]; then
+        if command -v less >/dev/null; then
+            less -R -P "Detalle de la instalación (flechas para moverte, q para salir)" "$DETAIL" < /dev/tty
+        else
+            cat "$DETAIL"
+        fi
+    fi
 fi
 
 echo
