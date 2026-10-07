@@ -12,7 +12,7 @@
 
 #wc-toolbar {
     background-color: alpha(@mybackground, 0.92);
-    border-radius: 25px;
+    border-radius: 5px;
     padding: 5px 8px;
     margin-bottom: 22px;
 }
@@ -30,7 +30,7 @@
     color: @myforeground;
     border: none;
     box-shadow: none;
-    border-radius: 25px;
+    border-radius: 5px;
     padding: 3px 12px;
     min-height: 0;
     min-width: 0;
@@ -62,7 +62,7 @@
 .wc-tile {
     background-color: alpha(#000000, 0.35);
     border: 2px solid alpha(@myforeground, 0.12);
-    border-radius: 25px;
+    border-radius: 5px;
 }
 
 .wc-tile.hover {
@@ -90,7 +90,7 @@
     background-color: alpha(#000000, 0.75);
     color: @myforeground;
     border: 1px solid alpha(@myforeground, 0.25);
-    border-radius: 25px;
+    border-radius: 5px;
     font-size: 12px;
     font-weight: 700;
     padding: 3px 10px;
@@ -99,7 +99,7 @@
 .wc-ws {
     background-color: @myforegroundhover;
     color: #111111;
-    border-radius: 25px;
+    border-radius: 5px;
     font-size: 12px;
     font-weight: 900;
     padding: 2px 9px;
@@ -108,7 +108,7 @@
 .wc-empty {
     background-color: alpha(#000000, 0.65);
     color: @myforeground;
-    border-radius: 25px;
+    border-radius: 5px;
     font-size: 14px;
     padding: 10px 20px;
 }
@@ -149,7 +149,7 @@ button:focus {
     color: @myforeground;
     border: none;
     box-shadow: none;
-    border-radius: 25px;
+    border-radius: 5px;
     font-size: 12px;
     min-height: 0;
     padding: 3px 8px;
@@ -160,7 +160,7 @@ button:focus {
 .wc-zone {
     background-color: alpha(#000000, 0.28);
     border: 2px dashed alpha(@myforeground, 0.14);
-    border-radius: 25px;
+    border-radius: 5px;
 }
 
 .wc-zone.drop {

@@ -29,8 +29,8 @@ IntensityEffect=0
 [Colors:Button]
 BackgroundAlternate=41,41,41
 BackgroundNormal=41,41,41
-DecorationFocus=128,128,67
-DecorationHover=128,126,76
+DecorationFocus=204,204,204
+DecorationHover=204,204,204
 ForegroundActive=255,245,155
 ForegroundInactive=124,128,180
 ForegroundLink=169,174,254
@@ -43,8 +43,8 @@ ForegroundVisited=205,208,254
 [Colors:Complementary]
 BackgroundAlternate=41,41,41
 BackgroundNormal=41,41,41
-DecorationFocus=128,128,67
-DecorationHover=128,126,76
+DecorationFocus=204,204,204
+DecorationHover=204,204,204
 ForegroundActive=255,245,155
 ForegroundInactive=124,128,180
 ForegroundLink=169,174,254
@@ -57,8 +57,8 @@ ForegroundVisited=205,208,254
 [Colors:Header]
 BackgroundAlternate=41,41,41
 BackgroundNormal=41,41,41
-DecorationFocus=128,128,67
-DecorationHover=128,126,76
+DecorationFocus=204,204,204
+DecorationHover=204,204,204
 ForegroundActive=255,245,155
 ForegroundInactive=124,128,180
 ForegroundLink=169,174,254
@@ -71,8 +71,8 @@ ForegroundVisited=205,208,254
 [Colors:Header][Inactive]
 BackgroundAlternate=41,41,41
 BackgroundNormal=41,41,41
-DecorationFocus=128,128,67
-DecorationHover=128,126,76
+DecorationFocus=204,204,204
+DecorationHover=204,204,204
 ForegroundActive=255,245,155
 ForegroundInactive=124,128,180
 ForegroundLink=169,174,254
@@ -83,10 +83,10 @@ ForegroundPositive=155,254,206
 ForegroundVisited=205,208,254
 
 [Colors:Selection]
-BackgroundAlternate=191,191,117
-BackgroundNormal=191,191,117
-DecorationFocus=128,128,67
-DecorationHover=128,126,76
+BackgroundAlternate=38,162,105
+BackgroundNormal=38,162,105
+DecorationFocus=204,204,204
+DecorationHover=204,204,204
 ForegroundActive=255,255,255
 ForegroundInactive=124,128,180
 ForegroundLink=169,174,254
@@ -99,8 +99,8 @@ ForegroundVisited=205,208,254
 [Colors:Tooltip]
 BackgroundAlternate=41,41,41
 BackgroundNormal=0,0,0
-DecorationFocus=128,128,67
-DecorationHover=128,126,76
+DecorationFocus=204,204,204
+DecorationHover=204,204,204
 ForegroundActive=255,245,155
 ForegroundInactive=124,128,180
 ForegroundLink=169,174,254
@@ -113,8 +113,8 @@ ForegroundVisited=205,208,254
 [Colors:View]
 BackgroundAlternate=41,41,41
 BackgroundNormal=0,0,0
-DecorationFocus=128,128,67
-DecorationHover=128,126,76
+DecorationFocus=204,204,204
+DecorationHover=204,204,204
 ForegroundActive=255,245,155
 ForegroundInactive=124,128,180
 ForegroundLink=169,174,254
@@ -127,8 +127,8 @@ ForegroundVisited=205,208,254
 [Colors:Window]
 BackgroundAlternate=41,41,41
 BackgroundNormal=0,0,0
-DecorationFocus=128,128,67
-DecorationHover=128,126,76
+DecorationFocus=204,204,204
+DecorationHover=204,204,204
 ForegroundActive=255,245,155
 ForegroundInactive=124,128,180
 ForegroundLink=169,174,254

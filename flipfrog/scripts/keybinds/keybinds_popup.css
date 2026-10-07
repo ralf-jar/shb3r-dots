@@ -10,7 +10,7 @@ window {
    blur con alphas bajos configurados por el usuario). */
 #keybinds-container {
     background-color: @mybackground;
-    border-radius: 25px;
+    border-radius: 5px;
     padding: 18px 24px 20px 24px;
     min-width: 1120px;
 }
@@ -29,7 +29,7 @@ window {
     background-color: alpha(@myforegroundhover, 0.55);
     font-size: 12px;
     font-weight: 800;
-    border-radius: 25px;
+    border-radius: 5px;
     padding: 1px 8px;
     margin-bottom: 4px;
 }
@@ -110,7 +110,7 @@ window {
     font-weight: 700;
     font-size: 12px;
     font-family: monospace;
-    border-radius: 25px;
+    border-radius: 5px;
     padding: 3px 7px;
     min-width: 10px;
     /* Sombra dura 2px abajo/derecha -- pedido explícito del usuario,

@@ -115,7 +115,7 @@
 .menu-icon-preview-btn {
     background-color: transparent;
     border: none;
-    border-radius: 25px;
+    border-radius: 5px;
     box-shadow: none;
     outline: none;
     padding: 4px;
@@ -145,7 +145,7 @@ entry {
     background-color: @mybackground;
     color: @myforegroundhover;
     border: none;
-    border-radius: 25px;
+    border-radius: 5px;
     font-weight: 800;
     padding: 2px 8px;
     min-height: 25px;

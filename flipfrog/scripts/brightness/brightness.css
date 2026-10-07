@@ -10,7 +10,7 @@ window {
 }
 
 #container {
-    border-radius: 25px;
+    border-radius: 5px;
 }
 
 /* Nota: brightness.py no tiene ningún widget con set_name("label-title"),
@@ -48,7 +48,7 @@ scale slider {
 
 scale trough,
 scale highlight {
-    border-radius: 25px;
+    border-radius: 5px;
 }
 
 scale slider {

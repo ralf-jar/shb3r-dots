@@ -102,7 +102,7 @@
    hover pese a tener el slider en 0. */
 #network-activity-list row {
     background-color: transparent;
-    border-radius: 25px;
+    border-radius: 5px;
     color: @myforeground;
 }
 /* Hover con fondo, mismo criterio que #process-list row en
@@ -172,7 +172,7 @@
 }
 #network-wifi-list row {
     background-color: transparent;
-    border-radius: 25px;
+    border-radius: 5px;
     color: @myforeground;
 }
 #network-wifi-list row:hover {
@@ -212,7 +212,7 @@
     background-color: @mybackground;
     color: @myforegroundhover;
     border: none;
-    border-radius: 25px;
+    border-radius: 5px;
     font-weight: 800;
     padding: 0px 15px;
     margin:0px;
@@ -230,7 +230,7 @@
     background-color: transparent;
     color: @myforeground;
     border: none;
-    border-radius: 25px;
+    border-radius: 5px;
     min-width: 0;
     min-height: 20px;
     padding: 0px 15px;

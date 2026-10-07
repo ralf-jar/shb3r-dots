@@ -6,7 +6,7 @@ window {
 
 #container {
     background-color: @mybackground;
-    border-radius: 25px;
+    border-radius: 5px;
     padding: 16px 20px 18px 20px;
     min-width: 280px;
 }
@@ -72,7 +72,7 @@ window {
 .alarm-add-btn {
     background-color: transparent;
     color: @myforegroundhover;
-    border-radius: 25px;
+    border-radius: 5px;
     font-weight: 700;
     padding: 6px 0;
 }
@@ -97,7 +97,7 @@ window {
     background-color: transparent;
     color: @myforegroundhover;
     border: none;
-    border-radius: 25px;
+    border-radius: 5px;
     font-weight: 800;
     font-size: 22px;
     font-family: monospace;
@@ -116,7 +116,7 @@ window {
     background-color: @mybackground;
     color: @myforegroundhover;
     border: none;
-    border-radius: 25px;
+    border-radius: 5px;
     padding: 4px 12px;
 }
 
@@ -127,7 +127,7 @@ window {
     background-color: alpha(@myforegroundhover, 0.14);
     color: @myforegroundhover;
     border: 1px solid alpha(@myforegroundhover, 0.35);
-    border-radius: 25px;
+    border-radius: 5px;
     font-weight: 700;
     font-size: 13px;
     min-width: 12px;
@@ -155,7 +155,7 @@ window {
     background-color: transparent;
     color: @myforegroundhover;
     border: none;
-    border-radius: 25px;
+    border-radius: 5px;
     font-weight: 700;
     padding: 6px 50px;
 }
