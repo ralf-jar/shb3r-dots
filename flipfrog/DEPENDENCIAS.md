@@ -56,10 +56,18 @@ Pedido explícito del usuario para que una instalación nueva quede lista para u
 
 | Paquete | Para qué |
 |---|---|
-| `brave-origin-bin` | Navegador (SUPER+B) |
+| `brave-origin-bin` (*extra*, marcado por defecto) | Navegador (SUPER+B, `mimeapps.list`, búsqueda con "?" del launcher) |
 | `steam` (multilib, *extra*) | Juegos; los íconos de juegos los genera `steam/steam-icons-sync.py` |
 | `vesktop-bin` (*extra*) | Discord (autostart). `vesktop` sin `-bin` no está en los repos, solo en AUR |
 | `gamescope` | Resolución y escalado por juego |
 | `bibata-cursor-theme-bin` (AUR) | Cursor que espera `uwsm/env` |
 | `millennium-bin` (AUR, *extra*) | Temas de Steam (`sync_millennium.py`) |
 | `zapzap` (AUR, *extra*) | WhatsApp (autostart) |
+| `stremio` (AUR, *extra*) | Películas y series en streaming |
+| `onlyoffice-bin` (*extra*) | Oficina |
+| `gimp` (*extra*) | Editor de imágenes |
+| `obs-studio` (*extra*) | Grabar pantalla / streams |
+| `davinci-resolve` (*extra*) | Editor de video (~3.3 GB). Pide un proveedor de `opencl-driver`: `install.sh` lo elige por la GPU (`opencl-nvidia` / `rocm-opencl-runtime` / `intel-compute-runtime` / `opencl-mesa`), con `--noconfirm` pacman tomaría el primero de la lista |
+| `vlc` + `vlc-plugins-all` (*extra*) | Reproductor; los códecs van en paquetes aparte |
+| `openrgb` (*extra*) | Luces RGB |
+| `overskride` (AUR, *extra*) | Bluetooth alterno al de la pestaña del panel |
