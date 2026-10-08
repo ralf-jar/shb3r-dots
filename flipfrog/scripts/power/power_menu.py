@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Menú de energía (custom/power de Waybar): apagar / reiniciar. Una
+"""Menú de energía (ícono de power de la barra): apagar / reiniciar /
+cerrar sesión. Una
 superficie layer-shell OVERLAY por monitor, todas con fondo
 @mybackground + blur (regla "power-menu" en windowrules.lua); los
-botones solo en el monitor con foco. Click afuera o Esc cierra, S/R
-apagan/reinician."""
+botones solo en el monitor con foco. Click afuera o Esc cierra, S/R/C
+apagan/reinician/cierran sesión."""
 
 import gi
 gi.require_version("Gtk", "3.0")
@@ -27,9 +28,15 @@ CSS_FILE = os.path.join(SCRIPT_DIR, "power_menu.css")
 ICONS_DIR = os.path.join(SCRIPT_DIR, "icons")
 ICON_SIZE = 64
 
+# Cerrar sesión: lo mismo que el SUPER+M de la config de fábrica de
+# Hyprland -- hyprshutdown (si está) cierra las apps con calma antes de
+# salir; si no, hl.dsp.exit() directo.
+LOGOUT = "command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"
+
 ACTIONS = [
     ("shutdown", "system-shutdown.svg", "myforegroundhover", ["systemctl", "poweroff"], Gdk.KEY_s),
     ("reboot", "system-reboot.svg", "myforegroundhover2", ["systemctl", "reboot"], Gdk.KEY_r),
+    ("logout", "system-log-out.svg", "myforeground", ["sh", "-c", LOGOUT], Gdk.KEY_c),
 ]
 
 

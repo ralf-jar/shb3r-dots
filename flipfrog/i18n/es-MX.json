@@ -692,6 +692,7 @@
   {"modulo": "temas", "codigo": "tooltip_sobrescribir_tema", "texto": "Guarda los colores actuales sobre este tema"},
   {"modulo": "energia", "codigo": "reboot", "texto": "Reiniciar"},
   {"modulo": "energia", "codigo": "shutdown", "texto": "Apagar"},
+  {"modulo": "energia", "codigo": "logout", "texto": "Cerrar sesión"},
   {"modulo": "ventanas", "codigo": "titulo", "texto": "Ventanas"},
   {"modulo": "ventanas", "codigo": "ayuda", "texto": "Clic o Enter: ir a la ventana · Flechas/Tab: moverte · Escribir: filtrar · Clic medio o Supr: cerrar la ventana · Arrastrar: moverla (en \"Por workspace\", a otro workspace) · Esquina o rueda: tamaño en el collage · SUPER+CTRL+TAB de nuevo: siguiente, soltar SUPER: ir · Esc: cerrar"},
   {"modulo": "ventanas", "codigo": "modo_personalizado", "texto": "Personalizado"},

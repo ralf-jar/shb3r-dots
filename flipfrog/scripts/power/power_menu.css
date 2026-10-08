@@ -51,3 +51,7 @@
 .power-reboot .power-label {
     color: @myforegroundhover2;
 }
+
+.power-logout .power-label {
+    color: @myforeground;
+}
