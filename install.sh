@@ -316,7 +316,9 @@ stage() {  # stage <peso> <etiqueta>
 # Avance y etiqueta a partir de lo que pacman/paru escribieron desde `off`.
 # Sin terminal pacman no numera los paquetes ("upgrading gtk3...", sin
 # "(n/m)"; la barra se quedaba en 0%, visto en VM): se cuentan contra el
-# total de "Packages (N)". Los hooks del final sí traen "( n/m)".
+# total de "Packages (N)". Los hooks del final sí traen "( n/m)"; el de
+# initcpio (imagen de arranque, cuando se actualiza el kernel) es el más
+# lento y se nombra aparte.
 parse_progress() {  # parse_progress <offset>
     tail -c +"$(( $1 + 1 ))" "$LOG" 2>/dev/null | tr '\r' '\n' | awk -v base="$LABEL" '
         /^Packages \([0-9]+\)/ { match($0, /\(([0-9]+)\)/, m); total = m[1]; dl = 0; n = 0; post = 0 }
@@ -330,7 +332,8 @@ parse_progress() {  # parse_progress <offset>
             state = "inst" }
         /^:: Running post-transaction hooks/ { post = 1 }
         post && /^\( *[0-9]+\/[0-9]+\) / {
-            match($0, /\( *([0-9]+)\/([0-9]+)\)/, m); hn = m[1]; ht = m[2]; state = "hooks" }
+            match($0, /\( *([0-9]+)\/([0-9]+)\)/, m); hn = m[1]; ht = m[2]; state = "hooks"
+            boot = ($0 ~ /initcpio|initramfs|dracut|mkinitcpio/) }
         /==> Making package: /  { split($0, a, "Making package: "); split(a[2], b, " "); build = b[1]; state = "build" }
         /==> Retrieving sources/ { if (build != "") state = "src" }
         END {
@@ -338,7 +341,8 @@ parse_progress() {  # parse_progress <offset>
             else if (state == "check") print "500|Verificando paquetes"
             else if (state == "inst" && total > 0) printf "%d|Instalando %s (%d/%d)\n", 500 + 450 * (n > total ? total : n) / total, pkg, n, total
             else if (state == "inst") printf "500|Instalando %s\n", pkg
-            else if (state == "hooks" && ht > 0) printf "%d|Terminando (%d/%d)\n", 950 + 50 * hn / ht, hn, ht
+            else if (state == "hooks" && boot) printf "%d|%s: preparando el arranque (tarda un poco)\n", 950 + 50 * hn / ht, base
+            else if (state == "hooks" && ht > 0) printf "%d|%s: pasos finales (%d/%d)\n", 950 + 50 * hn / ht, base, hn, ht
             else if (state == "build") printf "300|Compilando %s\n", build
             else if (state == "src") printf "150|Descargando el código de %s\n", build
             else printf "0|%s\n", base
