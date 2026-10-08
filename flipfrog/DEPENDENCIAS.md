@@ -69,5 +69,6 @@ Pedido explícito del usuario para que una instalación nueva quede lista para u
 | `obs-studio` (*extra*) | Grabar pantalla / streams |
 | `davinci-resolve` (*extra*) | Editor de video (~3.3 GB). Pide un proveedor de `opencl-driver`: `install.sh` lo elige por la GPU (`opencl-nvidia` / `rocm-opencl-runtime` / `intel-compute-runtime` / `opencl-mesa`), con `--noconfirm` pacman tomaría el primero de la lista |
 | `vlc` + `vlc-plugins-all` (*extra*) | Reproductor; los códecs van en paquetes aparte |
+| `shelly` (*extra*, marcado por defecto) | Tienda gráfica de paquetes (repos + AUR) |
 | `openrgb` (*extra*) | Luces RGB |
 | `overskride` (AUR, *extra*) | Bluetooth alterno al de la pestaña del panel |
