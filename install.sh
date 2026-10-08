@@ -98,21 +98,37 @@ esac
 
 # Extras: menú para marcar uno por uno (pedido explícito del usuario).
 # FLIPFROG_EXTRAS: 0 = ninguno, 1 = todos, o ids separados por coma
-# (steam,millennium,vesktop,zapzap,audiolibros).
-EXTRA_IDS=(steam millennium vesktop zapzap audiolibros)
-EXTRA_NAMES=("Steam" "Temas para Steam (Millennium)" "Discord (Vesktop)" "WhatsApp (ZapZap)" "Audiolibros narrados")
-EXTRA_DESC=(
-    "tienda de juegos de PC"
-    "Steam con los colores del tema; también instala Steam"
-    "Discord con soporte para compartir pantalla en Wayland"
-    "WhatsApp Web como app propia"
-    "convierte libros EPUB en audio (voz en español, ~73 MB)"
+# (ver los ids en EXTRAS_LIST). Brave viene marcado: es el navegador por
+# defecto del repo (mimeapps.list, SUPER+B, búsqueda con "?" del launcher).
+# Una entrada por extra: id|sección|nombre|descripción. La sección se
+# muestra como encabezado cuando cambia.
+EXTRAS_LIST=(
+    "brave|Internet|Brave Origin|navegador (el que abre SUPER+B y los enlaces)"
+    "vesktop|Internet|Discord (Vesktop)|Discord con soporte para compartir pantalla en Wayland"
+    "zapzap|Internet|WhatsApp (ZapZap)|WhatsApp Web como app propia"
+    "stremio|Internet|Stremio|películas y series en streaming"
+    "onlyoffice|Oficina y creación|OnlyOffice|documentos, hojas de cálculo y presentaciones"
+    "gimp|Oficina y creación|GIMP|editor de imágenes"
+    "obs|Oficina y creación|OBS Studio|grabar la pantalla y hacer streams"
+    "davinci|Oficina y creación|DaVinci Resolve|editor de video profesional (~3.3 GB, necesita tarjeta de video dedicada)"
+    "vlc|Oficina y creación|VLC|reproductor de video y música"
+    "audiolibros|Oficina y creación|Audiolibros narrados|convierte libros EPUB en audio (voz en español, ~73 MB)"
+    "steam|Juegos|Steam|tienda de juegos de PC"
+    "millennium|Juegos|Temas para Steam (Millennium)|Steam con los colores del tema; también instala Steam"
+    "openrgb|Sistema|OpenRGB|controla las luces RGB del teclado, mouse, RAM, etc."
+    "overskride|Sistema|Overskride|administrador de Bluetooth alterno al del panel"
 )
+EXTRA_IDS=(); EXTRA_SECTIONS=(); EXTRA_NAMES=(); EXTRA_DESC=()
+for row in "${EXTRAS_LIST[@]}"; do
+    IFS='|' read -r id section name desc <<< "$row"
+    EXTRA_IDS+=("$id"); EXTRA_SECTIONS+=("$section"); EXTRA_NAMES+=("$name"); EXTRA_DESC+=("$desc")
+done
 declare -A EXTRA_ON=()
 EXTRAS_ENV="${FLIPFROG_EXTRAS:-}"
 case "$EXTRAS_ENV" in
     1|all) for id in "${EXTRA_IDS[@]}"; do EXTRA_ON[$id]=1; done ;;
-    0|"") ;;
+    "") EXTRA_ON[brave]=1 ;;
+    0) ;;
     *) IFS=, read -ra env_ids <<< "$EXTRAS_ENV"; for id in "${env_ids[@]}"; do EXTRA_ON[$id]=1; done ;;
 esac
 
@@ -122,10 +138,14 @@ extras_menu() {
     while true; do
         screen
         echo
-        echo "${BOLD}¿Qué extras quieres instalar?${RESET} Ninguno hace falta para empezar."
+        echo "${BOLD}¿Qué extras quieres instalar?${RESET} Todos son opcionales; Brave viene marcado porque es el navegador por defecto."
         echo "${DIM}↑/↓ para moverte, Espacio marca o desmarca, Enter para continuar${RESET}"
         echo
         for i in "${!EXTRA_IDS[@]}"; do
+            if (( i == 0 )) || [[ ${EXTRA_SECTIONS[$i]} != "${EXTRA_SECTIONS[$((i - 1))]}" ]]; then
+                (( i > 0 )) && echo
+                echo "  ${YELLOW}${EXTRA_SECTIONS[$i]}${RESET}"
+            fi
             mark=" "; [[ -n "${EXTRA_ON[${EXTRA_IDS[$i]}]:-}" ]] && mark="${GREEN}x${RESET}"
             pointer="  "; [[ $i == "$cursor" ]] && pointer="${CYAN}❯${RESET} "
             if [[ $i == "$cursor" ]]; then
@@ -345,13 +365,10 @@ if ! command -v paru >/dev/null; then
     pac paru || fail "paru no está en tus repos -- instálalo desde AUR: git clone https://aur.archlinux.org/paru.git && cd paru && makepkg -si"
 fi
 
-# Apps de la instalación base (pedido explícito del usuario). Steam,
-# Vesktop y ZapZap van en los extras. Cada una se salta si su comando ya
-# existe: en la máquina de origen vesktop y zapzap vinieron de AUR y los
-# paquetes de los repos chocarían con ellos.
-stage $W_APPS "Instalando Brave y gamescope"
+# Apps de la instalación base (pedido explícito del usuario); Brave y el
+# resto de apps van en los extras. Se salta si su comando ya existe.
+stage $W_APPS "Instalando gamescope"
 APPS_PACMAN=()
-command -v brave-origin >/dev/null || APPS_PACMAN+=(brave-origin-bin)
 # gamescope: resolución y escalado por juego.
 command -v gamescope    >/dev/null || APPS_PACMAN+=(gamescope)
 if [[ ${#APPS_PACMAN[@]} -gt 0 ]]; then
@@ -372,11 +389,34 @@ run paru -S --needed --noconfirm --skipreview "${APPS_AUR[@]}" \
 # paru pregunta de forma interactiva (cpu/cuda/rocm...).
 EXTRAS_PACMAN=()
 EXTRAS_AUR=()
-extra steam       && ! command -v steam   >/dev/null && EXTRAS_PACMAN+=(steam)
-extra vesktop     && ! command -v vesktop >/dev/null && EXTRAS_PACMAN+=(vesktop-bin)
+want() {  # want <id> <comando> -- marcado y todavía no instalado
+    extra "$1" && ! command -v "$2" >/dev/null
+}
+want brave       brave-origin              && EXTRAS_PACMAN+=(brave-origin-bin)
+want vesktop     vesktop                   && EXTRAS_PACMAN+=(vesktop-bin)
+want onlyoffice  onlyoffice-desktopeditors && EXTRAS_PACMAN+=(onlyoffice-bin)
+want gimp        gimp                      && EXTRAS_PACMAN+=(gimp)
+want obs         obs                       && EXTRAS_PACMAN+=(obs-studio)
+want vlc         vlc                       && EXTRAS_PACMAN+=(vlc vlc-plugins-all)
+want steam       steam                     && EXTRAS_PACMAN+=(steam)
+want openrgb     openrgb                   && EXTRAS_PACMAN+=(openrgb)
+if want davinci davinci-resolve; then
+    # Pide un proveedor de OpenCL y --noconfirm elegiría el primero de la
+    # lista aunque no sea de esta tarjeta: se escoge según la GPU.
+    gpus="$(lspci 2>/dev/null | grep -iE 'vga|3d|display' || true)"
+    if grep -qi nvidia <<< "$gpus"; then opencl=opencl-nvidia
+    elif grep -qiE 'amd|ati' <<< "$gpus"; then opencl=rocm-opencl-runtime
+    elif grep -qi intel <<< "$gpus"; then opencl=intel-compute-runtime
+    else opencl=opencl-mesa
+    fi
+    log "DaVinci Resolve: OpenCL con $opencl"
+    EXTRAS_PACMAN+=("$opencl" davinci-resolve)
+fi
 extra audiolibros && EXTRAS_PACMAN+=(python-onnxruntime-cpu) && EXTRAS_AUR+=(piper-tts)
 extra millennium  && EXTRAS_AUR+=(millennium-bin)
-extra zapzap      && ! command -v zapzap  >/dev/null && EXTRAS_AUR+=(zapzap)
+want zapzap      zapzap                    && EXTRAS_AUR+=(zapzap)
+want stremio     stremio                   && EXTRAS_AUR+=(stremio)
+want overskride  overskride                && EXTRAS_AUR+=(overskride)
 if (( ${#EXTRA_ON[@]} )); then
     stage $W_EXTRAS_PACMAN "Instalando extras"
     if (( ${#EXTRAS_PACMAN[@]} )); then
