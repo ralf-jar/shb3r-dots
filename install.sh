@@ -42,12 +42,12 @@ else
 fi
 
 # Símbolos: la consola de texto de Linux (TERM=linux, donde corre la
-# instalación desde el TTY) no trae braille ni ✓/❯/⚠/✘/▸ en su fuente --
+# instalación desde el TTY) no trae braille ni ✓/❯/⚠/✘ en su fuente --
 # el spinner salía como "1" (visto en VM). Ahí van en ASCII.
 if [[ "${TERM:-}" == linux ]]; then
-    SPIN=('|' '/' '-' '\'); G_OK="*"; G_PTR=">"; G_WARN="!"; G_FAIL="X"; G_STAGE=">>"
+    SPIN=('|' '/' '-' '\'); G_OK="*"; G_PTR=">"; G_WARN="!"; G_FAIL="X"
 else
-    SPIN=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏); G_OK="✓"; G_PTR="❯"; G_WARN="⚠"; G_FAIL="✘"; G_STAGE="▸"
+    SPIN=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏); G_OK="✓"; G_PTR="❯"; G_WARN="⚠"; G_FAIL="✘"
 fi
 SPIN_I=0
 
@@ -282,7 +282,7 @@ else
 fi
 (( ${#EXTRA_ON[@]} )) && TOTAL_W=$((TOTAL_W + W_EXTRAS_PACMAN + W_EXTRAS_AUR))
 extra audiolibros && TOTAL_W=$((TOTAL_W + W_MODELS))
-DONE_W=0; STAGE_W=0; STAGE_FRAC=0; LABEL=""; LAST_LINE=""
+RUN_OFF=0; DONE_W=0; STAGE_W=0; STAGE_FRAC=0; LABEL=""; LAST_LINE=""
 
 draw() {  # draw <fracción 0-1000 dentro de la etapa> <etiqueta>
     # Nunca hacia atrás: con varios paquetes, la lectura de cada uno empieza de cero.
@@ -310,35 +310,7 @@ stage() {  # stage <peso> <etiqueta>
     DONE_W=$((DONE_W + STAGE_W))
     STAGE_W=$1; STAGE_FRAC=0; LABEL="$2"
     log ""; log "=== $2"
-    [[ $BAR_MODE == 1 ]] && printf '\r\033[K\n%s%s %s%s\n' "$BOLD" "$G_STAGE" "$2" "$RESET"
     draw 0 "$LABEL"
-}
-
-# Desglose (pedido explícito del usuario): lo que pacman/paru escriben en
-# el registro se muestra arriba de la barra, línea por línea; la barra se
-# redibuja siempre en la última línea.
-SHOWN=0
-show_log() {  # show_log [final] -- imprime las líneas nuevas del registro
-    [[ $BAR_MODE == 1 ]] || return 0
-    local size data complete cols line
-    size=$(stat -c %s "$LOG")
-    (( size > SHOWN )) || return 0
-    data=$(tail -c +"$((SHOWN + 1))" "$LOG" | head -c "$((size - SHOWN))" | tr '\r' '\n'; printf x)
-    data="${data%x}"
-    if [[ ${1:-} == final ]]; then
-        complete="$data"
-    elif [[ $data == *$'\n'* ]]; then
-        complete="${data%$'\n'*}"$'\n'
-    else
-        return 0
-    fi
-    SHOWN=$(( SHOWN + $(printf '%s' "$complete" | wc -c) ))
-    cols=$(tput cols 2>/dev/null || echo 80)
-    printf '\r\033[K'
-    while IFS= read -r line; do
-        [[ -z "${line// /}" ]] && continue
-        printf '  %s%s%s\n' "$DIM" "${line:0:$((cols - 3))}" "$RESET"
-    done <<< "${complete%$'\n'}"
 }
 
 # Avance y etiqueta a partir de lo que pacman/paru escribieron desde `off`.
@@ -375,19 +347,16 @@ parse_progress() {  # parse_progress <offset>
 
 run() {  # run <comando...> -- en segundo plano, con la barra viva
     local off; off=$(stat -c %s "$LOG")
-    SHOWN=$off
+    RUN_OFF=$off
     LC_ALL=C "$@" >> "$LOG" 2>&1 < /dev/null &
     local pid=$! info frac text status=0
     while kill -0 "$pid" 2>/dev/null; do
-        show_log
         info=$(parse_progress "$off" || true)
         frac=${info%%|*}; text=${info#*|}
         draw "${frac:-0}" "${text:-$LABEL}"
         sleep 0.3
     done
     wait "$pid" || status=$?
-    show_log final
-    draw "$STAGE_FRAC" "$LABEL"
     return $status
 }
 
@@ -397,12 +366,8 @@ break_bar() { [[ $BAR_MODE == 1 ]] && printf '\r\033[K\033[?25h'; return 0; }
 fail() {  # fail <mensaje> -- error que impide seguir
     break_bar
     echo "${RED}${G_FAIL} $1${RESET}" >&2
-    # Con barra la salida ya quedó en pantalla (show_log).
-    if [[ $BAR_MODE == 0 ]]; then
-        echo "Últimas líneas del registro ($LOG):" >&2
-        tail -n 15 "$LOG" >&2
-    fi
-    echo "${DIM}Registro completo: $LOG${RESET}" >&2
+    echo "${DIM}Últimas líneas del registro ($LOG):${RESET}" >&2
+    tail -n 15 "$LOG" >&2
     exit 1
 }
 
@@ -412,6 +377,14 @@ fail() {  # fail <mensaje> -- error que impide seguir
 # Un espejo que falla (404, "Maximum file size exceeded", visto en VM):
 # si la última salida fue un error de descarga, se vuelven a ordenar los
 # espejos (cachyos-rate-mirrors, viene con CachyOS) y se resincroniza.
+# Solo se le pregunta a la persona si pacman de verdad necesita una
+# respuesta (paquetes en conflicto: --noconfirm contesta "no"); con otro
+# error se falla con la barra y el final del registro, sin soltar toda la
+# salida de pacman en pantalla (pedido explícito del usuario: solo barra).
+needs_answer() {
+    tail -c +"$(( RUN_OFF + 1 ))" "$LOG" | grep -qE "in conflict|conflicting dependencies|unresolvable package conflicts"
+}
+
 retry_mirrors() {
     command -v cachyos-rate-mirrors >/dev/null || return 1
     tail -n 60 "$LOG" | grep -qE "failed retrieving file|failed to retrieve some files" || return 1
@@ -426,6 +399,7 @@ retry_mirrors() {
 upgrade() {
     run sudo pacman -Syu --noconfirm && return
     retry_mirrors && run sudo pacman -Syu --noconfirm && return
+    needs_answer || return 1
     break_bar
     echo "${YELLOW}${G_WARN} pacman necesita que confirmes algo:${RESET}"
     sudo pacman -Syu < /dev/tty
@@ -434,6 +408,7 @@ upgrade() {
 pac() {
     run sudo pacman -S --needed --noconfirm "$@" && return
     retry_mirrors && run sudo pacman -S --needed --noconfirm "$@" && return
+    needs_answer || return 1
     break_bar
     echo "${YELLOW}${G_WARN} pacman necesita que confirmes algo:${RESET}"
     sudo pacman -S --needed "$@" < /dev/tty
