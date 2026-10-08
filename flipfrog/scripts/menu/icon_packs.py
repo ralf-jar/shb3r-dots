@@ -255,14 +255,45 @@ def _set_ini_key(path, section, key, value):
     os.replace(tmp, path)
 
 
-def apply_pack(pack):
-    """pack=None -> "Sistema" (SYSTEM_DEFAULT). pack=entrada de
-    discover_packs() -> la instala (symlink) y la activa. Devuelve el
-    nombre real que quedó activo, para setear gtk-icon-theme-name en vivo
-    sobre Gtk.Settings.get_default() del lado de menu_module.py."""
-    if pack is None:
-        _write_theme_name(SYSTEM_DEFAULT)
-        return SYSTEM_DEFAULT
-    ensure_installed(pack)
-    _write_theme_name(pack["name"])
-    return pack["name"]
+# Nunca son la elección del usuario: base de la que heredan los demás.
+NOT_SELECTABLE = {"hicolor", "locolor", "default"}
+ICON_DIRS = (LOCAL_ICONS_DIR, os.path.expanduser("~/.icons"), "/usr/share/icons")
+
+
+def _is_icon_theme(path):
+    """index.theme con Directories= (los temas solo de cursor no lo
+    traen) y sin Hidden=true."""
+    parser = configparser.ConfigParser(strict=False, interpolation=None)
+    try:
+        if not parser.read(os.path.join(path, "index.theme")):
+            return False
+        return (parser.has_option("Icon Theme", "Directories")
+                and parser.get("Icon Theme", "Hidden", fallback="false").lower() != "true")
+    except configparser.Error:
+        return False
+
+
+def installed_themes():
+    """Nombres de carpeta (lo que espera gtk-icon-theme-name) de los temas
+    de íconos instalados, más los packs de icons-extra/ aunque todavía no
+    tengan su symlink (se crea al aplicarlos)."""
+    names = {pack["name"] for pack in discover_packs()}
+    for base in ICON_DIRS:
+        try:
+            entries = os.listdir(base)
+        except OSError:
+            continue
+        for name in entries:
+            if name not in NOT_SELECTABLE and _is_icon_theme(os.path.join(base, name)):
+                names.add(name)
+    return sorted(names, key=str.lower)
+
+
+def apply_theme(name):
+    """Activa un tema por nombre; si es un pack de icons-extra/, crea antes
+    su symlink."""
+    pack = next((p for p in discover_packs() if p["name"] == name), None)
+    if pack is not None:
+        ensure_installed(pack)
+    _write_theme_name(name)
+    return name

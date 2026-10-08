@@ -17,8 +17,8 @@ window {
     margin-bottom: 12px;
 }
 
-/* Tarjeta por tema: nombre + fila de cursores (cursor_picker.py) */
-.cursor-card {
+/* Tarjeta por tema: nombre + fila de vista previa (theme_picker.py) */
+.picker-card {
     background-color: transparent;
     background-image: none;
     border: 1px solid @myborderinactive;
@@ -28,34 +28,34 @@ window {
     transition: background-color 200ms ease, border-color 200ms ease;
 }
 
-.cursor-card.active {
+.picker-card.active {
     background-color: @mybackgroundhover;
     border-color: @myborders;
 }
 
-.cursor-name {
+.picker-name {
     color: @myforeground;
     font-weight: 700;
 }
 
-.cursor-card.active .cursor-name {
+.picker-card.active .picker-name {
     color: @myforegroundhover;
 }
 
-.cursor-note {
+.picker-note {
     color: @myforeground;
     opacity: 0.6;
 }
 
-.cursor-previews {
+.picker-previews {
     min-height: 32px;
 }
 
-.cursor-card.hover {
+.picker-card.hover {
     background-color: @mybackgroundhover;
 }
 
-.cursor-action-btn {
+.picker-action-btn {
     background-color: transparent;
     background-image: none;
     border: 1px solid @myborderinactive;
@@ -66,26 +66,26 @@ window {
     padding: 4px 14px;
 }
 
-.cursor-action-btn:hover {
+.picker-action-btn:hover {
     background-color: @mybackground;
     border-color: @myborders;
 }
 
-.cursor-action-btn:focus {
+.picker-action-btn:focus {
     outline: none;
     box-shadow: none;
 }
 
-.cursor-action-btn:disabled {
+.picker-action-btn:disabled {
     opacity: 0.4;
 }
 
-/* Pestañas Repositorios / KDE Store ("Obtener cursores") */
-#cursor-tabs {
+/* Pestañas Repositorios / KDE Store ("Obtener cursores" / "Obtener íconos") */
+#picker-tabs {
     margin-bottom: 12px;
 }
 
-.cursor-tab {
+.picker-tab {
     background-color: transparent;
     background-image: none;
     border: none;
@@ -96,17 +96,17 @@ window {
     padding: 6px 14px;
 }
 
-.cursor-tab:hover {
+.picker-tab:hover {
     color: @myforeground;
 }
 
-.cursor-tab.active {
+.picker-tab.active {
     background-color: @mybackgroundhover;
     color: @myforegroundhover;
 }
 
-.cursor-tab:focus,
-.cursor-more-btn:focus {
+.picker-tab:focus,
+.picker-more-btn:focus {
     outline: none;
     box-shadow: none;
 }
@@ -122,11 +122,11 @@ entry {
     padding: 2px 8px;
 }
 
-.cursor-status {
+.picker-status {
     padding: 10px 4px;
 }
 
-.cursor-more-btn {
+.picker-more-btn {
     background-color: transparent;
     background-image: none;
     border: 1px solid @myborderinactive;
@@ -137,7 +137,12 @@ entry {
     padding: 6px 10px;
 }
 
-.cursor-more-btn:hover {
+.picker-more-btn:hover {
     background-color: @mybackgroundhover;
     border-color: @myborders;
+}
+
+/* Captura de la tienda (íconos): esquinas horneadas en el pixbuf */
+.picker-shot {
+    margin: 2px 0;
 }

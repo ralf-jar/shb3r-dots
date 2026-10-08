@@ -48,6 +48,7 @@ ROTATOR_SCRIPT = os.path.join(SCRIPT_DIR, "theme-rotator.py")
 THEME_EDITOR_SCRIPT = os.path.join(SCRIPT_DIR, "theme-editor.py")
 THEME_GALLERY_SCRIPT = os.path.join(SCRIPT_DIR, "theme_gallery.py")
 CURSOR_PICKER_SCRIPT = os.path.join(SCRIPT_DIR, "cursor_picker.py")
+ICON_PICKER_SCRIPT = os.path.join(SCRIPT_DIR, "icon_picker.py")
 
 GOOGLE_FONTS_SCRIPT = os.path.join(SCRIPT_DIR, "..", "fonts", "google-fonts.py")
 RADIUS_SYNC_SCRIPT = os.path.join(THEMER_DIR, "sync_radius.py")
@@ -494,50 +495,39 @@ def _apply_look(**changes):
     common.run_async(work)
 
 
-def _build_icon_pack_combo():
-    """Pack de íconos (antes en "Aplicaciones") -- ver menu/icon_packs.py.
-    La barra rearma tray/íconos de ventanas sola al cambiar el tema de
-    íconos (bar.py)."""
-    combo = _combo(t("aplicaciones", "pack_iconos_tooltip"))
-    options = [None] + icon_packs.discover_packs()
+def _open_picker(script, *args):
+    subprocess.Popen(["python3", script, *args], start_new_session=True,
+                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def _picker_button(current, tooltip, script):
+    """Nombre del tema actual; abre su selector con vista previa."""
+    button = _action_button(current, lambda _b: _open_picker(script), tooltip)
+    label = button.get_child()
+    label.set_ellipsize(Pango.EllipsizeMode.END)
+    label.set_width_chars(min(len(current), COMBO_WIDTH_CHARS))
+    label.set_max_width_chars(COMBO_WIDTH_CHARS)
+    return button
+
+
+def _build_icon_pack_button():
+    """Pack de íconos -- ver menu/icon_packs.py e icon_picker.py. La barra
+    rearma tray/íconos de ventanas sola al cambiar el tema de íconos
+    (bar.py)."""
     # Repara symlinks de ~/.local/share/icons que apuntan a una ruta vieja
     # (quedaron así al mover themer/ a flipfrog/) -- barato, un readlink
     # por pack.
-    for pack in options[1:]:
+    for pack in icon_packs.discover_packs():
         try:
             icon_packs.ensure_installed(pack)
         except OSError:
             pass
-    combo.append_text(t("aplicaciones", "pack_sistema"))
-    for pack in options[1:]:
-        combo.append_text(pack["name"])
-    active = icon_packs.current_theme()
-    combo.set_active(next((i for i, p in enumerate(options) if p and p["name"] == active), 0))
-
-    def on_changed(c):
-        index = c.get_active()
-        if not 0 <= index < len(options):
-            return
-        pack = options[index]
-
-        def work():
-            name = icon_packs.apply_pack(pack)
-            GLib.idle_add(Gtk.Settings.get_default().set_property, "gtk-icon-theme-name", name)
-        common.run_async(work)
-
-    combo.connect("changed", on_changed)
-    return combo
+    return _picker_button(icon_packs.current_theme(), t("temas", "iconos_elegir_tooltip"), ICON_PICKER_SCRIPT)
 
 
 def _build_cursor_controls(look):
     box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-    picker_btn = _action_button(look["cursor_theme"], lambda _b: subprocess.Popen(
-        ["python3", CURSOR_PICKER_SCRIPT], start_new_session=True,
-        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL), t("temas", "cursor_elegir_tooltip"))
-    label = picker_btn.get_child()
-    label.set_ellipsize(Pango.EllipsizeMode.END)
-    label.set_width_chars(min(len(look["cursor_theme"]), COMBO_WIDTH_CHARS))
-    label.set_max_width_chars(COMBO_WIDTH_CHARS)
+    picker_btn = _picker_button(look["cursor_theme"], t("temas", "cursor_elegir_tooltip"), CURSOR_PICKER_SCRIPT)
 
     def on_size(v):
         theme = look_settings.load()["cursor_theme"]
@@ -620,15 +610,18 @@ def build_theme_selector(container):
                                 t("temas", "idioma_fila"), language_combo)
 
     icon_pack_row = _setting_row(_row_icon(icon_name="applications-graphics-symbolic"),
-                                 t("aplicaciones", "pack_iconos"), _build_icon_pack_combo())
+                                 t("aplicaciones", "pack_iconos"), _build_icon_pack_button())
+    get_icons_row = _setting_row(
+        _row_icon(DOWNLOAD_ICON), t("temas", "obtener_iconos"),
+        _action_button(t("temas", "abrir"), lambda _b: _open_picker(ICON_PICKER_SCRIPT, "--get"),
+                       t("temas", "obtener_iconos_tooltip")))
     cursor_row = _setting_row(_row_icon(icon_name="input-mouse-symbolic"), t("temas", "cursor"),
                               _build_cursor_controls(look))
 
     get_cursors_row = _setting_row(
         _row_icon(DOWNLOAD_ICON), t("temas", "obtener_cursores"),
-        _action_button(t("temas", "abrir"), lambda _b: subprocess.Popen(
-            ["python3", CURSOR_PICKER_SCRIPT, "--get"], start_new_session=True,
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL), t("temas", "obtener_cursores_tooltip")))
+        _action_button(t("temas", "abrir"), lambda _b: _open_picker(CURSOR_PICKER_SCRIPT, "--get"),
+                       t("temas", "obtener_cursores_tooltip")))
 
     gallery_row = _setting_row(
         _row_icon(PALETTE_ICON), t("temas", "galeria_btn"),
@@ -664,8 +657,8 @@ def build_theme_selector(container):
     box.pack_start(_grid([
         font_row, get_fonts_row,
         cursor_row, get_cursors_row,
-        language_row, icon_pack_row,
-        gallery_row, None,
+        icon_pack_row, get_icons_row,
+        language_row, gallery_row,
     ]), False, False, 0)
     box.pack_start(_section_title(t("temas", "titulo_ventanas")), False, False, 0)
     box.pack_start(_grid([
