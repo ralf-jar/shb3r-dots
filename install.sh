@@ -109,8 +109,7 @@ fi  # ---- fin teclado
 
 # Extras: menú para marcar uno por uno (pedido explícito del usuario).
 # FLIPFROG_EXTRAS: 0 = ninguno, 1 = todos, o ids separados por coma
-# (ver los ids en EXTRAS_LIST). Brave viene marcado: es el navegador por
-# defecto del repo (mimeapps.list, SUPER+B, búsqueda con "?" del launcher).
+# (ver los ids en EXTRAS_LIST); sin la variable, EXTRA_DEFAULTS marcados.
 # Una entrada por extra: id|sección|nombre|descripción|comando (si existe,
 # ya está instalado; "pkg:<paquete>" para los que no traen comando). La
 # sección se muestra como encabezado cuando cambia.
@@ -127,6 +126,7 @@ EXTRAS_LIST=(
     "audiolibros|Oficina y creación|Audiolibros narrados|convierte libros EPUB en audio (voz en español, ~73 MB)|piper-tts"
     "steam|Juegos|Steam|tienda de juegos de PC|steam"
     "millennium|Juegos|Temas para Steam (Millennium)|Steam con los colores del tema; también instala Steam|pkg:millennium-bin"
+    "shelly|Sistema|Shelly|tienda de apps: busca e instala cualquier programa sin usar la terminal|shelly"
     "openrgb|Sistema|OpenRGB|controla las luces RGB del teclado, mouse, RAM, etc.|openrgb"
     "overskride|Sistema|Overskride|administrador de Bluetooth alterno al del panel|overskride"
 )
@@ -144,11 +144,18 @@ installed_extra() {  # installed_extra <índice>
         command -v "$cmd" >/dev/null
     fi
 }
+# Marcados por defecto: Brave es el navegador del repo (mimeapps.list,
+# SUPER+B, búsqueda con "?" del launcher) y Shelly es dónde instalar lo que
+# no esté en esta lista sin usar la terminal.
+EXTRA_DEFAULTS=(brave shelly)
 declare -A EXTRA_ON=()
 EXTRAS_ENV="${FLIPFROG_EXTRAS:-}"
 case "$EXTRAS_ENV" in
     1|all) for id in "${EXTRA_IDS[@]}"; do EXTRA_ON[$id]=1; done ;;
-    "") command -v brave-origin >/dev/null || EXTRA_ON[brave]=1 ;;
+    "") for i in "${!EXTRA_IDS[@]}"; do
+            [[ " ${EXTRA_DEFAULTS[*]} " == *" ${EXTRA_IDS[$i]} "* ]] && ! installed_extra "$i" \
+                && EXTRA_ON[${EXTRA_IDS[$i]}]=1
+        done ;;
     0) ;;
     *) IFS=, read -ra env_ids <<< "$EXTRAS_ENV"; for id in "${env_ids[@]}"; do EXTRA_ON[$id]=1; done ;;
 esac
@@ -165,11 +172,7 @@ extras_menu() {
     while true; do
         screen
         echo
-        if [[ -n "${EXTRA_ON[brave]:-}" ]]; then
-            echo "${BOLD}¿Qué extras quieres instalar?${RESET} Todos son opcionales; Brave viene marcado porque es el navegador por defecto."
-        else
-            echo "${BOLD}¿Qué extras quieres instalar?${RESET} Todos son opcionales."
-        fi
+        echo "${BOLD}¿Qué extras quieres instalar?${RESET} Todos son opcionales; los que vienen marcados son los recomendados."
         echo "${DIM}↑/↓ para moverte, Espacio marca o desmarca, Enter para continuar${RESET}"
         if [[ $EXTRAS_ONLY == 0 ]]; then
             echo "${DIM}¿Prefieres decidir después? Deja sin marcar lo que no quieras ahora y cuando quieras escribe ${RESET}ff-extras${DIM} en una terminal.${RESET}"
@@ -446,6 +449,7 @@ want() {  # want <id> <comando> -- marcado y todavía no instalado
     extra "$1" && ! command -v "$2" >/dev/null
 }
 want brave       brave-origin              && EXTRAS_PACMAN+=(brave-origin-bin)
+want shelly      shelly                    && EXTRAS_PACMAN+=(shelly)
 want vesktop     vesktop                   && EXTRAS_PACMAN+=(vesktop-bin)
 want onlyoffice  onlyoffice-desktopeditors && EXTRAS_PACMAN+=(onlyoffice-bin)
 want gimp        gimp                      && EXTRAS_PACMAN+=(gimp)
