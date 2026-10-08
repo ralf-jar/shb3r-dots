@@ -11,8 +11,10 @@
 #   rm -rf /tmp/dotfiles-clone
 #   bash ~/.config/install.sh
 #
-# Pregunta dos cosas (teclado y extras); sin terminal o para no preguntar:
-#   FLIPFROG_KB=latam|es|us|us-intl   FLIPFROG_EXTRAS=0|1
+# Pregunta dos cosas (teclado y extras, en un menú para marcar cada uno);
+# sin terminal o para no preguntar:
+#   FLIPFROG_KB=latam|es|us|us-intl
+#   FLIPFROG_EXTRAS=0|1|steam,millennium,vesktop,zapzap,audiolibros
 #
 # Salida: una barra de progreso con lo que está haciendo; todo lo demás
 # va a ~/.cache/flipfrog-install.log. Idempotente (instala con --needed).
@@ -94,19 +96,79 @@ case "$KB" in
     *)       SUMMARY+=("Teclado: $KB") ;;
 esac
 
-EXTRAS="${FLIPFROG_EXTRAS:-}"
-if [[ -z "$EXTRAS" ]]; then
-    EXTRAS=0
-    if [[ $HAS_TTY == 1 ]]; then
+# Extras: menú para marcar uno por uno (pedido explícito del usuario).
+# FLIPFROG_EXTRAS: 0 = ninguno, 1 = todos, o ids separados por coma
+# (steam,millennium,vesktop,zapzap,audiolibros).
+EXTRA_IDS=(steam millennium vesktop zapzap audiolibros)
+EXTRA_NAMES=("Steam" "Temas para Steam (Millennium)" "Discord (Vesktop)" "WhatsApp (ZapZap)" "Audiolibros narrados")
+EXTRA_DESC=(
+    "tienda de juegos de PC"
+    "Steam con los colores del tema; también instala Steam"
+    "Discord con soporte para compartir pantalla en Wayland"
+    "WhatsApp Web como app propia"
+    "convierte libros EPUB en audio (voz en español, ~73 MB)"
+)
+declare -A EXTRA_ON=()
+EXTRAS_ENV="${FLIPFROG_EXTRAS:-}"
+case "$EXTRAS_ENV" in
+    1|all) for id in "${EXTRA_IDS[@]}"; do EXTRA_ON[$id]=1; done ;;
+    0|"") ;;
+    *) IFS=, read -ra env_ids <<< "$EXTRAS_ENV"; for id in "${env_ids[@]}"; do EXTRA_ON[$id]=1; done ;;
+esac
+
+extras_menu() {
+    local cursor=0 key rest i mark pointer
+    printf '\033[?25l'
+    while true; do
         screen
         echo
-        echo "${BOLD}¿Instalar extras?${RESET} Steam (con temas), Discord (Vesktop), WhatsApp"
-        echo "(ZapZap) y audiolibros narrados. Bajan ~600 MB más y no hacen falta para empezar."
-        ask extras_choice "¿Instalar extras? [s/N]: "
-        [[ "$extras_choice" =~ ^[sSyY] ]] && EXTRAS=1
-    fi
+        echo "${BOLD}¿Qué extras quieres instalar?${RESET} Ninguno hace falta para empezar."
+        echo "${DIM}↑/↓ para moverte, Espacio marca o desmarca, Enter para continuar${RESET}"
+        echo
+        for i in "${!EXTRA_IDS[@]}"; do
+            mark=" "; [[ -n "${EXTRA_ON[${EXTRA_IDS[$i]}]:-}" ]] && mark="${GREEN}x${RESET}"
+            pointer="  "; [[ $i == "$cursor" ]] && pointer="${CYAN}❯${RESET} "
+            if [[ $i == "$cursor" ]]; then
+                echo "${pointer}[${mark}] ${BOLD}${EXTRA_NAMES[$i]}${RESET} ${DIM}— ${EXTRA_DESC[$i]}${RESET}"
+            else
+                echo "${pointer}[${mark}] ${EXTRA_NAMES[$i]} ${DIM}— ${EXTRA_DESC[$i]}${RESET}"
+            fi
+        done
+        IFS= read -rsn1 key < /dev/tty || break
+        if [[ $key == $'\e' ]]; then
+            IFS= read -rsn2 -t 0.05 rest < /dev/tty || rest=""
+            key+="$rest"
+        fi
+        case "$key" in
+            $'\e[A'|k) (( cursor > 0 )) && cursor=$((cursor - 1)) ;;
+            $'\e[B'|j) (( cursor < ${#EXTRA_IDS[@]} - 1 )) && cursor=$((cursor + 1)) ;;
+            " ")
+                id="${EXTRA_IDS[$cursor]}"
+                if [[ -n "${EXTRA_ON[$id]:-}" ]]; then unset "EXTRA_ON[$id]"; else EXTRA_ON[$id]=1; fi ;;
+            [1-9])
+                i=$((key - 1))
+                if (( i < ${#EXTRA_IDS[@]} )); then
+                    cursor=$i; id="${EXTRA_IDS[$i]}"
+                    if [[ -n "${EXTRA_ON[$id]:-}" ]]; then unset "EXTRA_ON[$id]"; else EXTRA_ON[$id]=1; fi
+                fi ;;
+            "") break ;;
+        esac
+    done
+    printf '\033[?25h'
+}
+
+[[ -z "$EXTRAS_ENV" && $HAS_TTY == 1 ]] && extras_menu
+# Millennium no sirve sin Steam.
+[[ -n "${EXTRA_ON[millennium]:-}" ]] && EXTRA_ON[steam]=1
+extra() { [[ -n "${EXTRA_ON[$1]:-}" ]]; }
+
+chosen=()
+for i in "${!EXTRA_IDS[@]}"; do extra "${EXTRA_IDS[$i]}" && chosen+=("${EXTRA_NAMES[$i]}"); done
+if (( ${#chosen[@]} )); then
+    SUMMARY+=("Extras: $(IFS=,; echo "${chosen[*]}" | sed 's/,/, /g')")
+else
+    SUMMARY+=("Extras: ninguno")
 fi
-if [[ $EXTRAS == 1 ]]; then SUMMARY+=("Extras: Sí"); else SUMMARY+=("Extras: No"); fi
 
 # Contraseña una sola vez: las compilaciones de AUR tardan más que el
 # tiempo que sudo recuerda la contraseña.
@@ -136,9 +198,10 @@ echo
 # (LC_ALL=C para leerla en inglés): "(12/58) installing foo", "foo
 # downloading...", "==> Making package: foo".
 W_BASE=30; W_LOGIN=3; W_SERVICES=2; W_PARU=3; W_APPS=15; W_AUR=20
-W_EXTRAS=35; W_MODELS=5; W_CONFIG=4; W_FONTS=2
+W_EXTRAS_PACMAN=15; W_EXTRAS_AUR=20; W_MODELS=5; W_CONFIG=4; W_FONTS=2
 TOTAL_W=$((W_BASE + W_LOGIN + W_SERVICES + W_PARU + W_APPS + W_AUR + W_CONFIG + W_FONTS))
-[[ $EXTRAS == 1 ]] && TOTAL_W=$((TOTAL_W + W_EXTRAS + W_MODELS))
+(( ${#EXTRA_ON[@]} )) && TOTAL_W=$((TOTAL_W + W_EXTRAS_PACMAN + W_EXTRAS_AUR))
+extra audiolibros && TOTAL_W=$((TOTAL_W + W_MODELS))
 DONE_W=0; STAGE_W=0; STAGE_FRAC=0; LABEL=""; LAST_LINE=""
 SPIN=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏); SPIN_I=0
 
@@ -302,21 +365,32 @@ APPS_AUR=(bibata-cursor-theme-bin realesrgan-ncnn-vulkan-bin)
 run paru -S --needed --noconfirm --skipreview "${APPS_AUR[@]}" \
     || warn "Falló algo de AUR (${APPS_AUR[*]}) -- reinténtalo con: paru -S ${APPS_AUR[*]}"
 
-if [[ $EXTRAS == 1 ]]; then
-    # python-onnxruntime-cpu ANTES de piper-tts a propósito -- piper-tts
-    # depende de un proveedor de python-onnxruntime y, sin resolverlo
-    # primero, paru pregunta de forma interactiva (cpu/cuda/rocm...).
-    stage $W_EXTRAS "Instalando Steam, Discord, WhatsApp y audiolibros"
-    EXTRAS_PACMAN=(python-onnxruntime-cpu)
-    command -v steam   >/dev/null || EXTRAS_PACMAN+=(steam)
-    command -v vesktop >/dev/null || EXTRAS_PACMAN+=(vesktop-bin)
-    EXTRAS_AUR=(millennium-bin piper-tts)
-    command -v zapzap  >/dev/null || EXTRAS_AUR+=(zapzap)
-    pac "${EXTRAS_PACMAN[@]}" \
-        || warn "Falló la instalación de ${EXTRAS_PACMAN[*]} -- reinténtalo con: sudo pacman -S ${EXTRAS_PACMAN[*]}"
-    run paru -S --needed --noconfirm --skipreview "${EXTRAS_AUR[@]}" \
-        || warn "Falló algo de AUR (${EXTRAS_AUR[*]}) -- reinténtalo con: paru -S ${EXTRAS_AUR[*]}"
+# Cada extra se salta si su comando ya existe: en la máquina de origen
+# vesktop y zapzap vinieron de AUR y los paquetes de los repos chocarían.
+# python-onnxruntime-cpu ANTES de piper-tts a propósito -- piper-tts
+# depende de un proveedor de python-onnxruntime y, sin resolverlo primero,
+# paru pregunta de forma interactiva (cpu/cuda/rocm...).
+EXTRAS_PACMAN=()
+EXTRAS_AUR=()
+extra steam       && ! command -v steam   >/dev/null && EXTRAS_PACMAN+=(steam)
+extra vesktop     && ! command -v vesktop >/dev/null && EXTRAS_PACMAN+=(vesktop-bin)
+extra audiolibros && EXTRAS_PACMAN+=(python-onnxruntime-cpu) && EXTRAS_AUR+=(piper-tts)
+extra millennium  && EXTRAS_AUR+=(millennium-bin)
+extra zapzap      && ! command -v zapzap  >/dev/null && EXTRAS_AUR+=(zapzap)
+if (( ${#EXTRA_ON[@]} )); then
+    stage $W_EXTRAS_PACMAN "Instalando extras"
+    if (( ${#EXTRAS_PACMAN[@]} )); then
+        pac "${EXTRAS_PACMAN[@]}" \
+            || warn "Falló la instalación de ${EXTRAS_PACMAN[*]} -- reinténtalo con: sudo pacman -S ${EXTRAS_PACMAN[*]}"
+    fi
+    stage $W_EXTRAS_AUR "Instalando extras (AUR)"
+    if (( ${#EXTRAS_AUR[@]} )); then
+        run paru -S --needed --noconfirm --skipreview "${EXTRAS_AUR[@]}" \
+            || warn "Falló algo de AUR (${EXTRAS_AUR[*]}) -- reinténtalo con: paru -S ${EXTRAS_AUR[*]}"
+    fi
+fi
 
+if extra audiolibros; then
     # Voz en español para Audiolibros (~73 MiB): sin ella bajaría otra al
     # abrir el primer libro. A un .part y renombrada al final para no dejar
     # un archivo truncado si se corta a la mitad.
