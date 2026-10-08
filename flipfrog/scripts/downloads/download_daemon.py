@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Daemon de descargas de MediaFire y YouTube (SUPER+D) -- único dueño de la cola,
+"""Daemon de descargas de MediaFire, YouTube y torrents (SUPER+D) -- único dueño de la cola,
 para que cerrar el popup nunca corte una descarga (mismo criterio que
 bandcamp/bandcamp_daemon.py). Lanzado a demanda por download_popup.py,
 se cierra solo tras IDLE_EXIT segundos sin nada pendiente ni clientes.
@@ -9,7 +9,9 @@ de los enlaces recién pegados, en orden; `_download_loop` baja un
 archivo a la vez, en el orden de la cola. `.part` + `Range` para
 reanudar tras pausar, reintentar o reiniciar el daemon. YouTube va por
 youtube.py (alias `ytd`/`ytdv` de fish), con la carpeta destino del item:
-al resolverse queda en "choosing" hasta que el popup elige el formato."""
+al resolverse queda en "choosing" hasta que el popup elige el formato.
+Torrents: resueltos igual (nombre/tamaño/infohash), luego `_torrent_loop`
+los baja todos en paralelo, fuera de la fila de uno a la vez (torrent.py)."""
 
 import json
 import os
@@ -28,6 +30,7 @@ sys.path.insert(0, os.path.dirname(SCRIPT_DIR))
 from common import atomic_write, set_process_name
 from i18n import t
 import mediafire
+import torrent
 import youtube
 from downloads_ipc import SOCKET_PATH, LOCK
 
@@ -48,6 +51,7 @@ class Daemon:
         self.cancel_ids = set()
         self.batch_done = 0
         self.last_activity = time.time()
+        self.engine = None
         self._load()
 
     # --- persistencia ---
@@ -111,7 +115,8 @@ class Daemon:
             return {"ok": False, "added": 0}
         known = {(i["kind"], i["key"]) for i in self.items if i["status"] in ACTIVE}
         added = 0
-        for kind, key in mediafire.parse_links(text) + youtube.parse_links(text):
+        links = mediafire.parse_links(text) + youtube.parse_links(text) + torrent.parse_links(text)
+        for kind, key in links:
             if (kind, key) in known:
                 continue
             self.items.append({
@@ -136,7 +141,7 @@ class Daemon:
         item = self._find(item_id)
         if not item or item["status"] not in ACTIVE:
             return
-        if item["status"] == "downloading":
+        if item["status"] == "downloading" and item["kind"] != "torrent":
             self.cancel_ids.add(item_id)
         else:
             item["status"] = "canceled"
@@ -163,7 +168,9 @@ class Daemon:
                 kind, key = item["kind"], item["key"]
 
             try:
-                if kind == "youtube":
+                if kind == "torrent":
+                    result = [torrent.resolve(key)]
+                elif kind == "youtube":
                     name, formats = youtube.info(key)
                     result = [{"name": name, "size": 0, "formats": formats}]
                 elif kind == "folder":
@@ -171,14 +178,20 @@ class Daemon:
                 else:
                     result = [mediafire.file_info(key, session)]
                 error = None
-            except (mediafire.MediafireError, youtube.YoutubeError) as e:
+            except (mediafire.MediafireError, youtube.YoutubeError, torrent.TorrentError) as e:
                 result, error = None, e.code
 
             with self.lock:
                 if item not in self.items or item["status"] != "pending":
                     continue
+                if kind == "torrent" and not error and any(
+                        i.get("infohash") == result[0]["infohash"] and i["status"] in ACTIVE
+                        for i in self.items if i is not item):
+                    error = "error_torrent_repetido"
                 if error:
                     item["status"], item["error"] = "error", error
+                elif kind == "torrent":
+                    item.update(result[0], resolved=True, status="queued")
                 elif kind == "folder":
                     known = {i["key"] for i in self.items if i["kind"] == "file" and i["status"] in ACTIVE}
                     idx = self.items.index(item)
@@ -221,7 +234,7 @@ class Daemon:
         while True:
             with self.lock:
                 item = None if self.paused else next(
-                    (i for i in self.items if i["status"] == "queued"), None)
+                    (i for i in self.items if i["status"] == "queued" and i["kind"] != "torrent"), None)
                 if item is None:
                     self._maybe_notify()
                     self.lock.wait()
@@ -352,6 +365,29 @@ class Daemon:
                     item["size"] = item["done"] = os.path.getsize(path)
         return outcome, error
 
+    def _torrent_loop(self):
+        """Cada segundo concilia la sesión de libtorrent con la cola. La
+        sesión se crea con el primer torrent y vive hasta que el daemon sale."""
+        while True:
+            time.sleep(1)
+            with self.lock:
+                items = [i for i in self.items if i["kind"] == "torrent"]
+                if self.engine is None:
+                    if torrent.lt is None or not any(i["status"] in ("queued", "downloading") for i in items):
+                        continue
+                    self.engine = torrent.Engine()
+                before = {i["id"]: i["status"] for i in items}
+                finished = self.engine.tick(items, self.paused)
+                self.batch_done += finished
+                if finished or any(before[i["id"]] != i["status"] for i in items):
+                    self._save()
+                    self.lock.notify_all()
+                self._maybe_notify()
+
+    def _close_engine(self):
+        if self.engine is not None:
+            self.engine.close()
+
     def _maybe_notify(self):
         if self.batch_done and not any(i["status"] in BUSY for i in self.items):
             subprocess.Popen(["notify-send", "-a", "Descargas", t("descargas", "titulo"),
@@ -373,6 +409,7 @@ class Daemon:
 
         threading.Thread(target=self._resolver_loop, daemon=True).start()
         threading.Thread(target=self._download_loop, daemon=True).start()
+        threading.Thread(target=self._torrent_loop, daemon=True).start()
 
         while True:
             try:
@@ -381,6 +418,7 @@ class Daemon:
                 with self.lock:
                     busy = not self.paused and any(i["status"] in BUSY for i in self.items)
                     if not busy and time.time() - self.last_activity > IDLE_EXIT:
+                        self._close_engine()
                         self._save()
                         return
                 continue
@@ -416,6 +454,7 @@ def main():
 
     def _on_term(*_):
         with daemon.lock:
+            daemon._close_engine()
             daemon._save()
         _cleanup()
 

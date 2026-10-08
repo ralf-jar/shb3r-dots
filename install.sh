@@ -434,7 +434,7 @@ pac \
     noto-fonts-emoji ttf-jetbrains-mono-nerd \
     radicale python-caldav python-icalendar python-httpx \
     hyprpolkitagent nethogs python-psutil \
-    mpv python-requests yt-dlp imagemagick libjpeg-turbo \
+    mpv python-requests yt-dlp libtorrent-rasterbar imagemagick libjpeg-turbo \
     || fail "No se pudieron instalar los paquetes del escritorio"
 
 # Sin gestor de login la PC arranca en una terminal de texto: pasa al

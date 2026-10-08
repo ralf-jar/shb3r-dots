@@ -22,7 +22,7 @@ Ya vienen por defecto y no se listan: `ffmpeg`, `ffmpegthumbnailer`, `grim`, `uf
 | Editor de temas | `python-pillow` | Detectar colores desde el wallpaper |
 | Google Fonts | -- | |
 | Selectores de cursor e íconos | `hyprpolkitagent` | "Instalar" de los repositorios en "Obtener cursores"/"Obtener íconos" (`pkexec pacman -S`); las vistas previas y la KDE Store extraen con `bsdtar`, que trae pacman |
-| Descargas | `python-requests`, `yt-dlp` | MediaFire; YouTube (vía la función `ytd` de fish) |
+| Descargas | `python-requests`, `yt-dlp`, `libtorrent-rasterbar` | MediaFire; YouTube (vía la función `ytd` de fish); torrents (bindings de Python, `import libtorrent`) |
 | Audiolibros | `python-requests`, `mpv`, `piper-tts` (AUR, *extra*) | Bajar voces; reproductor; narración |
 | Notificaciones | `dunst` | `dunstctl history` |
 | Atajos de teclado | -- | |

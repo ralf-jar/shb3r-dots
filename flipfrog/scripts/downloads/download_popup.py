@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Popup "Descargas" (SUPER+D) -- gestor de descargas tipo JDownloader
-(MediaFire y YouTube con `ytd`/`ytdv`; un enlace de YouTube espera en
+(MediaFire, YouTube con `ytd`/`ytdv` y torrents; un enlace de YouTube espera en
 "choosing" a que se elija el formato en su fila). Sin estado propio: la cola vive en
 download_daemon.py (cerrar el popup no corta nada), este solo sondea
 `get_state` cada 1s y manda comandos."""
@@ -169,7 +169,8 @@ class DownloadRow(Gtk.ListBoxRow):
 
     def update(self, item):
         self.item = item
-        sig = (item["name"], item["status"], item["done"], item["size"], item["speed"], item.get("error"))
+        sig = (item["name"], item["status"], item["done"], item["size"], item["speed"], item.get("error"),
+               item.get("peers"), item.get("meta"))
         if sig == self.signature:
             return
         self.signature = sig
@@ -192,12 +193,16 @@ class DownloadRow(Gtk.ListBoxRow):
 
         if status == "error":
             detail = t("descargas", item.get("error") or "error_red")
+        elif status == "downloading" and item.get("meta") is False:
+            detail = t("descargas", "detalle_metadatos", peers=item.get("peers") or 0)
         elif status == "downloading":
             parts = [f"{human_size(done)} / {human_size(size)}" if size else human_size(done)]
             if item["speed"]:
                 parts.append(f"{human_size(item['speed'])}/s")
                 if size:
                     parts.append(human_eta((size - done) / item["speed"]))
+            if item["kind"] == "torrent":
+                parts.append(t("descargas", "pares", peers=item.get("peers") or 0))
             detail = "  ·  ".join(parts)
         elif status == "pending":
             detail = t("descargas", "detalle_analizando")
