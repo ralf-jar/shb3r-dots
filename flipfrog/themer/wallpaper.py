@@ -135,6 +135,9 @@ def show_frozen(path):
     (pausar a media transición lo dejaría congelado a medias)."""
     kill_mpvpaper()
     ensure_awww_daemon()
+    # Pausado, awww acepta el `img` pero no avanza la transición: el
+    # fondo nuevo nunca se veía (el gif de antes queda pausado por freeze).
+    subprocess.run(["awww", "unpause"], check=False)
     if is_video(path):
         subprocess.run(["ffmpegthumbnailer", "-i", path, "-o", FROZEN_FRAME, "-s", "0"], check=False)
         subprocess.run(["awww", "img", FROZEN_FRAME], check=False)
@@ -149,7 +152,7 @@ def freeze():
     path = current_path()
     if path and is_video(path) and os.path.isfile(path):
         show_frozen(path)
-    else:
+    elif path and is_gif(path):
         subprocess.run(["awww", "pause"], check=False)
     open(FROZEN_MARKER, "w").close()
 
