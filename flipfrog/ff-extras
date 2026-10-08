@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Instala extras (apps opcionales) después de la primera instalación: el
+# mismo menú de install.sh, sin repetir lo demás. install.sh lo enlaza en
+# ~/.local/bin/ff-extras.
+exec bash "$HOME/.config/install.sh" --extras "$@"
