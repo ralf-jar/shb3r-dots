@@ -21,7 +21,7 @@ Ya vienen por defecto y no se listan: `ffmpeg`, `ffmpegthumbnailer`, `grim`, `uf
 | Galería de temas | `python-pillow`, `awww`, `mpvpaper` | Miniaturas; `apply-theme.sh` pone el fondo (imagen/video) |
 | Editor de temas | `python-pillow` | Detectar colores desde el wallpaper |
 | Google Fonts | -- | |
-| Selector de cursor | `hyprpolkitagent` | "Instalar" de los repositorios en "Obtener cursores" (`pkexec pacman -S`); las vistas previas y la KDE Store extraen con `bsdtar`, que trae pacman |
+| Selectores de cursor e íconos | `hyprpolkitagent` | "Instalar" de los repositorios en "Obtener cursores"/"Obtener íconos" (`pkexec pacman -S`); las vistas previas y la KDE Store extraen con `bsdtar`, que trae pacman |
 | Descargas | `python-requests`, `yt-dlp` | MediaFire; YouTube (vía la función `ytd` de fish) |
 | Audiolibros | `python-requests`, `mpv`, `piper-tts` (AUR, *extra*) | Bajar voces; reproductor; narración |
 | Notificaciones | `dunst` | `dunstctl history` |
