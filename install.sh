@@ -14,13 +14,18 @@
 # Pregunta dos cosas (teclado y extras, en un menú para marcar cada uno);
 # sin terminal o para no preguntar:
 #   FLIPFROG_KB=latam|es|us|us-intl
-#   FLIPFROG_EXTRAS=0|1|steam,millennium,vesktop,zapzap,audiolibros
+#   FLIPFROG_EXTRAS=0|1|ids,separados (ver EXTRAS_LIST)
+#
+# `install.sh --extras` (lo que corre `ff-extras`): solo el menú de extras
+# y su instalación, para elegirlos después de la primera instalación.
 #
 # Salida: una barra de progreso con lo que está haciendo; todo lo demás
 # va a ~/.cache/flipfrog-install.log. Idempotente (instala con --needed).
 set -euo pipefail
 
 TARGET="$HOME/.config"
+EXTRAS_ONLY=0
+[[ "${1:-}" == "--extras" ]] && EXTRAS_ONLY=1
 
 if [[ "$(cd "$(dirname "$(readlink -f "$0")")" && pwd)" != "$TARGET" ]]; then
     echo "Este script asume que ya vive en ~/.config (ver comentario de uso arriba)." >&2
@@ -64,13 +69,18 @@ SUMMARY=()
 [[ -n "${FLIPFROG_BACKUP:-}" ]] && SUMMARY+=("Tu configuración anterior quedó en ${FLIPFROG_BACKUP/#$HOME/\~}")
 screen() {
     [[ $BAR_MODE == 1 ]] && printf '\033[H\033[2J\033[3J'
-    echo "${BOLD}${GREEN}Instalando flipfrog (Hyprland + barra + panel)${RESET}"
+    if [[ $EXTRAS_ONLY == 1 ]]; then
+        echo "${BOLD}${GREEN}Instalando extras de flipfrog${RESET}"
+    else
+        echo "${BOLD}${GREEN}Instalando flipfrog (Hyprland + barra + panel)${RESET}"
+    fi
     local line
     for line in "${SUMMARY[@]}"; do echo "$line"; done
 }
 
 KEYBOARD_FILE="$TARGET/hypr/keyboard.lua"
 KB="${FLIPFROG_KB:-}"
+if [[ $EXTRAS_ONLY == 0 ]]; then  # ---- teclado (no en ff-extras)
 if [[ -z "$KB" && ! -f "$KEYBOARD_FILE" && $HAS_TTY == 1 ]]; then
     screen
     echo
@@ -95,42 +105,59 @@ case "$KB" in
     "")      SUMMARY+=("Teclado: sin cambios") ;;
     *)       SUMMARY+=("Teclado: $KB") ;;
 esac
+fi  # ---- fin teclado
 
 # Extras: menú para marcar uno por uno (pedido explícito del usuario).
 # FLIPFROG_EXTRAS: 0 = ninguno, 1 = todos, o ids separados por coma
 # (ver los ids en EXTRAS_LIST). Brave viene marcado: es el navegador por
 # defecto del repo (mimeapps.list, SUPER+B, búsqueda con "?" del launcher).
-# Una entrada por extra: id|sección|nombre|descripción. La sección se
-# muestra como encabezado cuando cambia.
+# Una entrada por extra: id|sección|nombre|descripción|comando (si existe,
+# ya está instalado; "pkg:<paquete>" para los que no traen comando). La
+# sección se muestra como encabezado cuando cambia.
 EXTRAS_LIST=(
-    "brave|Internet|Brave Origin|navegador (el que abre SUPER+B y los enlaces)"
-    "vesktop|Internet|Discord (Vesktop)|Discord con soporte para compartir pantalla en Wayland"
-    "zapzap|Internet|WhatsApp (ZapZap)|WhatsApp Web como app propia"
-    "stremio|Internet|Stremio|películas y series en streaming"
-    "onlyoffice|Oficina y creación|OnlyOffice|documentos, hojas de cálculo y presentaciones"
-    "gimp|Oficina y creación|GIMP|editor de imágenes"
-    "obs|Oficina y creación|OBS Studio|grabar la pantalla y hacer streams"
-    "davinci|Oficina y creación|DaVinci Resolve|editor de video profesional (~3.3 GB, necesita tarjeta de video dedicada)"
-    "vlc|Oficina y creación|VLC|reproductor de video y música"
-    "audiolibros|Oficina y creación|Audiolibros narrados|convierte libros EPUB en audio (voz en español, ~73 MB)"
-    "steam|Juegos|Steam|tienda de juegos de PC"
-    "millennium|Juegos|Temas para Steam (Millennium)|Steam con los colores del tema; también instala Steam"
-    "openrgb|Sistema|OpenRGB|controla las luces RGB del teclado, mouse, RAM, etc."
-    "overskride|Sistema|Overskride|administrador de Bluetooth alterno al del panel"
+    "brave|Internet|Brave Origin|navegador (el que abre SUPER+B y los enlaces)|brave-origin"
+    "vesktop|Internet|Discord (Vesktop)|Discord con soporte para compartir pantalla en Wayland|vesktop"
+    "zapzap|Internet|WhatsApp (ZapZap)|WhatsApp Web como app propia|zapzap"
+    "stremio|Internet|Stremio|películas y series en streaming|stremio"
+    "onlyoffice|Oficina y creación|OnlyOffice|documentos, hojas de cálculo y presentaciones|onlyoffice-desktopeditors"
+    "gimp|Oficina y creación|GIMP|editor de imágenes|gimp"
+    "obs|Oficina y creación|OBS Studio|grabar la pantalla y hacer streams|obs"
+    "davinci|Oficina y creación|DaVinci Resolve|editor de video profesional (~3.3 GB, tarda mucho, ver aviso)|davinci-resolve"
+    "vlc|Oficina y creación|VLC|reproductor de video y música|vlc"
+    "audiolibros|Oficina y creación|Audiolibros narrados|convierte libros EPUB en audio (voz en español, ~73 MB)|piper-tts"
+    "steam|Juegos|Steam|tienda de juegos de PC|steam"
+    "millennium|Juegos|Temas para Steam (Millennium)|Steam con los colores del tema; también instala Steam|pkg:millennium-bin"
+    "openrgb|Sistema|OpenRGB|controla las luces RGB del teclado, mouse, RAM, etc.|openrgb"
+    "overskride|Sistema|Overskride|administrador de Bluetooth alterno al del panel|overskride"
 )
-EXTRA_IDS=(); EXTRA_SECTIONS=(); EXTRA_NAMES=(); EXTRA_DESC=()
+EXTRA_IDS=(); EXTRA_SECTIONS=(); EXTRA_NAMES=(); EXTRA_DESC=(); EXTRA_CMDS=()
 for row in "${EXTRAS_LIST[@]}"; do
-    IFS='|' read -r id section name desc <<< "$row"
-    EXTRA_IDS+=("$id"); EXTRA_SECTIONS+=("$section"); EXTRA_NAMES+=("$name"); EXTRA_DESC+=("$desc")
+    IFS='|' read -r id section name desc cmd <<< "$row"
+    EXTRA_IDS+=("$id"); EXTRA_SECTIONS+=("$section"); EXTRA_NAMES+=("$name")
+    EXTRA_DESC+=("$desc"); EXTRA_CMDS+=("$cmd")
 done
+installed_extra() {  # installed_extra <índice>
+    local cmd="${EXTRA_CMDS[$1]}"
+    if [[ $cmd == pkg:* ]]; then
+        pacman -Q "${cmd#pkg:}" >/dev/null 2>&1
+    else
+        command -v "$cmd" >/dev/null
+    fi
+}
 declare -A EXTRA_ON=()
 EXTRAS_ENV="${FLIPFROG_EXTRAS:-}"
 case "$EXTRAS_ENV" in
     1|all) for id in "${EXTRA_IDS[@]}"; do EXTRA_ON[$id]=1; done ;;
-    "") EXTRA_ON[brave]=1 ;;
+    "") command -v brave-origin >/dev/null || EXTRA_ON[brave]=1 ;;
     0) ;;
     *) IFS=, read -ra env_ids <<< "$EXTRAS_ENV"; for id in "${env_ids[@]}"; do EXTRA_ON[$id]=1; done ;;
 esac
+
+toggle_extra() {  # toggle_extra <índice> -- los ya instalados no se marcan
+    local id="${EXTRA_IDS[$1]}"
+    installed_extra "$1" && return 0
+    if [[ -n "${EXTRA_ON[$id]:-}" ]]; then unset "EXTRA_ON[$id]"; else EXTRA_ON[$id]=1; fi
+}
 
 extras_menu() {
     local cursor=0 key rest i mark pointer
@@ -138,8 +165,15 @@ extras_menu() {
     while true; do
         screen
         echo
-        echo "${BOLD}¿Qué extras quieres instalar?${RESET} Todos son opcionales; Brave viene marcado porque es el navegador por defecto."
+        if [[ -n "${EXTRA_ON[brave]:-}" ]]; then
+            echo "${BOLD}¿Qué extras quieres instalar?${RESET} Todos son opcionales; Brave viene marcado porque es el navegador por defecto."
+        else
+            echo "${BOLD}¿Qué extras quieres instalar?${RESET} Todos son opcionales."
+        fi
         echo "${DIM}↑/↓ para moverte, Espacio marca o desmarca, Enter para continuar${RESET}"
+        if [[ $EXTRAS_ONLY == 0 ]]; then
+            echo "${DIM}¿Prefieres decidir después? Deja sin marcar lo que no quieras ahora y cuando quieras escribe ${RESET}ff-extras${DIM} en una terminal.${RESET}"
+        fi
         echo
         for i in "${!EXTRA_IDS[@]}"; do
             if (( i == 0 )) || [[ ${EXTRA_SECTIONS[$i]} != "${EXTRA_SECTIONS[$((i - 1))]}" ]]; then
@@ -147,6 +181,7 @@ extras_menu() {
                 echo "  ${YELLOW}${EXTRA_SECTIONS[$i]}${RESET}"
             fi
             mark=" "; [[ -n "${EXTRA_ON[${EXTRA_IDS[$i]}]:-}" ]] && mark="${GREEN}x${RESET}"
+            installed_extra "$i" && mark="${DIM}✓${RESET}"
             pointer="  "; [[ $i == "$cursor" ]] && pointer="${CYAN}❯${RESET} "
             if [[ $i == "$cursor" ]]; then
                 echo "${pointer}[${mark}] ${BOLD}${EXTRA_NAMES[$i]}${RESET} ${DIM}— ${EXTRA_DESC[$i]}${RESET}"
@@ -154,6 +189,14 @@ extras_menu() {
                 echo "${pointer}[${mark}] ${EXTRA_NAMES[$i]} ${DIM}— ${EXTRA_DESC[$i]}${RESET}"
             fi
         done
+        if [[ -n "${EXTRA_ON[davinci]:-}" ]]; then
+            echo
+            echo "${YELLOW}⚠ DaVinci Resolve:${RESET} son ~3.3 GB y la instalación puede tardar mucho (más de una hora"
+            echo "  con internet lento); la barra se puede quedar un buen rato en el mismo punto. Si no lo necesitas"
+            echo "  ya, instálalo después con ${BOLD}ff-extras${RESET}."
+        fi
+        echo
+        echo "${DIM}✓ = ya instalado${RESET}"
         IFS= read -rsn1 key < /dev/tty || break
         if [[ $key == $'\e' ]]; then
             IFS= read -rsn2 -t 0.05 rest < /dev/tty || rest=""
@@ -162,15 +205,10 @@ extras_menu() {
         case "$key" in
             $'\e[A'|k) (( cursor > 0 )) && cursor=$((cursor - 1)) ;;
             $'\e[B'|j) (( cursor < ${#EXTRA_IDS[@]} - 1 )) && cursor=$((cursor + 1)) ;;
-            " ")
-                id="${EXTRA_IDS[$cursor]}"
-                if [[ -n "${EXTRA_ON[$id]:-}" ]]; then unset "EXTRA_ON[$id]"; else EXTRA_ON[$id]=1; fi ;;
+            " ") toggle_extra "$cursor" ;;
             [1-9])
                 i=$((key - 1))
-                if (( i < ${#EXTRA_IDS[@]} )); then
-                    cursor=$i; id="${EXTRA_IDS[$i]}"
-                    if [[ -n "${EXTRA_ON[$id]:-}" ]]; then unset "EXTRA_ON[$id]"; else EXTRA_ON[$id]=1; fi
-                fi ;;
+                if (( i < ${#EXTRA_IDS[@]} )); then cursor=$i; toggle_extra "$i"; fi ;;
             "") break ;;
         esac
     done
@@ -178,6 +216,11 @@ extras_menu() {
 }
 
 [[ -z "$EXTRAS_ENV" && $HAS_TTY == 1 ]] && extras_menu
+if [[ $EXTRAS_ONLY == 1 && ${#EXTRA_ON[@]} == 0 ]]; then
+    echo
+    echo "No marcaste ningún extra; no hay nada que instalar."
+    exit 0
+fi
 # Millennium no sirve sin Steam.
 [[ -n "${EXTRA_ON[millennium]:-}" ]] && EXTRA_ON[steam]=1
 extra() { [[ -n "${EXTRA_ON[$1]:-}" ]]; }
@@ -219,7 +262,11 @@ echo
 # downloading...", "==> Making package: foo".
 W_BASE=30; W_LOGIN=3; W_SERVICES=2; W_PARU=3; W_APPS=15; W_AUR=20
 W_EXTRAS_PACMAN=15; W_EXTRAS_AUR=20; W_MODELS=5; W_CONFIG=4; W_FONTS=2
-TOTAL_W=$((W_BASE + W_LOGIN + W_SERVICES + W_PARU + W_APPS + W_AUR + W_CONFIG + W_FONTS))
+if [[ $EXTRAS_ONLY == 1 ]]; then
+    TOTAL_W=$((W_PARU + W_CONFIG))
+else
+    TOTAL_W=$((W_BASE + W_LOGIN + W_SERVICES + W_PARU + W_APPS + W_AUR + W_CONFIG + W_FONTS))
+fi
 (( ${#EXTRA_ON[@]} )) && TOTAL_W=$((TOTAL_W + W_EXTRAS_PACMAN + W_EXTRAS_AUR))
 extra audiolibros && TOTAL_W=$((TOTAL_W + W_MODELS))
 DONE_W=0; STAGE_W=0; STAGE_FRAC=0; LABEL=""; LAST_LINE=""
@@ -308,6 +355,7 @@ pac() {
     sudo pacman -S --needed "$@" < /dev/tty
 }
 
+if [[ $EXTRAS_ONLY == 0 ]]; then  # ---- base (no en ff-extras)
 stage $W_BASE "Instalando el escritorio y sus dependencias"
 pac \
     hyprland kitty \
@@ -360,6 +408,8 @@ else
     warn "No se pudo habilitar el ecualizador (filter-chain.service)"
 fi
 
+fi  # ---- fin base
+
 stage $W_PARU "Preparando el instalador de AUR (paru)"
 if ! command -v paru >/dev/null; then
     pac paru || fail "paru no está en tus repos -- instálalo desde AUR: git clone https://aur.archlinux.org/paru.git && cd paru && makepkg -si"
@@ -367,6 +417,7 @@ fi
 
 # Apps de la instalación base (pedido explícito del usuario); Brave y el
 # resto de apps van en los extras. Se salta si su comando ya existe.
+if [[ $EXTRAS_ONLY == 0 ]]; then  # ---- apps base (no en ff-extras)
 stage $W_APPS "Instalando gamescope"
 APPS_PACMAN=()
 # gamescope: resolución y escalado por juego.
@@ -381,6 +432,8 @@ stage $W_AUR "Instalando cursor y escalado de imágenes (AUR)"
 APPS_AUR=(bibata-cursor-theme-bin realesrgan-ncnn-vulkan-bin)
 run paru -S --needed --noconfirm --skipreview "${APPS_AUR[@]}" \
     || warn "Falló algo de AUR (${APPS_AUR[*]}) -- reinténtalo con: paru -S ${APPS_AUR[*]}"
+
+fi  # ---- fin apps base
 
 # Cada extra se salta si su comando ya existe: en la máquina de origen
 # vesktop y zapzap vinieron de AUR y los paquetes de los repos chocarían.
@@ -452,6 +505,7 @@ if extra audiolibros; then
 fi
 
 stage $W_CONFIG "Copiando la configuración"
+if [[ $EXTRAS_ONLY == 0 ]]; then  # ---- configuración (no en ff-extras)
 if [[ -n "$KB" ]]; then
     case "$KB" in
         us-intl) kb_layout=us; kb_variant=intl ;;
@@ -552,6 +606,15 @@ if [[ "$(readlink -f /etc/systemd/system/display-manager.service 2>/dev/null)" =
     fi
 fi
 
+# ff-extras: elegir extras después (fish de CachyOS ya tiene ~/.local/bin
+# en el PATH).
+mkdir -p "$HOME/.local/bin"
+if [[ "$(readlink "$HOME/.local/bin/ff-extras" 2>/dev/null)" != "$TARGET/flipfrog/ff-extras" ]]; then
+    ln -sfn "$TARGET/flipfrog/ff-extras" "$HOME/.local/bin/ff-extras"
+    changed "$HOME/.local/bin/ff-extras" "comando para instalar extras después"
+fi
+fi  # ---- fin configuración
+
 # Accesos a los popups en el lanzador (SUPER+Espacio). Solo si faltan:
 # una copia local puede estar oculta o renombrada desde la pestaña
 # "Aplicaciones" del panel. Los que piden un extra no instalado se omiten.
@@ -568,6 +631,7 @@ for entry in "$TARGET"/flipfrog/desktop/*.desktop; do
 done
 (( ${added_entries:-0} )) && changed "$APPS_DIR/custom-*.desktop" "$added_entries accesos a los popups en el lanzador"
 
+if [[ $EXTRAS_ONLY == 0 ]]; then  # ---- bienvenida y fuentes (no en ff-extras)
 WELCOME_FILE="$TARGET/flipfrog/scripts/keybinds/welcome.json"
 if [[ ! -f "$WELCOME_FILE" ]]; then
     echo '{"show_on_login": true}' > "$WELCOME_FILE"
@@ -576,6 +640,7 @@ fi
 
 stage $W_FONTS "Actualizando las fuentes"
 run fc-cache -f || true
+fi  # ---- fin bienvenida y fuentes
 
 DONE_W=$TOTAL_W; STAGE_W=0; STAGE_FRAC=0
 draw 0 "${GREEN}Listo${RESET}"
@@ -655,6 +720,12 @@ if [[ $HAS_TTY == 1 ]]; then
             cat "$DETAIL"
         fi
     fi
+fi
+
+if [[ $EXTRAS_ONLY == 1 ]]; then
+    echo
+    echo "${BOLD}Listo:${RESET} ábrelos desde el lanzador (SUPER+Espacio)."
+    exit 0
 fi
 
 echo
