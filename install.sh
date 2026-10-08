@@ -41,6 +41,16 @@ else
     BAR_MODE=0
 fi
 
+# Símbolos: la consola de texto de Linux (TERM=linux, donde corre la
+# instalación desde el TTY) no trae braille ni ✓/❯/⚠/✘/▸ en su fuente --
+# el spinner salía como "1" (visto en VM). Ahí van en ASCII.
+if [[ "${TERM:-}" == linux ]]; then
+    SPIN=('|' '/' '-' '\'); G_OK="*"; G_PTR=">"; G_WARN="!"; G_FAIL="X"; G_STAGE=">>"
+else
+    SPIN=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏); G_OK="✓"; G_PTR="❯"; G_WARN="⚠"; G_FAIL="✘"; G_STAGE="▸"
+fi
+SPIN_I=0
+
 LOG="$HOME/.cache/flipfrog-install.log"
 mkdir -p "$(dirname "$LOG")"
 : > "$LOG"
@@ -184,8 +194,8 @@ extras_menu() {
                 echo "  ${YELLOW}${EXTRA_SECTIONS[$i]}${RESET}"
             fi
             mark=" "; [[ -n "${EXTRA_ON[${EXTRA_IDS[$i]}]:-}" ]] && mark="${GREEN}x${RESET}"
-            installed_extra "$i" && mark="${DIM}✓${RESET}"
-            pointer="  "; [[ $i == "$cursor" ]] && pointer="${CYAN}❯${RESET} "
+            installed_extra "$i" && mark="${DIM}${G_OK}${RESET}"
+            pointer="  "; [[ $i == "$cursor" ]] && pointer="${CYAN}${G_PTR}${RESET} "
             if [[ $i == "$cursor" ]]; then
                 echo "${pointer}[${mark}] ${BOLD}${EXTRA_NAMES[$i]}${RESET} ${DIM}— ${EXTRA_DESC[$i]}${RESET}"
             else
@@ -194,12 +204,12 @@ extras_menu() {
         done
         if [[ -n "${EXTRA_ON[davinci]:-}" ]]; then
             echo
-            echo "${YELLOW}⚠ DaVinci Resolve:${RESET} son ~3.3 GB y la instalación puede tardar mucho (más de una hora"
+            echo "${YELLOW}${G_WARN} DaVinci Resolve:${RESET} son ~3.3 GB y la instalación puede tardar mucho (más de una hora"
             echo "  con internet lento); la barra se puede quedar un buen rato en el mismo punto. Si no lo necesitas"
             echo "  ya, instálalo después con ${BOLD}ff-extras${RESET}."
         fi
         echo
-        echo "${DIM}✓ = ya instalado${RESET}"
+        echo "${DIM}${G_OK} = ya instalado${RESET}"
         IFS= read -rsn1 key < /dev/tty || break
         if [[ $key == $'\e' ]]; then
             IFS= read -rsn2 -t 0.05 rest < /dev/tty || rest=""
@@ -273,7 +283,6 @@ fi
 (( ${#EXTRA_ON[@]} )) && TOTAL_W=$((TOTAL_W + W_EXTRAS_PACMAN + W_EXTRAS_AUR))
 extra audiolibros && TOTAL_W=$((TOTAL_W + W_MODELS))
 DONE_W=0; STAGE_W=0; STAGE_FRAC=0; LABEL=""; LAST_LINE=""
-SPIN=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏); SPIN_I=0
 
 draw() {  # draw <fracción 0-1000 dentro de la etapa> <etiqueta>
     # Nunca hacia atrás: con varios paquetes, la lectura de cada uno empieza de cero.
@@ -301,7 +310,7 @@ stage() {  # stage <peso> <etiqueta>
     DONE_W=$((DONE_W + STAGE_W))
     STAGE_W=$1; STAGE_FRAC=0; LABEL="$2"
     log ""; log "=== $2"
-    [[ $BAR_MODE == 1 ]] && printf '\r\033[K\n%s▸ %s%s\n' "$BOLD" "$2" "$RESET"
+    [[ $BAR_MODE == 1 ]] && printf '\r\033[K\n%s%s %s%s\n' "$BOLD" "$G_STAGE" "$2" "$RESET"
     draw 0 "$LABEL"
 }
 
@@ -333,19 +342,31 @@ show_log() {  # show_log [final] -- imprime las líneas nuevas del registro
 }
 
 # Avance y etiqueta a partir de lo que pacman/paru escribieron desde `off`.
+# Sin terminal pacman no numera los paquetes ("upgrading gtk3...", sin
+# "(n/m)"; la barra se quedaba en 0%, visto en VM): se cuentan contra el
+# total de "Packages (N)". Los hooks del final sí traen "( n/m)".
 parse_progress() {  # parse_progress <offset>
     tail -c +"$(( $1 + 1 ))" "$LOG" 2>/dev/null | tr '\r' '\n' | awk -v base="$LABEL" '
-        /^Packages \([0-9]+\)/ { match($0, /\(([0-9]+)\)/, m); total = m[1]; dl = 0 }
+        /^Packages \([0-9]+\)/ { match($0, /\(([0-9]+)\)/, m); total = m[1]; dl = 0; n = 0; post = 0 }
         / downloading\.\.\.$/  { dl++; state = "dl" }
-        /^\( *[0-9]+\/[0-9]+\) checking/ { state = "check" }
-        /^\( *[0-9]+\/[0-9]+\) (installing|upgrading|reinstalling) / {
-            match($0, /\( *([0-9]+)\/([0-9]+)\) [a-z]+ ([^ ]+)/, m); n = m[1]; t = m[2]; pkg = m[3]; state = "inst" }
+        /^(\( *[0-9]+\/[0-9]+\) )?checking / { state = "check" }
+        /^(\( *[0-9]+\/[0-9]+\) )?(installing|upgrading|reinstalling|downgrading) [^ ]+/ {
+            line = $0; n++
+            if (match(line, /^\( *([0-9]+)\/([0-9]+)\) /, m)) { n = m[1]; total = m[2] }
+            sub(/^\( *[0-9]+\/[0-9]+\) /, "", line)
+            split(line, w, " "); pkg = w[2]; sub(/\.\.\.$/, "", pkg)
+            state = "inst" }
+        /^:: Running post-transaction hooks/ { post = 1 }
+        post && /^\( *[0-9]+\/[0-9]+\) / {
+            match($0, /\( *([0-9]+)\/([0-9]+)\)/, m); hn = m[1]; ht = m[2]; state = "hooks" }
         /==> Making package: /  { split($0, a, "Making package: "); split(a[2], b, " "); build = b[1]; state = "build" }
         /==> Retrieving sources/ { if (build != "") state = "src" }
         END {
             if (state == "dl" && total > 0) printf "%d|Descargando paquetes (%d/%d)\n", 500 * dl / total, dl, total
             else if (state == "check") print "500|Verificando paquetes"
-            else if (state == "inst" && t > 0) printf "%d|Instalando %s (%d/%d)\n", 500 + 500 * n / t, pkg, n, t
+            else if (state == "inst" && total > 0) printf "%d|Instalando %s (%d/%d)\n", 500 + 450 * (n > total ? total : n) / total, pkg, n, total
+            else if (state == "inst") printf "500|Instalando %s\n", pkg
+            else if (state == "hooks" && ht > 0) printf "%d|Terminando (%d/%d)\n", 950 + 50 * hn / ht, hn, ht
             else if (state == "build") printf "300|Compilando %s\n", build
             else if (state == "src") printf "150|Descargando el código de %s\n", build
             else printf "0|%s\n", base
@@ -375,7 +396,7 @@ break_bar() { [[ $BAR_MODE == 1 ]] && printf '\r\033[K\033[?25h'; return 0; }
 
 fail() {  # fail <mensaje> -- error que impide seguir
     break_bar
-    echo "${RED}✘ $1${RESET}" >&2
+    echo "${RED}${G_FAIL} $1${RESET}" >&2
     # Con barra la salida ya quedó en pantalla (show_log).
     if [[ $BAR_MODE == 0 ]]; then
         echo "Últimas líneas del registro ($LOG):" >&2
@@ -406,7 +427,7 @@ upgrade() {
     run sudo pacman -Syu --noconfirm && return
     retry_mirrors && run sudo pacman -Syu --noconfirm && return
     break_bar
-    echo "${YELLOW}⚠ pacman necesita que confirmes algo:${RESET}"
+    echo "${YELLOW}${G_WARN} pacman necesita que confirmes algo:${RESET}"
     sudo pacman -Syu < /dev/tty
 }
 
@@ -414,7 +435,7 @@ pac() {
     run sudo pacman -S --needed --noconfirm "$@" && return
     retry_mirrors && run sudo pacman -S --needed --noconfirm "$@" && return
     break_bar
-    echo "${YELLOW}⚠ pacman necesita que confirmes algo:${RESET}"
+    echo "${YELLOW}${G_WARN} pacman necesita que confirmes algo:${RESET}"
     sudo pacman -S --needed "$@" < /dev/tty
 }
 
@@ -718,7 +739,7 @@ if [[ ${#WARNINGS[@]} -gt 0 ]]; then
     echo
     echo "${BOLD}${YELLOW}Avisos:${RESET}"
     for w in "${WARNINGS[@]}"; do
-        echo "  ${YELLOW}⚠${RESET} $w"
+        echo "  ${YELLOW}${G_WARN}${RESET} $w"
     done
     echo "  ${DIM}Detalles en $LOG${RESET}"
 fi
