@@ -139,4 +139,15 @@
 	<patterns>*</patterns>
 	<video-files/>
 </action>
+<action>
+	<icon>downloader</icon>
+	<name>Abrir en Descargas</name>
+	<submenu></submenu>
+	<unique-id>1790000000000009-1</unique-id>
+	<command>python3 &quot;$HOME/.config/flipfrog/scripts/downloads/download_popup.py&quot; --add %F</command>
+	<description>Agrega el torrent a la cola del gestor de descargas</description>
+	<range>*</range>
+	<patterns>*.torrent;*.TORRENT</patterns>
+	<other-files/>
+</action>
 </actions>

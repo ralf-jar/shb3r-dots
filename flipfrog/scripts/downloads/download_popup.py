@@ -517,8 +517,30 @@ class DownloadPopup:
         Gtk.main_quit()
 
 
+def _popup_running():
+    try:
+        with open(LOCK) as f:
+            os.kill(int(f.read().strip()), 0)
+        return True
+    except (OSError, ValueError):
+        return False
+
+
+def add_files(paths):
+    """`--add` (doble clic en un .torrent / acción de Thunar): manda las
+    rutas a la cola con la carpeta destino guardada."""
+    text = "\n".join(os.path.abspath(p) for p in paths)
+    downloads_ipc.ensure_daemon_running()
+    downloads_ipc.send_command("add", text=text, dest=load_config()["dest"])
+
+
 def main():
-    kill_existing(LOCK)
+    if sys.argv[1:2] == ["--add"]:
+        add_files(sys.argv[2:])
+        if _popup_running():
+            return
+    else:
+        kill_existing(LOCK)
     kill_group(LOCK)
     with open(LOCK, "w") as f:
         f.write(str(os.getpid()))

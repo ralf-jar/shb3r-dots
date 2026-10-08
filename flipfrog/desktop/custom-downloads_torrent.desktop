@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Descargas (torrent)
+Name[en]=Downloads (torrent)
+Exec=python3 "@HOME@/.config/flipfrog/scripts/downloads/download_popup.py" --add %F
+Icon=downloader
+Terminal=false
+NoDisplay=true
+MimeType=application/x-bittorrent;
+Categories=Custom;

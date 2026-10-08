@@ -22,6 +22,7 @@ x-scheme-handler/unknown=brave-origin.desktop
 audio/mpeg=mpv.desktop
 video/mp4=vlc.desktop
 inode/directory=thunar.desktop
+application/x-bittorrent=custom-downloads_torrent.desktop
 
 [Added Associations]
 text/x-lua=sublime_text.desktop;
