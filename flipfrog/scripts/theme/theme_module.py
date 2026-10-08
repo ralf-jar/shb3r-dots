@@ -624,6 +624,12 @@ def build_theme_selector(container):
     cursor_row = _setting_row(_row_icon(icon_name="input-mouse-symbolic"), t("temas", "cursor"),
                               _build_cursor_controls(look))
 
+    get_cursors_row = _setting_row(
+        _row_icon(DOWNLOAD_ICON), t("temas", "obtener_cursores"),
+        _action_button(t("temas", "abrir"), lambda _b: subprocess.Popen(
+            ["python3", CURSOR_PICKER_SCRIPT, "--get"], start_new_session=True,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL), t("temas", "obtener_cursores_tooltip")))
+
     gallery_row = _setting_row(
         _row_icon(PALETTE_ICON), t("temas", "galeria_btn"),
         _action_button(t("temas", "abrir"), lambda _b: subprocess.Popen(
@@ -657,8 +663,9 @@ def build_theme_selector(container):
     box.pack_start(_section_title(t("temas", "titulo_interfaz")), False, False, 0)
     box.pack_start(_grid([
         font_row, get_fonts_row,
+        cursor_row, get_cursors_row,
         language_row, icon_pack_row,
-        cursor_row, gallery_row,
+        gallery_row, None,
     ]), False, False, 0)
     box.pack_start(_section_title(t("temas", "titulo_ventanas")), False, False, 0)
     box.pack_start(_grid([

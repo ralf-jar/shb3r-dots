@@ -8,7 +8,7 @@ window {
     background-color: @mybackground;
     border-radius: 25px;
     padding: 16px 20px 18px 20px;
-    min-width: 420px;
+    min-width: 560px;
 }
 
 #header {
@@ -26,15 +26,6 @@ window {
     box-shadow: none;
     padding: 10px 14px;
     transition: background-color 200ms ease, border-color 200ms ease;
-}
-
-.cursor-card:hover {
-    background-color: @mybackgroundhover;
-}
-
-.cursor-card:focus {
-    outline: none;
-    box-shadow: none;
 }
 
 .cursor-card.active {
@@ -64,13 +55,7 @@ window {
     background-color: @mybackgroundhover;
 }
 
-.cursor-section {
-    color: @myforegroundhover;
-    font-weight: 800;
-    margin: 12px 0 2px 4px;
-}
-
-.cursor-install-btn {
+.cursor-action-btn {
     background-color: transparent;
     background-image: none;
     border: 1px solid @myborderinactive;
@@ -81,12 +66,78 @@ window {
     padding: 4px 14px;
 }
 
-.cursor-install-btn:hover {
+.cursor-action-btn:hover {
     background-color: @mybackground;
     border-color: @myborders;
 }
 
-.cursor-install-btn:focus {
+.cursor-action-btn:focus {
     outline: none;
     box-shadow: none;
+}
+
+.cursor-action-btn:disabled {
+    opacity: 0.4;
+}
+
+/* Pestañas Repositorios / KDE Store ("Obtener cursores") */
+#cursor-tabs {
+    margin-bottom: 12px;
+}
+
+.cursor-tab {
+    background-color: transparent;
+    background-image: none;
+    border: none;
+    border-radius: 4px;
+    box-shadow: none;
+    color: alpha(@myforeground, 0.65);
+    font-weight: 700;
+    padding: 6px 14px;
+}
+
+.cursor-tab:hover {
+    color: @myforeground;
+}
+
+.cursor-tab.active {
+    background-color: @mybackgroundhover;
+    color: @myforegroundhover;
+}
+
+.cursor-tab:focus,
+.cursor-more-btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+entry {
+    background-color: @mybackground;
+    color: @myforegroundhover;
+    border: none;
+    border-radius: 4px;
+    box-shadow: none;
+    font-weight: 700;
+    min-height: 25px;
+    padding: 2px 8px;
+}
+
+.cursor-status {
+    padding: 10px 4px;
+}
+
+.cursor-more-btn {
+    background-color: transparent;
+    background-image: none;
+    border: 1px solid @myborderinactive;
+    border-radius: 4px;
+    box-shadow: none;
+    color: @myforegroundhover;
+    font-weight: 700;
+    padding: 6px 10px;
+}
+
+.cursor-more-btn:hover {
+    background-color: @mybackgroundhover;
+    border-color: @myborders;
 }
