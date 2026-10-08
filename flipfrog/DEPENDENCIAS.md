@@ -1,6 +1,6 @@
 # Dependencias de los popups
 
-Paquetes que **no** vienen con la instalación por defecto de CachyOS (edición Hyprland, calculado contra lo que instaló Calamares en `/var/log/pacman.log`). Todo lo de aquí lo instala `~/.config/install.sh` (lo marcado *extra* solo si se contesta que sí a "¿Instalar extras?").
+Paquetes que **no** vienen con la instalación por defecto de CachyOS (edición Hyprland, calculado contra lo que instaló Calamares en `/var/log/pacman.log`). Todo lo de aquí lo instala `~/.config/install.sh` (lo marcado *extra* solo si se marca en el menú de extras).
 
 Ya vienen por defecto y no se listan: `ffmpeg`, `ffmpegthumbnailer`, `grim`, `ufw`, `polkit` (`pkexec`), `fish`, PipeWire (`pw-*`, `pactl`), `libnotify`, `wl-clipboard`, `xdg-utils`, `xdg-user-dirs`, `python-psutil`, `python-cairo`, `python-gobject`, `gtk3`.
 
