@@ -691,6 +691,7 @@
   {"modulo": "temas", "codigo": "tooltip_sobrescribir_tema", "texto": "Saves the current colors over this theme"},
   {"modulo": "energia", "codigo": "reboot", "texto": "Restart"},
   {"modulo": "energia", "codigo": "shutdown", "texto": "Shut down"},
+  {"modulo": "energia", "codigo": "logout", "texto": "Log out"},
   {"modulo": "ventanas", "codigo": "titulo", "texto": "Windows"},
   {"modulo": "ventanas", "codigo": "ayuda", "texto": "Click or Enter: go to window · Arrows/Tab: move · Type: filter · Middle click or Delete: close the window · Drag: move it (in \"By workspace\", to another workspace) · Corner or wheel: size in the collage · SUPER+CTRL+TAB again: next, release SUPER: go · Esc: close"},
   {"modulo": "ventanas", "codigo": "modo_personalizado", "texto": "Custom"},
