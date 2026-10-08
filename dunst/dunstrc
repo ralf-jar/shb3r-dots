@@ -26,7 +26,7 @@
     horizontal_padding = 25
     text_icon_padding = 0
     frame_width = 0
-    frame_color = "#cccccc"
+    frame_color = "#135d80"
     gap_size = 10
     separator_color = frame
     sort = yes
@@ -71,24 +71,24 @@
     enable_pcre_regex = false
 
 [urgency_low]
-    background = "#0000004f"
-    foreground = "#ffffff"
+    background = "#000000cc"
+    foreground = "#99c1f1"
     border = "none"
     timeout = 5
     default_icon = dialog-information
 
 [urgency_normal]
-    background = "#0000004f"
-    foreground = "#ffffff"
+    background = "#000000cc"
+    foreground = "#99c1f1"
     border = "none"
     timeout = 5
     override_pause_level = 30
     default_icon = dialog-information
 
 [urgency_critical]
-    background = "#0000004f"
-    foreground = "#ffffff"
-    frame_color = "#cccccc"
+    background = "#000000cc"
+    foreground = "#99c1f1"
+    frame_color = "#135d80"
     border = "none"
     timeout = 5
     override_pause_level = 60
