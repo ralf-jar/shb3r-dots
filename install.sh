@@ -264,11 +264,11 @@ echo
 # (LC_ALL=C para leerla en inglés): "(12/58) installing foo", "foo
 # downloading...", "==> Making package: foo".
 W_BASE=30; W_LOGIN=3; W_SERVICES=2; W_PARU=3; W_APPS=15; W_AUR=20
-W_EXTRAS_PACMAN=15; W_EXTRAS_AUR=20; W_MODELS=5; W_CONFIG=4; W_FONTS=2
+W_UPDATE=15; W_EXTRAS_PACMAN=15; W_EXTRAS_AUR=20; W_MODELS=5; W_CONFIG=4; W_FONTS=2
 if [[ $EXTRAS_ONLY == 1 ]]; then
-    TOTAL_W=$((W_PARU + W_CONFIG))
+    TOTAL_W=$((W_UPDATE + W_PARU + W_CONFIG))
 else
-    TOTAL_W=$((W_BASE + W_LOGIN + W_SERVICES + W_PARU + W_APPS + W_AUR + W_CONFIG + W_FONTS))
+    TOTAL_W=$((W_UPDATE + W_BASE + W_LOGIN + W_SERVICES + W_PARU + W_APPS + W_AUR + W_CONFIG + W_FONTS))
 fi
 (( ${#EXTRA_ON[@]} )) && TOTAL_W=$((TOTAL_W + W_EXTRAS_PACMAN + W_EXTRAS_AUR))
 extra audiolibros && TOTAL_W=$((TOTAL_W + W_MODELS))
@@ -301,7 +301,35 @@ stage() {  # stage <peso> <etiqueta>
     DONE_W=$((DONE_W + STAGE_W))
     STAGE_W=$1; STAGE_FRAC=0; LABEL="$2"
     log ""; log "=== $2"
+    [[ $BAR_MODE == 1 ]] && printf '\r\033[K\n%s▸ %s%s\n' "$BOLD" "$2" "$RESET"
     draw 0 "$LABEL"
+}
+
+# Desglose (pedido explícito del usuario): lo que pacman/paru escriben en
+# el registro se muestra arriba de la barra, línea por línea; la barra se
+# redibuja siempre en la última línea.
+SHOWN=0
+show_log() {  # show_log [final] -- imprime las líneas nuevas del registro
+    [[ $BAR_MODE == 1 ]] || return 0
+    local size data complete cols line
+    size=$(stat -c %s "$LOG")
+    (( size > SHOWN )) || return 0
+    data=$(tail -c +"$((SHOWN + 1))" "$LOG" | head -c "$((size - SHOWN))" | tr '\r' '\n'; printf x)
+    data="${data%x}"
+    if [[ ${1:-} == final ]]; then
+        complete="$data"
+    elif [[ $data == *$'\n'* ]]; then
+        complete="${data%$'\n'*}"$'\n'
+    else
+        return 0
+    fi
+    SHOWN=$(( SHOWN + $(printf '%s' "$complete" | wc -c) ))
+    cols=$(tput cols 2>/dev/null || echo 80)
+    printf '\r\033[K'
+    while IFS= read -r line; do
+        [[ -z "${line// /}" ]] && continue
+        printf '  %s%s%s\n' "$DIM" "${line:0:$((cols - 3))}" "$RESET"
+    done <<< "${complete%$'\n'}"
 }
 
 # Avance y etiqueta a partir de lo que pacman/paru escribieron desde `off`.
@@ -326,15 +354,20 @@ parse_progress() {  # parse_progress <offset>
 
 run() {  # run <comando...> -- en segundo plano, con la barra viva
     local off; off=$(stat -c %s "$LOG")
+    SHOWN=$off
     LC_ALL=C "$@" >> "$LOG" 2>&1 < /dev/null &
-    local pid=$! info frac text
+    local pid=$! info frac text status=0
     while kill -0 "$pid" 2>/dev/null; do
+        show_log
         info=$(parse_progress "$off" || true)
         frac=${info%%|*}; text=${info#*|}
         draw "${frac:-0}" "${text:-$LABEL}"
         sleep 0.3
     done
-    wait "$pid"
+    wait "$pid" || status=$?
+    show_log final
+    draw "$STAGE_FRAC" "$LABEL"
+    return $status
 }
 
 # Para la barra para mostrar algo en pantalla (un error o una pregunta).
@@ -343,20 +376,50 @@ break_bar() { [[ $BAR_MODE == 1 ]] && printf '\r\033[K\033[?25h'; return 0; }
 fail() {  # fail <mensaje> -- error que impide seguir
     break_bar
     echo "${RED}✘ $1${RESET}" >&2
-    echo "${DIM}Últimas líneas del registro ($LOG):${RESET}" >&2
-    tail -n 15 "$LOG" >&2
+    # Con barra la salida ya quedó en pantalla (show_log).
+    if [[ $BAR_MODE == 0 ]]; then
+        echo "Últimas líneas del registro ($LOG):" >&2
+        tail -n 15 "$LOG" >&2
+    fi
+    echo "${DIM}Registro completo: $LOG${RESET}" >&2
     exit 1
 }
 
 # pacman sin "¿Continuar? [S/n]". --noconfirm contesta "no" si hay que
 # quitar un paquete en conflicto y la instalación falla: solo entonces se
 # repite preguntando, fuera de la barra.
+# Un espejo que falla (404, "Maximum file size exceeded", visto en VM):
+# si la última salida fue un error de descarga, se vuelven a ordenar los
+# espejos (cachyos-rate-mirrors, viene con CachyOS) y se resincroniza.
+retry_mirrors() {
+    command -v cachyos-rate-mirrors >/dev/null || return 1
+    tail -n 60 "$LOG" | grep -qE "failed retrieving file|failed to retrieve some files" || return 1
+    LABEL="Buscando espejos que respondan"
+    draw "$STAGE_FRAC" "$LABEL"
+    run sudo cachyos-rate-mirrors && run sudo pacman -Syy --noconfirm
+}
+
+# Lista de paquetes al día antes de instalar nada: en un CachyOS recién
+# instalado está vieja y los espejos ya no tienen esas versiones (404 de
+# gvfs, visto en VM). -Syu completo, nunca -Sy solo (actualización parcial).
+upgrade() {
+    run sudo pacman -Syu --noconfirm && return
+    retry_mirrors && run sudo pacman -Syu --noconfirm && return
+    break_bar
+    echo "${YELLOW}⚠ pacman necesita que confirmes algo:${RESET}"
+    sudo pacman -Syu < /dev/tty
+}
+
 pac() {
     run sudo pacman -S --needed --noconfirm "$@" && return
+    retry_mirrors && run sudo pacman -S --needed --noconfirm "$@" && return
     break_bar
     echo "${YELLOW}⚠ pacman necesita que confirmes algo:${RESET}"
     sudo pacman -S --needed "$@" < /dev/tty
 }
+
+stage $W_UPDATE "Actualizando el sistema"
+upgrade || fail "No se pudo actualizar el sistema"
 
 if [[ $EXTRAS_ONLY == 0 ]]; then  # ---- base (no en ff-extras)
 stage $W_BASE "Instalando el escritorio y sus dependencias"
