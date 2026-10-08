@@ -101,7 +101,7 @@ def read_image(path, size):
 def preview_images(theme, size, bases=None):
     """Una imagen por rol de PREVIEW_ROLES que el tema tenga. `bases`:
     carpetas donde buscar en vez de las del sistema (paquetes sin
-    instalar, ver cursor_packages.py)."""
+    instalar, ver repo_themes.py)."""
     images = []
     for names in PREVIEW_ROLES:
         path = find_cursor(theme, names, bases)

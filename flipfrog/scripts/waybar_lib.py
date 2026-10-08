@@ -171,6 +171,7 @@ GROUP_LOCKS = [
     "/tmp/theme-editor.pid",
     "/tmp/google-fonts.pid",
     "/tmp/cursor-picker.pid",
+    "/tmp/icon-picker.pid",
     "/tmp/firewall-log-viewer.pid",
     "/tmp/firewall-popup.pid",
     "/tmp/services-popup.pid",
