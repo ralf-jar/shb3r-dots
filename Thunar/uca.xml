@@ -69,6 +69,17 @@
 	<other-files/>
 </action>
 <action>
+	<icon>cm_extractfiles</icon>
+	<name>Extraer 7z aqui</name>
+	<submenu></submenu>
+	<unique-id>1790000000000010-1</unique-id>
+	<command>bash &quot;$HOME/.config/Thunar/scripts/extract-7z.sh&quot; %F</command>
+	<description>Extrae en una carpeta con el nombre del archivo</description>
+	<range>*</range>
+	<patterns>*.7z;*.7Z</patterns>
+	<other-files/>
+</action>
+<action>
 	<icon>proton-vpn-logo</icon>
 	<name>Subir a Proton Drive</name>
 	<submenu></submenu>
@@ -137,6 +148,17 @@
 	<description>DNxHR HQ + audio PCM en .mov (guarda &lt;nombre&gt;.mov junto al original)</description>
 	<range>*</range>
 	<patterns>*</patterns>
+	<video-files/>
+</action>
+<action>
+	<icon>video-x-generic</icon>
+	<name>Convertir a MP4 (YouTube/Facebook)</name>
+	<submenu></submenu>
+	<unique-id>1790000000000011-1</unique-id>
+	<command>bash &quot;$HOME/.config/Thunar/scripts/convert-mov-to-mp4.sh&quot; %F</command>
+	<description>H.264 + AAC en .mp4 (guarda &lt;nombre&gt;.mp4 junto al original)</description>
+	<range>*</range>
+	<patterns>*.mov;*.MOV</patterns>
 	<video-files/>
 </action>
 <action>
