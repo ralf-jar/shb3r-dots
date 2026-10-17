@@ -356,6 +356,8 @@ class MenuSelector:
             return t("aplicaciones", "desinstalar_tipo_appimage", file=plan["file"])
         if kind == "steam":
             return t("aplicaciones", "desinstalar_tipo_steam")
+        if kind == "steam_orphan":
+            return t("aplicaciones", "desinstalar_tipo_steam_huerfano")
         if kind == "waydroid":
             return t("aplicaciones", "desinstalar_tipo_waydroid", package=plan["package"])
         return t("aplicaciones", "desinstalar_tipo_acceso")

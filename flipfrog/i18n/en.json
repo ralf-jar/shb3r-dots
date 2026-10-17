@@ -818,5 +818,6 @@
   {"modulo": "aplicaciones", "codigo": "desinstalando", "texto": "Uninstalling {name}…"},
   {"modulo": "aplicaciones", "codigo": "desinstalada", "texto": "{name} was uninstalled"},
   {"modulo": "aplicaciones", "codigo": "desinstalar_steam_enviado", "texto": "Steam will ask to confirm uninstalling {name}"},
-  {"modulo": "aplicaciones", "codigo": "desinstalar_error", "texto": "Couldn't uninstall {name}"}
+  {"modulo": "aplicaciones", "codigo": "desinstalar_error", "texto": "Couldn't uninstall {name}"},
+  {"modulo": "aplicaciones", "codigo": "desinstalar_tipo_steam_huerfano", "texto": "Steam game that is no longer installed: only its menu entries will be removed"}
 ]

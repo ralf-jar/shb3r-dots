@@ -9,7 +9,9 @@ Tipos, en este orden (el primero que aplica gana):
   flatpak   X-Flatpak= en el .desktop -> flatpak uninstall
   appimage  Exec= apunta a un .AppImage -> se borra el archivo, sus
             .desktop locales y el ícono que guardó install-appimage.sh
-  steam     steam://rungameid/N -> steam://uninstall/N (Steam confirma)
+  steam     steam://rungameid/N -> steam://uninstall/N (Steam confirma);
+            si ya no está instalado (sin appmanifest_N.acf) Steam no hace
+            nada, y solo se borran sus accesos (steam_orphan)
   waydroid  waydroid app launch <pkg> -> waydroid app remove <pkg>
   pacman    el .desktop de sistema o el ejecutable de Exec= pertenece a
             un paquete (repos o AUR) -> pkexec pacman -Rn con la lista de
@@ -26,6 +28,7 @@ import subprocess
 
 import desktop_apps
 
+STEAM_DIR = os.path.expanduser("~/.local/share/Steam")
 APPIMAGE_ICONS_DIR = os.path.expanduser("~/.local/share/flipfrog/appimages/icons")
 
 # Base de install.sh y lo que el sistema necesita para arrancar: nunca se
@@ -103,6 +106,29 @@ def _local_desktops_for(appimage):
     return found
 
 
+def _steam_installed(appid):
+    """Mismo criterio que steam-icons-sync.py: un appmanifest en alguna
+    biblioteca de libraryfolders.vdf."""
+    try:
+        with open(os.path.join(STEAM_DIR, "steamapps", "libraryfolders.vdf")) as f:
+            libraries = re.findall(r'"path"\s+"([^"]+)"', f.read()) or [STEAM_DIR]
+    except OSError:
+        libraries = [STEAM_DIR]
+    return any(os.path.exists(os.path.join(lib, "steamapps", f"appmanifest_{appid}.acf"))
+               for lib in libraries)
+
+
+def _local_desktops_matching(pattern):
+    """Todos los .desktop locales cuyo Exec= coincide (un juego de Steam
+    tiene el de Steam y el steam_app_N de steam-icons-sync.py)."""
+    found = []
+    base = desktop_apps.LOCAL_APPS_DIR
+    for fname in os.listdir(base):
+        if fname.endswith(".desktop") and re.search(pattern, _entry(os.path.join(base, fname)).get("Exec", "")):
+            found.append(fname)
+    return found
+
+
 def detect(desktop_id, apps):
     """{"kind", "name", ...datos del tipo}; "blocked" (código de i18n) +
     "detail" si no se puede quitar."""
@@ -134,7 +160,10 @@ def detect(desktop_id, apps):
         exec_line = entry.get("Exec", "")
         m = re.search(r"steam://rungameid/(\d+)", exec_line)
         if m:
-            return {**plan, "kind": "steam", "appid": m.group(1)}
+            appid = m.group(1)
+            ids = sorted(set([desktop_id] + _local_desktops_matching(rf"steam://rungameid/{appid}\b")))
+            kind = "steam" if _steam_installed(appid) else "steam_orphan"
+            return {**plan, "kind": kind, "appid": appid, "ids": ids}
         m = re.search(r"waydroid app launch (\S+)", exec_line)
         if m:
             return {**plan, "kind": "waydroid", "package": m.group(1)}
@@ -208,14 +237,14 @@ def uninstall(plan):
             except FileNotFoundError:
                 pass
         rc, out, err = 0, "", ""
-    elif kind == "shortcut":
+    elif kind in ("shortcut", "steam_orphan"):
         rc, out, err = 0, "", ""
     else:
         return False, plan.get("detail", "")
 
     if rc != 0:
         return False, (err or out).strip().splitlines()[-1] if (err or out).strip() else str(rc)
-    _forget(plan["ids"], drop_local=kind in ("appimage", "shortcut"))
+    _forget(plan["ids"], drop_local=kind in ("appimage", "shortcut", "steam_orphan"))
     return True, ""
 
 
