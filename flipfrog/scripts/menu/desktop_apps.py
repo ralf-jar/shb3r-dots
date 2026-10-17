@@ -43,6 +43,8 @@ LOCAL_APPS_DIR = os.path.expanduser("~/.local/share/applications")
 # que define un id dado gana, los demás se ignoran para ese id.
 APP_DIRS = [
     LOCAL_APPS_DIR,
+    os.path.expanduser("~/.local/share/flatpak/exports/share/applications"),
+    "/var/lib/flatpak/exports/share/applications",
     "/usr/local/share/applications",
     "/usr/share/applications",
 ]

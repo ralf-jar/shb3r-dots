@@ -156,3 +156,18 @@ entry {
 .editor-name-entry {
     margin-top: 15px;
 }
+/* "Arrastra aquí para desinstalar" (_build_uninstall_zone), entre las
+   listas y el panel de edición. */
+#menu-uninstall-zone {
+    border: 1px dashed alpha(@myforegroundhover, 0.4);
+    border-radius: 4px;
+    padding: 8px;
+    margin-top: 10px;
+    color: @myforegroundhover;
+    font-weight: 600;
+}
+
+#menu-uninstall-zone.drop-hover {
+    border-color: @myforegroundhover;
+    background-color: @mybackgroundhover;
+}
