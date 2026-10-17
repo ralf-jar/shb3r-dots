@@ -819,5 +819,6 @@
   {"modulo": "aplicaciones", "codigo": "desinstalando", "texto": "Desinstalando {name}…"},
   {"modulo": "aplicaciones", "codigo": "desinstalada", "texto": "{name} se desinstaló"},
   {"modulo": "aplicaciones", "codigo": "desinstalar_steam_enviado", "texto": "Steam pedirá confirmar la desinstalación de {name}"},
-  {"modulo": "aplicaciones", "codigo": "desinstalar_error", "texto": "No se pudo desinstalar {name}"}
+  {"modulo": "aplicaciones", "codigo": "desinstalar_error", "texto": "No se pudo desinstalar {name}"},
+  {"modulo": "aplicaciones", "codigo": "desinstalar_tipo_steam_huerfano", "texto": "Juego de Steam que ya no está instalado: solo se quitarán sus accesos del menú"}
 ]
