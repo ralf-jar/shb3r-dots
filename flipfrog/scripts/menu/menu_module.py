@@ -51,6 +51,7 @@ gi.require_version("Pango", "1.0")
 from gi.repository import Gtk, Gdk, GdkPixbuf, GLib, Pango
 
 import desktop_apps
+import app_uninstall
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(SCRIPT_DIR, ".."))
@@ -66,6 +67,7 @@ ICONS_DIR = os.path.join(SCRIPT_DIR, "icons")
 SCRIPT_ICON = os.path.join(ICONS_DIR, "script.svg")
 SAVE_ICON = os.path.join(ICONS_DIR, "save.svg")
 RESET_ICON = os.path.join(ICONS_DIR, "reset.svg")
+TRASH_ICON = os.path.join(ICONS_DIR, "trash.svg")
 
 ICON_SIZE = 20
 EDITOR_ICON_PREVIEW_SIZE = 32
@@ -99,6 +101,7 @@ class MenuSelector:
         columns.pack_start(self.visible_box, True, True, 0)
         columns.pack_start(self.hidden_box, True, True, 0)
         container.pack_start(columns, True, True, 0)
+        container.pack_start(self._build_uninstall_zone(), False, False, 0)
 
         self.selected_id = None
         self.pending_script_path = None
@@ -265,6 +268,145 @@ class MenuSelector:
 
         self.visible_list.show_all()
         self.hidden_list.show_all()
+
+    # ---- Desinstalar (app_uninstall.py) ---------------------------------
+
+    def _build_uninstall_zone(self):
+        """EventBox solo recibe el arrastre; el estilo va en la caja de
+        adentro (Gtk.EventBox ignora margin/padding del CSS)."""
+        self.uninstall_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        self.uninstall_box.set_name("menu-uninstall-zone")
+
+        content = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        content.set_halign(Gtk.Align.CENTER)
+        content.pack_start(svg_icon_image(TRASH_ICON, 16, "myforegroundhover"), False, False, 0)
+        self.uninstall_label = Gtk.Label(label=t("aplicaciones", "desinstalar_zona"))
+        self.uninstall_label.set_ellipsize(Pango.EllipsizeMode.END)
+        self.uninstall_label.set_max_width_chars(60)
+        content.pack_start(self.uninstall_label, False, False, 0)
+        self.uninstall_box.pack_start(content, True, True, 0)
+
+        zone = Gtk.EventBox()
+        zone.set_tooltip_text(t("aplicaciones", "desinstalar_zona_tooltip"))
+        zone.add(self.uninstall_box)
+        zone.drag_dest_set(Gtk.DestDefaults.ALL, [DND_TARGET], Gdk.DragAction.MOVE)
+        zone.connect("drag-data-received", self._on_uninstall_drop)
+        zone.connect("drag-motion", lambda *_: self._set_zone_class("drop-hover", True) or False)
+        zone.connect("drag-leave", lambda *_: self._set_zone_class("drop-hover", False))
+
+        self._uninstall_busy = False
+        self._zone_reset_id = None
+        return zone
+
+    def _set_zone_class(self, name, on):
+        ctx = self.uninstall_box.get_style_context()
+        (ctx.add_class if on else ctx.remove_class)(name)
+
+    def _set_zone_text(self, text, reset_after=0):
+        if self._zone_reset_id:
+            GLib.source_remove(self._zone_reset_id)
+            self._zone_reset_id = None
+        self.uninstall_label.set_text(text)
+        if reset_after:
+            def reset():
+                self._zone_reset_id = None
+                self.uninstall_label.set_text(t("aplicaciones", "desinstalar_zona"))
+                return False
+            self._zone_reset_id = GLib.timeout_add_seconds(reset_after, reset)
+
+    def _on_uninstall_drop(self, _zone, _ctx, _x, _y, data, _info, _time):
+        self._set_zone_class("drop-hover", False)
+        desktop_id = data.get_text()
+        if not desktop_id or desktop_id not in self.apps or self._uninstall_busy:
+            return
+        self._uninstall_busy = True
+        self._set_zone_text(t("aplicaciones", "desinstalar_revisando", name=self.apps[desktop_id]["name"]))
+
+        def worker():
+            plan = app_uninstall.detect(desktop_id, self.apps)
+            GLib.idle_add(self._confirm_uninstall, plan)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _dialog(self, message_type, buttons, text, secondary):
+        win = self.uninstall_label.get_toplevel()
+        dialog = Gtk.MessageDialog(transient_for=win, flags=0, message_type=message_type,
+                                   buttons=buttons, text=text)
+        dialog.format_secondary_text(secondary)
+
+        # Mismo workaround de layer-shell que theme-editor.py.
+        original_prgname = GLib.get_prgname()
+        GLib.set_prgname("menu-uninstall-dialog")
+        dialog.show_all()
+        GLib.set_prgname(original_prgname)
+
+        win.hide()
+        response = dialog.run()
+        dialog.destroy()
+        win.show()
+        return response
+
+    def _plan_description(self, plan):
+        kind = plan["kind"]
+        if kind == "pacman":
+            return t("aplicaciones", "desinstalar_tipo_pacman", packages=", ".join(plan["packages"]))
+        if kind == "flatpak":
+            return t("aplicaciones", "desinstalar_tipo_flatpak", ref=plan["ref"])
+        if kind == "appimage":
+            return t("aplicaciones", "desinstalar_tipo_appimage", file=plan["file"])
+        if kind == "steam":
+            return t("aplicaciones", "desinstalar_tipo_steam")
+        if kind == "waydroid":
+            return t("aplicaciones", "desinstalar_tipo_waydroid", package=plan["package"])
+        return t("aplicaciones", "desinstalar_tipo_acceso")
+
+    def _confirm_uninstall(self, plan):
+        name = plan["name"]
+        if plan.get("blocked"):
+            self._dialog(Gtk.MessageType.INFO, Gtk.ButtonsType.OK,
+                         t("aplicaciones", "desinstalar_no_se_puede", name=name),
+                         t("aplicaciones", plan["blocked"], detail=plan.get("detail", "")))
+            self._finish_uninstall(None, False, "")
+            return False
+
+        response = self._dialog(Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO,
+                                t("aplicaciones", "desinstalar_confirmar", name=name),
+                                self._plan_description(plan))
+        if response != Gtk.ResponseType.YES:
+            self._finish_uninstall(None, False, "")
+            return False
+
+        self._set_zone_text(t("aplicaciones", "desinstalando", name=name))
+        # La ventana de contraseña de polkit la abre otro proceso: la capa
+        # del dashboard se la comería (mismo criterio que firewall_popup.py).
+        if plan.get("needs_auth"):
+            self.uninstall_label.get_toplevel().hide()
+
+        def worker():
+            ok, detail = app_uninstall.uninstall(plan)
+            GLib.idle_add(self._finish_uninstall, plan, ok, detail)
+
+        threading.Thread(target=worker, daemon=True).start()
+        return False
+
+    def _finish_uninstall(self, plan, ok, detail):
+        self._uninstall_busy = False
+        if plan is None:
+            self._set_zone_text(t("aplicaciones", "desinstalar_zona"))
+            return False
+        if plan.get("needs_auth"):
+            self.uninstall_label.get_toplevel().show()
+
+        name = plan["name"]
+        if ok:
+            code = "desinstalar_steam_enviado" if plan["kind"] == "steam" else "desinstalada"
+            self.refresh()
+            self._set_zone_text(t("aplicaciones", code, name=name), reset_after=5)
+        else:
+            self._set_zone_text(t("aplicaciones", "desinstalar_zona"))
+            self._dialog(Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
+                         t("aplicaciones", "desinstalar_error", name=name), detail)
+        return False
 
     # ---- Selección de fila ---------------------------------------------
 
