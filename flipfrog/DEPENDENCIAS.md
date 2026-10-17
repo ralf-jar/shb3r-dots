@@ -49,6 +49,7 @@ Ya vienen por defecto y no se listan: `ffmpeg`, `ffmpegthumbnailer`, `grim`, `uf
 | Rotar a la izquierda / derecha (`Thunar/scripts/rotate-image.sh`) | `libjpeg-turbo` (`jpegtran`, JPEG sin pérdida), `imagemagick` (resto de formatos y JPEG con orientación EXIF) |
 | Poner como fondo de pantalla (`flipfrog/themer/wallpaper.py`) | `awww` (imágenes y gif), `mpvpaper` (videos) |
 | Escalar imagen con IA (`Thunar/scripts/upscale-image.sh`) | `realesrgan-ncnn-vulkan-bin` (AUR, trae el modelo `realesrgan-x4plus`), `imagemagick` (entrada/EXIF y reducir x4 a x2) |
+| Instalar AppImage (`Thunar/scripts/install-appimage.sh`) | `fuse2` (para ejecutarlas; extraer el ícono no lo necesita) |
 
 ## Apps de la instalación (no son dependencias de ningún popup)
 

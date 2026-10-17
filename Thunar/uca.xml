@@ -172,4 +172,15 @@
 	<patterns>*.torrent;*.TORRENT</patterns>
 	<other-files/>
 </action>
+<action>
+	<icon>application-x-executable</icon>
+	<name>Instalar AppImage</name>
+	<submenu></submenu>
+	<unique-id>1790000000000012-1</unique-id>
+	<command>bash &quot;$HOME/.config/Thunar/scripts/install-appimage.sh&quot; %F</command>
+	<description>La mueve a ~/Applications y la agrega al launcher con su ícono</description>
+	<range>*</range>
+	<patterns>*.AppImage;*.appimage</patterns>
+	<other-files/>
+</action>
 </actions>
