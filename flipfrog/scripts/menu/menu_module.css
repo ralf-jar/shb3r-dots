@@ -160,7 +160,7 @@ entry {
    listas y el panel de edición. */
 #menu-uninstall-zone {
     border: 1px dashed alpha(@myforegroundhover, 0.4);
-    border-radius: 4px;
+    border-radius: 25px;
     padding: 8px;
     margin-top: 10px;
     color: @myforegroundhover;
