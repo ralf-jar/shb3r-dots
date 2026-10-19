@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Popup "Descargas" (SUPER+D) -- gestor de descargas tipo JDownloader
-(MediaFire, YouTube con `ytd`/`ytdv` y torrents; un enlace de YouTube espera en
+(MediaFire, Google Drive, MEGA, Proton Drive, YouTube con `ytd`/`ytdv` y torrents; un enlace de YouTube espera en
 "choosing" a que se elija el formato en su fila). Sin estado propio: la cola vive en
 download_daemon.py (cerrar el popup no corta nada), este solo sondea
 `get_state` cada 1s y manda comandos."""

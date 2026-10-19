@@ -434,7 +434,7 @@ pac \
     noto-fonts-emoji ttf-jetbrains-mono-nerd \
     radicale python-caldav python-icalendar python-httpx \
     hyprpolkitagent nethogs python-psutil \
-    mpv python-requests yt-dlp libtorrent-rasterbar imagemagick libjpeg-turbo fuse2 \
+    mpv python-requests python-cryptography yt-dlp libtorrent-rasterbar imagemagick libjpeg-turbo fuse2 \
     || fail "No se pudieron instalar los paquetes del escritorio"
 
 # Sin gestor de login la PC arranca en una terminal de texto: pasa al
@@ -497,7 +497,7 @@ fi
 
 # realesrgan: acción "Escalar imagen con IA" de Thunar (Thunar/uca.xml).
 stage $W_AUR "Instalando cursor y escalado de imágenes (AUR)"
-APPS_AUR=(bibata-cursor-theme-bin realesrgan-ncnn-vulkan-bin)
+APPS_AUR=(bibata-cursor-theme-bin realesrgan-ncnn-vulkan-bin proton-cli-bin)
 run paru -S --needed --noconfirm --skipreview "${APPS_AUR[@]}" \
     || warn "Falló algo de AUR (${APPS_AUR[*]}) -- reinténtalo con: paru -S ${APPS_AUR[*]}"
 
