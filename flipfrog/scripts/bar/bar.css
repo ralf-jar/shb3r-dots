@@ -246,9 +246,8 @@ tooltip label {
 }
 
 /* ---- VPN / No molestar / Audiolibro ----
-   Solo existen activos. VPN y audiolibro siempre visibles (también en
-   cápsula sin hover); No molestar se oculta en cápsula con el resto del
-   grupo (pedido explícito del usuario). */
+   Solo existen activos; en cápsula se ocultan con el resto del grupo
+   hasta pasar el mouse (pedido explícito del usuario). */
 #vpn,
 #dnd,
 #audiobook {
@@ -257,13 +256,19 @@ tooltip label {
     font-size: 14px; /* sync_font_size: static */
 }
 
-#dnd {
+#vpn,
+#dnd,
+#audiobook {
     opacity: 0;
     transition: opacity 200ms ease;
 }
 
+#right-cluster.hover #vpn,
 #right-cluster.hover #dnd,
-.islas #dnd {
+#right-cluster.hover #audiobook,
+.islas #vpn,
+.islas #dnd,
+.islas #audiobook {
     opacity: 1;
 }
 
