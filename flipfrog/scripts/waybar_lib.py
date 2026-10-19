@@ -264,8 +264,19 @@ def build_layer_window(namespace, css_file):
 
     window.add(background)
     if _animations_enabled():
-        _PopupAnimation(window, anchor)
+        window.ff_animation = _PopupAnimation(window, anchor)
     return window, content_box
+
+
+def after_open_animation(window, fn):
+    """Corre `fn` cuando termina la animación de entrada (o en el próximo
+    idle si no hay): trabajo pesado del hilo de GTK durante la animación
+    la traba."""
+    animation = getattr(window, "ff_animation", None)
+    if animation is None or not animation.opening():
+        GLib.idle_add(fn)
+    else:
+        animation.on_opened.append(fn)
 
 
 LOOK_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "themer", "hypr-look.json")
@@ -300,11 +311,15 @@ class _PopupAnimation:
         self.closing = False
         self.running = True
         self.last_time = None
+        self.on_opened = []
 
         window.connect("draw", self._on_draw)
         window.add_tick_callback(self._on_tick)
         window.destroy = self.close
         GLibUnix.signal_add(GLib.PRIORITY_DEFAULT, signal.SIGTERM, self._on_sigterm)
+
+    def opening(self):
+        return self.running and not self.closing
 
     def _on_sigterm(self):
         self.close()
@@ -347,6 +362,9 @@ class _PopupAnimation:
             return GLib.SOURCE_REMOVE
         if not self.closing and self.progress >= 1:
             self.running = False
+            for fn in self.on_opened:
+                GLib.idle_add(fn)
+            self.on_opened = []
             return GLib.SOURCE_REMOVE
         return GLib.SOURCE_CONTINUE
 
@@ -375,7 +393,7 @@ class _PopupAnimation:
         center = x + width / 2
         window_width = widget.get_allocated_width()
 
-        band = 1 / scale
+        band = 2 / scale
         rows = math.ceil(out_height / band)
         for i in range(rows):
             t = i / rows
