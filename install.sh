@@ -133,6 +133,7 @@ EXTRAS_LIST=(
     "obs|Oficina y creación|OBS Studio|grabar la pantalla y hacer streams|obs"
     "davinci|Oficina y creación|DaVinci Resolve|editor de video profesional (~3.3 GB, tarda mucho, ver aviso)|davinci-resolve"
     "vlc|Oficina y creación|VLC|reproductor de video y música|vlc"
+    "galculator|Oficina y creación|Calculadora (Galculator)|calculadora sencilla, con modo científico|galculator"
     "audiolibros|Oficina y creación|Audiolibros narrados|convierte libros EPUB en audio (voz en español, ~73 MB)|piper-tts"
     "steam|Juegos|Steam|tienda de juegos de PC|steam"
     "millennium|Juegos|Temas para Steam (Millennium)|Steam con los colores del tema; también instala Steam|pkg:millennium-bin"
@@ -520,6 +521,7 @@ want onlyoffice  onlyoffice-desktopeditors && EXTRAS_PACMAN+=(onlyoffice-bin)
 want gimp        gimp                      && EXTRAS_PACMAN+=(gimp)
 want obs         obs                       && EXTRAS_PACMAN+=(obs-studio)
 want vlc         vlc                       && EXTRAS_PACMAN+=(vlc vlc-plugins-all)
+want galculator  galculator                && EXTRAS_PACMAN+=(galculator)
 want steam       steam                     && EXTRAS_PACMAN+=(steam)
 want openrgb     openrgb                   && EXTRAS_PACMAN+=(openrgb)
 if want davinci davinci-resolve; then
