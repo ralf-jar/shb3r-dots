@@ -933,9 +933,6 @@ class AudiobookPopup:
 
     def _start_daemon(self):
         audiobook_ipc.ensure_daemon_running()
-        state = audiobook_ipc.send_command("get_state")
-        if state and state.get("player"):
-            GLib.idle_add(self._open_reader, state["player"]["book_id"])
         GLib.idle_add(self._poll)
         GLib.timeout_add(POLL_MS, self._poll)
 
