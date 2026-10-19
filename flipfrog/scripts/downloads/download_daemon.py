@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Daemon de descargas de MediaFire, YouTube y torrents (SUPER+D) -- único dueño de la cola,
+"""Daemon de descargas de MediaFire, Google Drive, MEGA, Proton Drive, YouTube y torrents (SUPER+D) -- único dueño de la cola,
 para que cerrar el popup nunca corte una descarga (mismo criterio que
 bandcamp/bandcamp_daemon.py). Lanzado a demanda por download_popup.py,
 se cierra solo tras IDLE_EXIT segundos sin nada pendiente ni clientes.
@@ -10,11 +10,14 @@ archivo a la vez, en el orden de la cola. `.part` + `Range` para
 reanudar tras pausar, reintentar o reiniciar el daemon. YouTube va por
 youtube.py (alias `ytd`/`ytdv` de fish), con la carpeta destino del item:
 al resolverse queda en "choosing" hasta que el popup elige el formato.
+Google Drive y MEGA usan el mismo camino que MediaFire (MEGA descifra
+mientras baja, mega.py); Proton Drive corre `proton` aparte (proton.py).
 Torrents: resueltos igual (nombre/tamaño/infohash), luego `_torrent_loop`
 los baja todos en paralelo, fuera de la fila de uno a la vez (torrent.py)."""
 
 import json
 import os
+import shutil
 import signal
 import socket
 import subprocess
@@ -29,7 +32,10 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.dirname(SCRIPT_DIR))
 from common import atomic_write, set_process_name
 from i18n import t
+import gdrive
 import mediafire
+import mega
+import proton
 import torrent
 import youtube
 from downloads_ipc import SOCKET_PATH, LOCK
@@ -40,6 +46,10 @@ IDLE_EXIT = 600
 SAVE_EVERY = 3
 MAX_ATTEMPTS = 3
 ACTIVE = ("pending", "choosing", "queued", "downloading")
+FOLDER_KINDS = ("folder", "gdrive_folder", "mega_folder")
+OWN_PATH_KINDS = ("youtube", "proton")
+ERRORS = (mediafire.MediafireError, gdrive.GdriveError, mega.MegaError, proton.ProtonError,
+          youtube.YoutubeError, torrent.TorrentError)
 BUSY = ("pending", "queued", "downloading")
 
 
@@ -115,7 +125,8 @@ class Daemon:
             return {"ok": False, "added": 0}
         known = {(i["kind"], i["key"]) for i in self.items if i["status"] in ACTIVE}
         added = 0
-        links = mediafire.parse_links(text) + youtube.parse_links(text) + torrent.parse_links(text)
+        links = (mediafire.parse_links(text) + gdrive.parse_links(text) + mega.parse_links(text)
+                 + proton.parse_links(text) + youtube.parse_links(text) + torrent.parse_links(text))
         for kind, key in links:
             if (kind, key) in known:
                 continue
@@ -149,6 +160,8 @@ class Daemon:
 
     @staticmethod
     def _remove_part(item):
+        if item["kind"] == "proton":
+            shutil.rmtree(proton.staging_dir(item["dest"], item["id"]), ignore_errors=True)
         if item.get("path"):
             try:
                 os.remove(item["path"] + ".part")
@@ -173,12 +186,22 @@ class Daemon:
                 elif kind == "youtube":
                     name, formats = youtube.info(key)
                     result = [{"name": name, "size": 0, "formats": formats}]
+                elif kind == "proton":
+                    result = [proton.info(key)]
                 elif kind == "folder":
                     result = mediafire.folder_files(key, session)
+                elif kind == "gdrive_folder":
+                    result = gdrive.folder_files(key, session)
+                elif kind == "mega_folder":
+                    result = mega.folder_files(key, session)
+                elif kind == "gdrive":
+                    result = [gdrive.file_info(key, session)]
+                elif kind == "mega":
+                    result = [mega.file_info(key, session)]
                 else:
                     result = [mediafire.file_info(key, session)]
                 error = None
-            except (mediafire.MediafireError, youtube.YoutubeError, torrent.TorrentError) as e:
+            except ERRORS as e:
                 result, error = None, e.code
 
             with self.lock:
@@ -192,14 +215,17 @@ class Daemon:
                     item["status"], item["error"] = "error", error
                 elif kind == "torrent":
                     item.update(result[0], resolved=True, status="queued")
-                elif kind == "folder":
-                    known = {i["key"] for i in self.items if i["kind"] == "file" and i["status"] in ACTIVE}
+                elif kind in FOLDER_KINDS:
+                    known = {(i["kind"], i["key"]) for i in self.items if i["status"] in ACTIVE}
                     idx = self.items.index(item)
-                    files = [self._file_item(f, item["dest"]) for f in result if f["key"] not in known]
+                    files = [self._file_item(f, item["dest"]) for f in result
+                             if (f.get("kind", "file"), f["key"]) not in known]
                     self.items[idx:idx + 1] = files
                 elif kind == "youtube":
                     item.update(name=result[0]["name"], formats=result[0]["formats"],
                                 resolved=True, status="choosing")
+                elif kind == "proton":
+                    item.update(result[0], resolved=True, status="queued")
                 else:
                     info = result[0]
                     item.update(name=info["name"], size=info["size"], resolved=True, status="queued")
@@ -209,7 +235,7 @@ class Daemon:
     @staticmethod
     def _file_item(info, dest):
         return {
-            "id": uuid.uuid4().hex[:12], "kind": "file", "key": info["key"],
+            "id": uuid.uuid4().hex[:12], "kind": info.get("kind", "file"), "key": info["key"],
             "name": info["name"], "size": info["size"], "done": 0, "speed": 0,
             "status": "queued", "error": None, "resolved": True,
             "dest": dest, "subdir": info.get("subdir", ""), "path": None, "attempts": 0,
@@ -241,12 +267,14 @@ class Daemon:
                     continue
                 item["status"] = "downloading"
                 item["attempts"] = item.get("attempts", 0) + 1
-                if not item.get("path") and item["kind"] != "youtube":
+                if not item.get("path") and item["kind"] not in OWN_PATH_KINDS:
                     item["path"] = self._unique_path(item)
                 self._save()
 
             if item["kind"] == "youtube":
                 outcome, error = self._download_youtube(item)
+            elif item["kind"] == "proton":
+                outcome, error = self._download_proton(item)
             else:
                 outcome, error = self._download(session, item)
             retry_later = False
@@ -276,31 +304,46 @@ class Daemon:
             if retry_later:
                 time.sleep(3)
 
+    @staticmethod
+    def _open(session, item, offset):
+        """(respuesta en streaming, descifrador o None, offset real desde
+        el que llega el contenido)."""
+        if item["kind"] == "mega":
+            return mega.request(item["key"], session, offset)
+        if item["kind"] == "gdrive":
+            r = gdrive.request(item["key"], session, offset)
+        else:
+            url = mediafire.direct_link(item["key"], session)
+            headers = {"Range": f"bytes={offset}-"} if offset else {}
+            try:
+                r = session.get(url, stream=True, headers=headers, timeout=(15, 60))
+            except requests.RequestException:
+                raise mediafire.MediafireError("error_red")
+            if "text/html" in r.headers.get("content-type", ""):
+                r.close()
+                raise mediafire.MediafireError("error_sin_enlace")
+        return r, None, offset if r.status_code == 206 else 0
+
     def _download(self, session, item):
         path = item["path"]
         part = path + ".part"
         try:
             os.makedirs(os.path.dirname(path), exist_ok=True)
-            url = mediafire.direct_link(item["key"], session)
-        except mediafire.MediafireError as e:
-            return "error", e.code
         except OSError:
             return "error", "error_disco"
 
         offset = os.path.getsize(part) if os.path.exists(part) else 0
-        headers = {"Range": f"bytes={offset}-"} if offset else {}
+        try:
+            r, decrypt, offset = self._open(session, item, offset)
+        except ERRORS as e:
+            return "error", e.code
 
         try:
-            with session.get(url, stream=True, headers=headers, timeout=(15, 60)) as r:
+            with r:
                 if r.status_code == 416:
-                    offset = 0
                     os.remove(part)
                     return "error", "error_red"
                 r.raise_for_status()
-                if "text/html" in r.headers.get("content-type", ""):
-                    return "error", "error_sin_enlace"
-                if r.status_code != 206:
-                    offset = 0
                 length = int(r.headers.get("content-length") or 0)
                 with self.lock:
                     item["done"] = offset
@@ -309,9 +352,11 @@ class Daemon:
 
                 window_start, window_bytes = time.time(), 0
                 last_save = time.time()
-                with open(part, "ab" if offset else "wb") as f:
+                with open(part, "r+b" if offset else "wb") as f:
+                    f.truncate(offset)
+                    f.seek(offset)
                     for chunk in r.iter_content(CHUNK):
-                        f.write(chunk)
+                        f.write(decrypt(chunk) if decrypt else chunk)
                         window_bytes += len(chunk)
                         now = time.time()
                         with self.lock:
@@ -335,6 +380,41 @@ class Daemon:
             return "error", "error_red"
         os.replace(part, path)
         return "done", None
+
+    def _download_proton(self, item):
+        staging = proton.staging_dir(item["dest"], item["id"])
+
+        def on_progress(done, speed):
+            with self.lock:
+                item["done"], item["speed"] = done, speed
+
+        with self.lock:
+            item["done"] = 0
+        try:
+            os.makedirs(item["dest"], exist_ok=True)
+            outcome, error, names = proton.download(item["key"], item.get("folder"), staging, on_progress,
+                                                    self._stop_check(item), youtube.run_watched)
+            if outcome != "done":
+                return outcome, error
+            with self.lock:
+                for name in names:
+                    target = self._free_path(item["dest"], name)
+                    shutil.move(os.path.join(staging, name), target)
+                    item["path"] = item.get("path") or target
+            shutil.rmtree(staging, ignore_errors=True)
+        except OSError:
+            return "error", "error_disco"
+        return "done", None
+
+    def _free_path(self, folder, name):
+        base, ext = os.path.splitext(name)
+        taken = {i["path"] for i in self.items if i.get("path")}
+        n = 0
+        while True:
+            path = os.path.join(folder, name if n == 0 else f"{base} ({n}){ext}")
+            if path not in taken and not os.path.exists(path):
+                return path
+            n += 1
 
     def _stop_check(self, item):
         def should_stop():
