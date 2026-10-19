@@ -17,6 +17,10 @@ Bang de búsqueda: si el texto termina en "?" y se presiona Enter, no se
 interpreta como nombre de app -- se abre como consulta en el navegador
 (brave-origin) contra un asistente de IA en vez de listar resultados.
 
+Extras: al final de la lista (sin búsqueda) un botón abre la página
+"Extras" con los extras opcionales de install.sh (los mismos de
+`ff-extras`, ver launcher_extras.py) para marcarlos e instalarlos.
+
 Modo comando: si el texto empieza con "/", tampoco se interpreta como
 nombre de app -- Enter lo ejecuta tal cual en la shell del usuario
 (ej. "/shutdown" apaga la PC), sin listar resultados.
@@ -42,6 +46,7 @@ from i18n import t
 
 sys.path.insert(0, os.path.join(SCRIPT_DIR, "..", "menu"))
 import desktop_apps
+import launcher_extras
 import launcher_store
 
 LOCK = "/tmp/app-launcher.pid"
@@ -147,10 +152,12 @@ class AppLauncher:
         self.scroller.add(self.apps_container)
 
         self.editor_box = self._build_category_editor()
+        self.extras_box = self._build_extras_page()
 
         self.stack = Gtk.Stack()
         self.stack.add_named(self.scroller, "apps")
         self.stack.add_named(self.editor_box, "editor")
+        self.stack.add_named(self.extras_box, "extras")
         container.pack_start(self.stack, True, True, 0)
 
         self._render_apps()
@@ -317,6 +324,121 @@ class AppLauncher:
             self._render_apps()  # categorías/asignaciones pudieron cambiar
         self.stack.set_visible_child_name("editor" if show else "apps")
 
+    # ---- Extras (install.sh) --------------------------------------------
+
+    def _make_extras_button(self):
+        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        box.pack_start(Gtk.Image.new_from_icon_name("list-add-symbolic", Gtk.IconSize.BUTTON), False, False, 0)
+        box.pack_start(Gtk.Label(label=t("launcher", "extras")), False, False, 0)
+        button = Gtk.Button()
+        button.add(box)
+        button.set_tooltip_text(t("launcher", "extras_tooltip"))
+        button.get_style_context().add_class("launcher-extras-btn")
+        button.connect("clicked", lambda _b: self._show_extras())
+        return button
+
+    def _build_extras_page(self):
+        page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        page.set_name("launcher-extras")
+
+        header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        back = Gtk.Button(label="‹")
+        back.get_style_context().add_class("launcher-extras-back")
+        back.set_tooltip_text(t("launcher", "volver"))
+        back.connect("clicked", lambda _b: self.stack.set_visible_child_name("apps"))
+        title = Gtk.Label(label=t("launcher", "extras"))
+        title.get_style_context().add_class("launcher-extras-title")
+        header.pack_start(back, False, False, 0)
+        header.pack_start(title, False, False, 0)
+        page.pack_start(header, False, False, 0)
+
+        self.extras_list = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        scroller = Gtk.ScrolledWindow()
+        scroller.set_name("launcher-scroller")
+        scroller.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        scroller.set_min_content_height(470)
+        scroller.set_max_content_height(470)
+        scroller.add(self.extras_list)
+        page.pack_start(scroller, True, True, 0)
+
+        self.extras_install_btn = Gtk.Button()
+        self.extras_install_btn.get_style_context().add_class("launcher-extras-install")
+        self.extras_install_btn.set_halign(Gtk.Align.END)
+        self.extras_install_btn.connect("clicked", self._on_install_extras)
+        page.pack_start(self.extras_install_btn, False, False, 0)
+        self.extras_checks = {}
+        self._update_install_button()
+        return page
+
+    def _show_extras(self):
+        self.stack.set_visible_child_name("extras")
+
+        def worker():
+            extras = launcher_extras.load()
+            GLib.idle_add(self._fill_extras, extras)
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _fill_extras(self, extras):
+        for child in self.extras_list.get_children():
+            self.extras_list.remove(child)
+        self.extras_checks = {}
+        section = None
+        for extra in extras:
+            if extra["section"] != section:
+                section = extra["section"]
+                label = Gtk.Label(label=section)
+                label.set_halign(Gtk.Align.START)
+                label.get_style_context().add_class("launcher-section-title")
+                self.extras_list.pack_start(label, False, False, 0)
+            self.extras_list.pack_start(self._make_extra_row(extra), False, False, 0)
+        if not extras:
+            empty = Gtk.Label(label=t("launcher", "extras_sin_lista"))
+            empty.get_style_context().add_class("launcher-empty")
+            self.extras_list.pack_start(empty, False, False, 0)
+        self.extras_list.show_all()
+        self._update_install_button()
+        return False
+
+    def _make_extra_row(self, extra):
+        text = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        name = Gtk.Label(label=extra["name"])
+        name.set_halign(Gtk.Align.START)
+        name.get_style_context().add_class("launcher-extra-name")
+        desc = Gtk.Label(label=t("launcher", "extra_instalado") if extra["installed"] else extra["desc"])
+        desc.set_halign(Gtk.Align.START)
+        desc.set_xalign(0)
+        desc.set_line_wrap(True)
+        desc.set_max_width_chars(52)
+        desc.get_style_context().add_class("launcher-extra-desc")
+        text.pack_start(name, False, False, 0)
+        text.pack_start(desc, False, False, 0)
+
+        check = Gtk.CheckButton()
+        check.add(text)
+        check.get_style_context().add_class("launcher-extra-row")
+        if extra["installed"]:
+            check.set_active(True)
+            check.set_sensitive(False)
+        else:
+            check.set_active(extra["default"])
+            self.extras_checks[extra["id"]] = check
+            check.connect("toggled", lambda _c: self._update_install_button())
+        return check
+
+    def _selected_extras(self):
+        return [extra_id for extra_id, check in self.extras_checks.items() if check.get_active()]
+
+    def _update_install_button(self):
+        count = len(self._selected_extras())
+        self.extras_install_btn.set_label(t("launcher", "extras_instalar", count=count))
+        self.extras_install_btn.set_sensitive(count > 0)
+
+    def _on_install_extras(self, _button):
+        ids = self._selected_extras()
+        if ids:
+            launcher_extras.install(ids)
+            self.window.destroy()
+
     # ---- Listado principal ----------------------------------------------
 
     def _grouped_alphabetically(self):
@@ -447,6 +569,8 @@ class AppLauncher:
             columns_row.pack_start(column_box, True, True, 0)
 
         self.apps_container.pack_start(columns_row, True, True, 0)
+        if not query:
+            self.apps_container.pack_start(self._make_extras_button(), False, False, 0)
         self.apps_container.show_all()
         self._selected_index = 0
         self._update_selection_highlight()
@@ -661,6 +785,8 @@ class AppLauncher:
     # ---- Búsqueda ---------------------------------------------------------
 
     def _on_search_changed(self, entry):
+        if self.stack.get_visible_child_name() == "extras":
+            self.stack.set_visible_child_name("apps")
         if self.top_row is not None:
             self.top_row.set_visible(not entry.get_text().strip())
         self._render_apps()
@@ -730,7 +856,9 @@ class AppLauncher:
     # ---- Teclado / cierre -----------------------------------------------
 
     def _on_key(self, _widget, event):
-        if event.keyval == Gdk.KEY_Escape:
+        if event.keyval == Gdk.KEY_Escape and self.stack.get_visible_child_name() == "extras":
+            self.stack.set_visible_child_name("apps")
+        elif event.keyval == Gdk.KEY_Escape:
             self.window.destroy()
         elif event.keyval in (Gdk.KEY_Down,):
             self._move_selection(1)

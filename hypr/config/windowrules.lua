@@ -124,6 +124,10 @@ for _, m in ipairs(modalMatches)
 do hl.window_rule({ match = m, float = true }) 
 end
 
+-- Instalación de extras desde el launcher (launcher_extras.py): Kitty
+-- flotante y centrado con la barra de install.sh.
+hl.window_rule({ match = { class = "^(flipfrog-extras)$" }, float = true, center = true, size = "900 560" })
+
 -- flipfrog/scripts/theme/theme_gallery.py (SUPER+SHIFT+T) -- ventana
 -- normal en su workspace "🎨": sin blur aunque el tema lo tenga prendido,
 -- sin borde de color ni sombra (decorate = false).
