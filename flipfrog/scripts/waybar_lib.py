@@ -1,7 +1,10 @@
 import gi
 gi.require_version("Gtk", "3.0")
 gi.require_version("GtkLayerShell", "0.1")
-from gi.repository import Gtk, Gdk, GtkLayerShell, Pango, Gio, GdkPixbuf, GLib
+from gi.repository import Gtk, Gdk, GtkLayerShell, Pango, Gio, GdkPixbuf, GLib, GLibUnix
+import cairo
+import json
+import math
 import sys
 import os
 import signal
@@ -260,7 +263,134 @@ def build_layer_window(namespace, css_file):
     anchor.add(content_box)
 
     window.add(background)
+    if _animations_enabled():
+        _PopupAnimation(window, anchor)
     return window, content_box
+
+
+LOOK_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "themer", "hypr-look.json")
+ANIM_MS = 400
+ANIM_RISE = 60
+ANIM_MIN_SCALE = 0.6
+ANIM_TILT = 0.4
+ANIM_FLATTEN = 0.3
+
+
+def _animations_enabled():
+    """Mismo switch "Animaciones" de Personalización que Hyprland."""
+    try:
+        with open(LOOK_FILE) as f:
+            return json.load(f).get("animations", True) is not False
+    except (OSError, ValueError):
+        return True
+
+
+class _PopupAnimation:
+    """Entrada y salida estilo Star Wars: el panel aparece subiendo desde
+    abajo mientras crece, y se va hacia arriba encogiéndose, inclinado
+    hacia atrás (borde de arriba más angosto). GTK3 no tiene transform en
+    CSS: cada cuadro se dibuja el panel en una superficie aparte y se pinta
+    deformado, franja por franja. Reemplaza window.destroy (y SIGTERM, el
+    cierre de kill_existing/kill_group) para animar antes de cerrar."""
+
+    def __init__(self, window, panel):
+        self.window = window
+        self.panel = panel
+        self.progress = 0.0
+        self.closing = False
+        self.running = True
+        self.last_time = None
+
+        window.connect("draw", self._on_draw)
+        window.add_tick_callback(self._on_tick)
+        window.destroy = self.close
+        GLibUnix.signal_add(GLib.PRIORITY_DEFAULT, signal.SIGTERM, self._on_sigterm)
+
+    def _on_sigterm(self):
+        self.close()
+        return GLib.SOURCE_REMOVE
+
+    def close(self):
+        if self.closing:
+            return
+        self.closing = True
+        self.last_time = None
+        if not self.window.get_mapped():
+            Gtk.Window.destroy(self.window)
+            return
+        if not self.running:
+            self.running = True
+            self.window.add_tick_callback(self._on_tick)
+
+    def _panel_rect(self):
+        coords = self.panel.translate_coordinates(self.window, 0, 0)
+        width, height = self.panel.get_allocated_width(), self.panel.get_allocated_height()
+        if coords is None or width <= 1 or height <= 1:
+            return None
+        return coords[0], coords[1], width, height
+
+    def _on_tick(self, _widget, clock):
+        rect = self._panel_rect()
+        if rect is None:
+            return GLib.SOURCE_CONTINUE
+        now = clock.get_frame_time()
+        if self.last_time is not None:
+            step = (now - self.last_time) / 1000 / ANIM_MS
+            self.progress += -step if self.closing else step
+        self.last_time = now
+        self.progress = max(0.0, min(1.0, self.progress))
+
+        x, y, width, height = rect
+        self.window.queue_draw_area(x, y - ANIM_RISE, width, height + 2 * ANIM_RISE)
+        if self.closing and self.progress <= 0:
+            Gtk.Window.destroy(self.window)
+            return GLib.SOURCE_REMOVE
+        if not self.closing and self.progress >= 1:
+            self.running = False
+            return GLib.SOURCE_REMOVE
+        return GLib.SOURCE_CONTINUE
+
+    def _on_draw(self, widget, cr):
+        if not self.running:
+            return False
+        cr.set_operator(cairo.OPERATOR_CLEAR)
+        cr.paint()
+        cr.set_operator(cairo.OPERATOR_OVER)
+        rect = self._panel_rect()
+        if rect is None or self.progress <= 0:
+            return True
+
+        x, y, width, height = rect
+        scale = widget.get_scale_factor()
+        snapshot = cairo.ImageSurface(cairo.FORMAT_ARGB32, width * scale, height * scale)
+        snapshot.set_device_scale(scale, scale)
+        self.panel.draw(cairo.Context(snapshot))
+
+        eased = 1 - (1 - self.progress) ** 3
+        rest = 1 - eased
+        size = ANIM_MIN_SCALE + (1 - ANIM_MIN_SCALE) * eased
+        out_height = height * size * (1 - ANIM_FLATTEN * rest)
+        shift = ANIM_RISE * rest * (-1 if self.closing else 1)
+        top = y + (height - out_height) / 2 + shift
+        center = x + width / 2
+        window_width = widget.get_allocated_width()
+
+        band = 1 / scale
+        rows = math.ceil(out_height / band)
+        for i in range(rows):
+            t = i / rows
+            row_scale = size * (1 - ANIM_TILT * rest * (1 - t))
+            cr.save()
+            cr.rectangle(0, top + i * band, window_width, band)
+            cr.clip()
+            cr.translate(center, top + i * band)
+            cr.scale(row_scale, out_height / height)
+            cr.translate(-width / 2, -t * height)
+            cr.set_source_surface(snapshot, 0, 0)
+            cr.get_source().set_filter(cairo.FILTER_BILINEAR)
+            cr.paint_with_alpha(eased)
+            cr.restore()
+        return True
 
 
 # Ícono de la barra que abrió este popup, "mx,my,cx,bottom": origen del
