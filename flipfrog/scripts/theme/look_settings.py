@@ -36,6 +36,7 @@ CURSOR_DIRS = (
     os.path.expanduser("~/.icons"),
     "/usr/share/icons",
 )
+DEFAULT_CURSOR_INDEX = os.path.expanduser("~/.icons/default/index.theme")
 GTK_SETTINGS_FILES = (
     os.path.expanduser("~/.config/gtk-3.0/settings.ini"),
     os.path.expanduser("~/.config/gtk-4.0/settings.ini"),
@@ -125,11 +126,19 @@ def _write_gtk_ini(theme, size):
         os.replace(tmp, path)
 
 
+def _write_default_cursor(theme):
+    """Tema "default" de Xcursor: lo usan las apps que no leen
+    XCURSOR_THEME (XWayland). nwg-look lo dejó sin Inherits."""
+    common.atomic_write(DEFAULT_CURSOR_INDEX,
+                        f"[Icon Theme]\nName=Default\nComment=Default Cursor Theme\nInherits={theme}\n")
+
+
 def apply_cursor(theme, size):
     """gsettings (apps GTK en vivo) + settings.ini (respaldo) + `hyprctl
     setcursor` (compositor, sesión en curso) + JSON (environment.lua lo
     exporta como XCURSOR_* en el próximo inicio de sesión)."""
     save(cursor_theme=theme, cursor_size=size)
+    _write_default_cursor(theme)
     _gsettings_set("cursor-theme", theme)
     _gsettings_set("cursor-size", size)
     _write_gtk_ini(theme, size)
@@ -138,3 +147,16 @@ def apply_cursor(theme, size):
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=TIMEOUT)
     except (OSError, subprocess.TimeoutExpired):
         pass
+
+
+def restore_cursor():
+    """Al iniciar sesión (autostart.lua): XCURSOR_* de environment.lua no
+    cambia el cursor del propio compositor, que arrancaba con el de
+    fábrica."""
+    data = load()
+    apply_cursor(data["cursor_theme"], data["cursor_size"])
+
+
+if __name__ == "__main__":
+    if sys.argv[1:] == ["restore"]:
+        restore_cursor()

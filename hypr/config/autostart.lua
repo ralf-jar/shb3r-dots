@@ -25,6 +25,8 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("python3 " .. home .. "/.config/flipfrog/themer/wallpaper.py restore")
     -- Tareas periódicas como timers transitorios de systemd --user: entre
     -- corridas no queda ningún proceso vivo (systemctl --user list-timers).
+    -- name: Restaurar cursor
+    hl.exec_cmd("python3 " .. home .. "/.config/flipfrog/scripts/theme/look_settings.py restore")
     -- name: Rotación de temas
     hl.exec_cmd("python3 " .. home .. "/.config/flipfrog/scripts/theme/theme-rotator.py")
     -- name: Sincronizar íconos de Steam
