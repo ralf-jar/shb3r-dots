@@ -14,7 +14,7 @@ from gi.repository import Gtk, Gdk, GLib
 import os
 import sys
 
-from waybar_lib import kill_group, kill_existing, build_layer_window, position_fixed_top, load_module_css
+from waybar_lib import kill_group, kill_existing, build_layer_window, position_fixed_top, load_module_css, after_open_animation
 from common import set_process_name
 from i18n import t
 
@@ -262,9 +262,10 @@ class DashboardPopup:
             notebook.set_current_page(initial_index)
 
         # Precarga en segundo plano de las pestañas lazy, una por ciclo de
-        # idle (no todas de una) para no congelar la ventana.
+        # idle (no todas de una) para no congelar la ventana; recién al
+        # terminar la animación de entrada.
         self._preload_queue = [page for page, _ in tabs[1:]]
-        GLib.idle_add(self._preload_next_tab)
+        after_open_animation(self.window, self._preload_next_tab)
 
     def _build_tab_header(self, notebook, titles, active_index=0):
         """Cápsula segmentada propia (Gtk.ToggleButton por pestaña).
