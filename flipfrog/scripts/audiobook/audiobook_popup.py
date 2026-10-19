@@ -21,7 +21,7 @@ from gi.repository import Gtk, Gdk, GdkPixbuf, GLib, Pango
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.dirname(SCRIPT_DIR))
-from waybar_lib import kill_group, kill_existing, build_layer_window, position_fixed_top
+from waybar_lib import kill_group, kill_existing, build_layer_window, position_fixed_top, after_open_animation
 from common import theme_color_rgba
 from i18n import t
 import audiobook_ipc
@@ -709,7 +709,11 @@ class AudiobookPopup:
         self.book_title_label.set_text(book["title"])
         self.book_title_label.set_tooltip_text(book["title"])
         self.seekbar.set_book(book["duration"], book["chapters"])
-        self._fill_text(book)
+        self.textview.get_buffer().set_text("")
+        self.s_times, self.s_offsets = [], []
+        # El libro entero en el TextView bloquea la ventana: después de la
+        # animación de entrada.
+        after_open_animation(self.window, lambda: self.book is book and self._fill_text(book))
         self._fill_chapters(book)
         self.current_sentence = self.current_chapter = -1
         self.bookmarks_sig = None
