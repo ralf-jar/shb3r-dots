@@ -24,7 +24,7 @@ from gi.repository import Gtk, Gdk, GdkPixbuf, GLib, Pango
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.dirname(SCRIPT_DIR))
-from waybar_lib import kill_group, kill_existing, build_layer_window, load_module_css
+from waybar_lib import kill_group, kill_existing, build_layer_window, load_module_css, position_at_bar
 from i18n import t
 import dnd_state
 
@@ -146,11 +146,12 @@ class NotificationHistory:
     def __init__(self):
         self.window, container = build_layer_window("notification-history", CSS_FILE)
         container.set_name("nh-container")
-        anchor = container.get_parent()
-        anchor.set_halign(Gtk.Align.END)
-        anchor.set_valign(Gtk.Align.START)
-        anchor.set_margin_top(60)
-        anchor.set_margin_end(25)
+        if not position_at_bar(container):
+            anchor = container.get_parent()
+            anchor.set_halign(Gtk.Align.END)
+            anchor.set_valign(Gtk.Align.START)
+            anchor.set_margin_top(60)
+            anchor.set_margin_end(25)
 
         self.signature = None
         self._poll_in_flight = False

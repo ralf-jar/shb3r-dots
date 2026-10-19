@@ -263,10 +263,64 @@ def build_layer_window(namespace, css_file):
     return window, content_box
 
 
+# Ícono de la barra que abrió este popup, "mx,my,cx,bottom": origen del
+# monitor, centro del ícono y borde inferior de la barra, relativos al
+# monitor. Se quita del entorno para que los popups que abra este no lo hereden.
+BAR_ANCHOR_ENV = "FF_BAR_ANCHOR"
+_BAR_ANCHOR = os.environ.pop(BAR_ANCHOR_ENV, None)
+BAR_GAP = 6
+SCREEN_EDGE = 8
+
+
+def _bar_anchor():
+    try:
+        mx, my, cx, bottom = (int(v) for v in _BAR_ANCHOR.split(","))
+    except (AttributeError, ValueError):
+        return None
+    display = Gdk.Display.get_default()
+    for i in range(display.get_n_monitors()):
+        monitor = display.get_monitor(i)
+        geo = monitor.get_geometry()
+        if (geo.x, geo.y) == (mx, my):
+            return monitor, cx, bottom
+    return None
+
+
+def position_at_bar(container):
+    """Ubica `container` justo debajo del ícono de la barra que lo abrió,
+    centrado en él y sin salirse del monitor. False si no lo abrió la
+    barra (atajo, .desktop, otro popup)."""
+    found = _bar_anchor()
+    if found is None:
+        return False
+    monitor, cx, bottom = found
+    geo = monitor.get_geometry()
+    window = container.get_toplevel()
+    GtkLayerShell.set_monitor(window, monitor)
+
+    anchor = container.get_parent()
+    anchor.set_halign(Gtk.Align.START)
+    anchor.set_valign(Gtk.Align.START)
+
+    def on_allocate(_widget, alloc):
+        # La superficie empieza debajo de la zona exclusiva de la barra.
+        top_offset = geo.height - window.get_allocated_height()
+        x = max(SCREEN_EDGE, min(cx - alloc.width // 2, geo.width - alloc.width - SCREEN_EDGE))
+        y = max(SCREEN_EDGE, bottom + BAR_GAP - top_offset)
+        if (anchor.get_margin_start(), anchor.get_margin_top()) != (x, y):
+            anchor.set_margin_start(x)
+            anchor.set_margin_top(y)
+
+    anchor.connect("size-allocate", on_allocate)
+    return True
+
+
 def position_near_cursor(container, top_offset=10):
     """Ubica `container` centrado horizontalmente y cerca de la altura del
     cursor: arriba si el cursor está en la mitad superior de la pantalla,
     abajo si está en la inferior."""
+    if position_at_bar(container):
+        return
     anchor = container.get_parent()
     display = Gdk.Display.get_default()
     seat = display.get_default_seat()
@@ -288,6 +342,8 @@ def position_near_cursor(container, top_offset=10):
 def position_fixed_top(container, margin=60):
     """Ubica `container` centrado horizontalmente, a `margin` px del borde
     superior (para popups que no dependen de la posición del cursor)."""
+    if position_at_bar(container):
+        return
     anchor = container.get_parent()
     anchor.set_halign(Gtk.Align.CENTER)
     anchor.set_valign(Gtk.Align.START)

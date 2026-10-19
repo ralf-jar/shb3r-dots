@@ -59,7 +59,7 @@ flipfrog/scripts/
 ## `waybar_lib.py`
 - `build_layer_window(namespace, css_file)` → `(window, content_box)` -- popup standalone (proceso propio, ventana + CSS juntos).
 - `load_module_css(css_path)` -- suma un `Gtk.CssProvider` a la pantalla default sin abrir ventana, para módulos embebidos con su propio `.css` hermano. Idempotente por ruta.
-- `position_near_cursor(container, top_offset=10)` / `position_fixed_top(container, margin=60)` -- popups lanzados desde un módulo de la barra vs. desde atajo de teclado.
+- `position_near_cursor(container, top_offset=10)` / `position_fixed_top(container, margin=60)` -- ambos llaman primero `position_at_bar()`: si el popup lo abrió un clic en la barra, `bar_modules.run()` le pasa `FF_BAR_ANCHOR=mx,my,cx,bottom` (origen del monitor, centro del ícono, borde inferior de la barra) y abre justo debajo del ícono, en ese monitor, sin salirse de la pantalla (2026-10-19, pedido explícito del usuario). La variable se quita del entorno al importar `waybar_lib`, los popups que abra ese popup no la heredan. Sin ella (atajo, `.desktop`), el comportamiento de antes. La superficie empieza debajo de la zona exclusiva de la barra: el desfase se calcula como alto del monitor − alto de la ventana (supone zonas exclusivas solo arriba).
 - `kill_existing(LOCK)` / `kill_group(LOCK)` + `GROUP_LOCKS` -- toggle (click repetido cierra) + exclusión mutua entre popups. Locks en `/tmp/<nombre>.pid`.
 - `svg_icon_image` / `_icon_text_button` -- ícono recoloreado en memoria y botón ícono+texto con hover, compartidos por las pestañas/popups del dashboard.
 

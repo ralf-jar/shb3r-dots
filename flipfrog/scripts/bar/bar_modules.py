@@ -9,7 +9,7 @@ import sys
 import threading
 import warnings
 
-from gi.repository import Gdk, GdkPixbuf, GLib, Gtk, Pango
+from gi.repository import Gdk, GdkPixbuf, GLib, Gtk, GtkLayerShell, Pango
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 SCRIPTS_DIR = os.path.normpath(os.path.join(SCRIPT_DIR, ".."))
@@ -46,9 +46,33 @@ def _py(rel, *args):
     return ["python3", os.path.join(SCRIPTS_DIR, rel), *args]
 
 
+# Ícono clicado mientras corre su acción: run() se lo pasa al popup
+# (waybar_lib.position_at_bar) para que abra justo debajo.
+_clicked = [None]
+
+
+def _bar_anchor(widget):
+    window = widget.get_toplevel()
+    gdk_window = window.get_window()
+    coords = widget.translate_coordinates(window, 0, 0)
+    if gdk_window is None or coords is None:
+        return None
+    monitor = window.get_display().get_monitor_at_window(gdk_window)
+    geo = monitor.get_geometry()
+    left = GtkLayerShell.get_margin(window, GtkLayerShell.Edge.LEFT)
+    top = GtkLayerShell.get_margin(window, GtkLayerShell.Edge.TOP)
+    cx = left + coords[0] + widget.get_allocated_width() // 2
+    bottom = top + window.get_allocated_height()
+    return f"{geo.x},{geo.y},{cx},{bottom}"
+
+
 def run(cmd):
+    env = None
+    anchor = _bar_anchor(_clicked[0]) if _clicked[0] is not None else None
+    if anchor:
+        env = dict(os.environ, FF_BAR_ANCHOR=anchor)
     try:
-        subprocess.Popen(cmd, start_new_session=True,
+        subprocess.Popen(cmd, start_new_session=True, env=env,
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except OSError:
         pass
@@ -69,7 +93,11 @@ def clickable(child, actions, scroll=None):
         fn = actions.get(event.button)
         if fn is None:
             return False
-        fn()
+        _clicked[0] = box
+        try:
+            fn()
+        finally:
+            _clicked[0] = None
         return True
 
     def on_scroll(_w, event):
