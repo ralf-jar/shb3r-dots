@@ -130,6 +130,15 @@ for _, spec in ipairs(MONITORS) do
     end
 end
 
+-- Cursor al iniciar sesión en el monitor principal (sin esto Hyprland
+-- lo pone en el monitor que enumera primero, el secundario).
+for _, spec in ipairs(MONITORS) do
+    if not spec.mirror_of and not spec.disabled then
+        hl.config({ cursor = { default_monitor = spec.output } })
+        break
+    end
+end
+
 -- Touch: mapeo guardado en touch-config.lua (generado junto con
 -- monitor-config.lua por monitor_module.py, save_touch() en
 -- monitor_config.py -- tab "Monitores", fila con ícono/droplist por
