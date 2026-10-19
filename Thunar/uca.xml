@@ -183,4 +183,52 @@
 	<patterns>*.AppImage;*.appimage</patterns>
 	<other-files/>
 </action>
+<action>
+	<icon>package-x-generic</icon>
+	<name>Comprimir a .rar</name>
+	<submenu>Comprimir</submenu>
+	<unique-id>1790000000000013-1</unique-id>
+	<command>bash &quot;$HOME/.config/Thunar/scripts/compress.sh&quot; rar %F</command>
+	<description>Guarda &lt;nombre&gt;.rar junto al original</description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<directories/>
+	<audio-files/>
+	<image-files/>
+	<other-files/>
+	<text-files/>
+	<video-files/>
+</action>
+<action>
+	<icon>package-x-generic</icon>
+	<name>Comprimir a .zip</name>
+	<submenu>Comprimir</submenu>
+	<unique-id>1790000000000014-1</unique-id>
+	<command>bash &quot;$HOME/.config/Thunar/scripts/compress.sh&quot; zip %F</command>
+	<description>Guarda &lt;nombre&gt;.zip junto al original</description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<directories/>
+	<audio-files/>
+	<image-files/>
+	<other-files/>
+	<text-files/>
+	<video-files/>
+</action>
+<action>
+	<icon>package-x-generic</icon>
+	<name>Comprimir a .tar.gz</name>
+	<submenu>Comprimir</submenu>
+	<unique-id>1790000000000015-1</unique-id>
+	<command>bash &quot;$HOME/.config/Thunar/scripts/compress.sh&quot; tar %F</command>
+	<description>Guarda &lt;nombre&gt;.tar.gz junto al original</description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<directories/>
+	<audio-files/>
+	<image-files/>
+	<other-files/>
+	<text-files/>
+	<video-files/>
+</action>
 </actions>
