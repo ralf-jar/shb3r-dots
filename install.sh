@@ -498,7 +498,7 @@ fi
 
 # realesrgan: acción "Escalar imagen con IA" de Thunar (Thunar/uca.xml).
 stage $W_AUR "Instalando cursor y escalado de imágenes (AUR)"
-APPS_AUR=(bibata-cursor-theme-bin realesrgan-ncnn-vulkan-bin proton-cli-bin)
+APPS_AUR=(bibata-cursor-theme-bin realesrgan-ncnn-vulkan-bin)
 run paru -S --needed --noconfirm --skipreview "${APPS_AUR[@]}" \
     || warn "Falló algo de AUR (${APPS_AUR[*]}) -- reinténtalo con: paru -S ${APPS_AUR[*]}"
 
