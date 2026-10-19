@@ -179,7 +179,7 @@ entry {
 .launcher-extras-btn {
     background: alpha(@myforeground, 0.06);
     border: none;
-    border-radius: 4px;
+    border-radius: 25px;
     box-shadow: none;
     color: @myforeground;
     font-size: 15px;
@@ -200,7 +200,7 @@ entry {
 .launcher-extras-install {
     background: alpha(@myforeground, 0.06);
     border: none;
-    border-radius: 4px;
+    border-radius: 25px;
     box-shadow: none;
     color: @myforeground;
 }
@@ -238,7 +238,7 @@ entry {
 /* Fila de un extra: casilla + nombre + descripción (o "Ya instalado"). */
 .launcher-extra-row {
     padding: 4px 6px;
-    border-radius: 4px;
+    border-radius: 25px;
 }
 
 .launcher-extra-row:hover {
