@@ -173,3 +173,88 @@ entry {
 .launcher-editor-back-btn {
     margin-top: 10px;
 }
+
+/* Botón "Extras" al final de la lista (sin búsqueda), abre la página
+   "extras" del Gtk.Stack. */
+.launcher-extras-btn {
+    background: alpha(@myforeground, 0.06);
+    border: none;
+    border-radius: 4px;
+    box-shadow: none;
+    color: @myforeground;
+    font-size: 15px;
+    margin: 18px 0px 6px 0px;
+    padding: 10px;
+}
+
+.launcher-extras-btn:hover {
+    background: @mybackgroundhover;
+    color: @myforegroundhover;
+}
+
+.launcher-extras-btn label {
+    font-size: 15px;
+}
+
+.launcher-extras-back,
+.launcher-extras-install {
+    background: alpha(@myforeground, 0.06);
+    border: none;
+    border-radius: 4px;
+    box-shadow: none;
+    color: @myforeground;
+}
+
+.launcher-extras-back label {
+    font-size: 20px;
+}
+
+.launcher-extras-back:hover,
+.launcher-extras-install:hover {
+    color: @myforegroundhover;
+}
+
+.launcher-extras-install {
+    padding: 6px 16px;
+}
+
+.launcher-extras-install:disabled {
+    opacity: 0.3;
+}
+
+.launcher-extras-back:focus,
+.launcher-extras-install:focus,
+.launcher-extras-btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.launcher-extras-title {
+    color: @myforegroundhover;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Fila de un extra: casilla + nombre + descripción (o "Ya instalado"). */
+.launcher-extra-row {
+    padding: 4px 6px;
+    border-radius: 4px;
+}
+
+.launcher-extra-row:hover {
+    background: @mybackgroundhover;
+}
+
+.launcher-extra-name {
+    color: @myforeground;
+    font-size: 15px;
+}
+
+.launcher-extra-desc {
+    color: alpha(@myforeground, 0.6);
+    font-size: 12px;
+}
+
+.launcher-extra-row:disabled .launcher-extra-name {
+    opacity: 0.5;
+}
