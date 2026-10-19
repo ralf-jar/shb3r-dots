@@ -471,3 +471,10 @@ hl.layer_rule({
     xray = false,
     ignore_alpha = 0.02
 })
+-- Popups de build_layer_window: la entrada/salida la anima el propio popup
+-- (waybar_lib._PopupAnimation); la de Hyprland escalaría la superficie
+-- entera, que es pantalla completa.
+hl.layer_rule({
+    match = { namespace = "^(dashboard|calendar|calendar-sync|volume-mixer|volume-simple|sink-selector|brightness|cursor-picker|icon-picker|theme-editor|google-fonts|firewall-popup|firewall-log|keybinds-popup|download-popup|alarms|bandcamp-radio|disk-usage|services-popup|app-launcher|audiobook-popup|vpn-config|notification-history)$" },
+    no_anim = true
+})
