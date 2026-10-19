@@ -556,14 +556,14 @@
         "MusicRichPresence": {
             "enabled": false
         },
-        "TenorGifSearch": {
-            "enabled": false
-        },
         "ContextMenuAPI": {
             "enabled": true
         },
         "NoticesAPI": {
             "enabled": true
+        },
+        "GifProviderSwitcher": {
+            "enabled": false
         }
     },
     "uiElements": {
@@ -580,6 +580,7 @@
         "authenticated": false,
         "url": "https://api.vencord.dev/",
         "settingsSync": false,
-        "settingsSyncVersion": 1787105510783
-    }
+        "settingsSyncVersion": 1791849407361
+    },
+    "nativeTitleBar": false
 }
