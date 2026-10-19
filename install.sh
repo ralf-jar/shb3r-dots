@@ -496,9 +496,9 @@ if [[ ${#APPS_PACMAN[@]} -gt 0 ]]; then
         || warn "Falló la instalación de ${APPS_PACMAN[*]} -- reinténtalo con: sudo pacman -S ${APPS_PACMAN[*]}"
 fi
 
-# realesrgan: acción "Escalar imagen con IA" de Thunar (Thunar/uca.xml).
-stage $W_AUR "Instalando cursor y escalado de imágenes (AUR)"
-APPS_AUR=(bibata-cursor-theme-bin realesrgan-ncnn-vulkan-bin)
+# realesrgan / rar: acciones "Escalar imagen con IA" y "Comprimir a .rar" de Thunar (Thunar/uca.xml).
+stage $W_AUR "Instalando cursor y herramientas de Thunar (AUR)"
+APPS_AUR=(bibata-cursor-theme-bin realesrgan-ncnn-vulkan-bin rar)
 run paru -S --needed --noconfirm --skipreview "${APPS_AUR[@]}" \
     || warn "Falló algo de AUR (${APPS_AUR[*]}) -- reinténtalo con: paru -S ${APPS_AUR[*]}"
 

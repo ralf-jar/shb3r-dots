@@ -862,8 +862,15 @@ class AppLauncher:
             self.window.destroy()
         elif event.keyval in (Gdk.KEY_Down,):
             self._move_selection(1)
+            return True
         elif event.keyval in (Gdk.KEY_Up,):
             self._move_selection(-1)
+            return True
+        elif (event.keyval in (Gdk.KEY_Return, Gdk.KEY_KP_Enter)
+              and self.stack.get_visible_child_name() == "apps"):
+            self._on_search_activate(self.search)
+            return True
+        return False
 
     def _on_search_key(self, _widget, event):
         # Left/Right acá (no en _on_key/ventana): Gtk.Entry SÍ bindea

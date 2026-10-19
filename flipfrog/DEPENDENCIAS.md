@@ -50,6 +50,7 @@ Ya vienen por defecto y no se listan: `ffmpeg`, `ffmpegthumbnailer`, `grim`, `uf
 | Poner como fondo de pantalla (`flipfrog/themer/wallpaper.py`) | `awww` (imágenes y gif), `mpvpaper` (videos) |
 | Escalar imagen con IA (`Thunar/scripts/upscale-image.sh`) | `realesrgan-ncnn-vulkan-bin` (AUR, trae el modelo `realesrgan-x4plus`), `imagemagick` (entrada/EXIF y reducir x4 a x2) |
 | Instalar AppImage (`Thunar/scripts/install-appimage.sh`) | `fuse2` (para ejecutarlas; extraer el ícono no lo necesita) |
+| Comprimir a .rar / .zip / .tar.gz (`Thunar/scripts/compress.sh`) | `rar` (AUR, solo .rar); .zip con `bsdtar` y .tar.gz con `tar`, que ya vienen |
 
 ## Apps de la instalación (no son dependencias de ningún popup)
 
