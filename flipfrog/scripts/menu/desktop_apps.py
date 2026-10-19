@@ -26,6 +26,7 @@ sobre XDG_DATA_DIRS pisa a la de sistema sin duplicar el menú.
 import configparser
 import json
 import os
+import shlex
 import re
 import shutil
 import sys
@@ -68,13 +69,59 @@ def _parse_desktop_entry(path):
     return entry
 
 
+def _exec_missing(entry):
+    """True si el programa de Exec= ya no existe. Lanzadores genéricos
+    (bash, env, flatpak...) cuentan como existentes: no dicen nada de la
+    app en sí."""
+    try:
+        argv = [a for a in shlex.split(entry.get("Exec", "")) if not a.startswith("%")]
+    except ValueError:
+        return False
+    while argv and (argv[0] == "env" or "=" in argv[0]):
+        argv.pop(0)
+    if not argv or os.path.basename(argv[0]) in ("bash", "sh", "fish", "flatpak", "python3", "steam"):
+        return False
+    return shutil.which(argv[0]) is None and not os.path.exists(argv[0])
+
+
+def prune_orphans():
+    """Borra las copias locales de apps desinstaladas por fuera (pacman
+    -R, flatpak...) y su blacklist/nombre/ícono custom: la copia que
+    escribió este editor sobrevive al paquete y la app seguía en el
+    launcher sin abrir nada. Solo cuenta como huérfana si ya no hay
+    .desktop de sistema, no había un override previo (backup: apps que
+    solo existen en local, como las de steam-icons-sync.py o AppImages) y
+    el programa de Exec= tampoco existe."""
+    blacklist = get_blacklist()
+    customs = get_customizations()
+    orphans = []
+    for desktop_id in blacklist | set(customs):
+        local = os.path.join(LOCAL_APPS_DIR, desktop_id)
+        if (not os.path.exists(local) or os.path.exists(os.path.join(BACKUPS_DIR, desktop_id))
+                or any(os.path.exists(os.path.join(base, desktop_id)) for base in APP_DIRS[1:])):
+            continue
+        entry = _parse_desktop_entry(local)
+        if entry is not None and _exec_missing(entry):
+            orphans.append(desktop_id)
+    if not orphans:
+        return
+    for desktop_id in orphans:
+        os.remove(os.path.join(LOCAL_APPS_DIR, desktop_id))
+        blacklist.discard(desktop_id)
+        customs.pop(desktop_id, None)
+    _set_blacklist(blacklist)
+    _set_customizations(customs)
+
+
 def list_all_apps():
     """desktop-file-id -> {"name", "path", "no_display", "icon"}.
     `no_display` refleja el estado ACTUAL en disco (si ya está
     blacklisteada, esto da True porque nosotros mismos le agregamos
     NoDisplay=true -- por eso quien llame a esto necesita blacklist.json
     aparte para saber si ese True es "nativo" o "por la blacklist", ver
-    menu_module.py)."""
+    menu_module.py). Antes limpia las copias de apps ya desinstaladas
+    (prune_orphans)."""
+    prune_orphans()
     apps = {}
     for base in APP_DIRS:
         if not os.path.isdir(base):
