@@ -95,18 +95,6 @@ hl.window_rule({ match = { class = "^(.*\\.exe)$", float = true }, primaryWorksp
 hl.window_rule({ match = { class = "^(.*[Cc]alculator.*)$" }, float = true, size = "380 616" })
 hl.window_rule({ match = { class = "^(org.kde.keditfiletype)$" }, float = true })
 hl.window_rule({ match = { class = "^(org.kde.ark)$" }, size = "(monitor_w*0.40) (monitor_h*0.40)" })
-hl.window_rule({
-    match = {
-        class = "^(org.kde.dolphin)$",
-        title = "Galculator|negative:^(Moviendo.*|Create New.*|Extract.*|Compress.*|Copying.*|Progress.*|Configure.*|Properties.*|Choose\\sApplication.*)$",
-    },
-    float = true,
-    move = {
-        "max(0, min(cursor_x - 650, monitor_w - 1320))",
-        "max(0, min(cursor_y - 50, monitor_h - 820))"
-    },
-    size = "1300 800",
-})
 
 -- Float Utility Windows
 local floatApps = {
