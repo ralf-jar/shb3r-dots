@@ -63,3 +63,15 @@ Quedaron de compilar paquetes del AUR y ningún paquete instalado las requería.
 `piper-tts` 1.8.0-1 (AUR, snapshot post: 504) -- faltaba desde 2026-09-28: un `pacman -S piper` (otro paquete, configurador de mouses gamer, en conflicto) lo quitó y la reinstalación de ese día no llegó a completarse. Trajo de vuelta `python-pathvalidate`, que es dependencia suya. paru instaló y volvió a quitar sus herramientas de compilación (`--removemake`).
 
 `python-onnxruntime-cpu` aparecía como huérfano pero Piper lo necesita (audiolibros, asistente de voz): se marcó como instalado explícitamente (`pacman -D --asexplicit`) para que una limpieza de huérfanos no lo quite.
+
+## 2026-10-19
+
+### Sin uso
+
+| Paquete | Versión | Motivo |
+|---|---|---|
+| `dolphin` | 26.08.2-1.1 | Administrador de archivos de KDE, venía con CachyOS; el repo usa Thunar (`inode/directory` en `mimeapps.list`). Se quitó también su regla de ventana flotante de `windowrules.lua` |
+
+Se fueron con él, porque solo él los usaba: `baloo` 6.31.0-2.1 y `baloo-widgets` 26.08.2-1.1 (indexador de archivos de KDE), `ripgrep-all` 0.10.10-3.1 (`rga`), `poppler-qt6`, `qt6-multimedia`, `qt6-multimedia-ffmpeg`, `qt6-speech`, `kdsoap`, `kdsoap-ws-discovery-client`, `libkexiv2`, `ebook-tools`, `convertlit`, `libtommath`, `media-player-info`, `plasma-activities` y librerías de KDE Frameworks 6.31.0 (`kio`, `kio-extras`, `kparts`, `kxmlgui`, `kcmutils`, `kirigami`, `knewstuff`, `kfilemetadata`, `solid`, `kservice`, `kiconthemes`, `karchive`, `kcodecs`, `sonnet`, `syndication`, `attica`, `kpackage`, `kuserfeedback`, `ktextwidgets`, `syntax-highlighting`, `kdnssd`, `kglobalaccel`, `kconfigwidgets`, `kidletime`, `kitemviews`, `kjobwidgets`, `kcompletion`, `kbookmarks`). 44 paquetes en total.
+
+`breeze-icons` se marcó como instalado explícitamente antes (`pacman -D --asexplicit`): se iba con Dolphin, pero Papirus toma de Breeze los íconos que no trae (`Inherits=breeze-dark` en Papirus-Dark).
