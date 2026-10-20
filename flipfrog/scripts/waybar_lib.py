@@ -280,7 +280,7 @@ def after_open_animation(window, fn):
 
 
 LOOK_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "themer", "hypr-look.json")
-ANIM_MS = 400
+ANIM_MS = 200
 ANIM_RISE = 60
 ANIM_MIN_SCALE = 0.6
 ANIM_TILT = 0.4
