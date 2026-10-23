@@ -195,7 +195,9 @@ class BootPicker(theme_picker.ThemePicker):
         """Id de la notificación (para reemplazarla después) o None."""
         cmd = ["notify-send", "-p", "-i", "system-reboot", self.text("titulo"), message]
         if persistent:
-            cmd[1:1] = ["-t", "0"]
+            # Hasta que la reemplace el resultado; con tope, por si el
+            # selector se cierra a media reconstrucción.
+            cmd[1:1] = ["-t", str(plymouth_themes.APPLY_TIMEOUT * 1000)]
         if replaces:
             cmd[1:1] = ["-r", replaces]
         try:
