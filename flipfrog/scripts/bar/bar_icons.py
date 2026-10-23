@@ -46,8 +46,10 @@ def _gicon_for_class(window_class):
     for candidate in (by_wm_class.get(key), by_id.get(key), by_id.get(key.rsplit(".", 1)[-1])):
         if candidate is not None:
             return candidate
-    if key and Gtk.IconTheme.get_default().has_icon(key):
-        return Gio.ThemedIcon.new(key)
+    theme = Gtk.IconTheme.get_default()
+    for name in (key, key.rsplit(".", 1)[-1]):
+        if name and theme.has_icon(name):
+            return Gio.ThemedIcon.new(name)
     return Gio.ThemedIcon.new(FALLBACK_ICON)
 
 
