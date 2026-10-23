@@ -65,7 +65,7 @@ SEARCH_MODES = [
 MODE_PLACEHOLDERS = {
     "artist": t("bandcamp", "placeholder_artist_name"),
     "wishlist": t("bandcamp", "placeholder_wishlist_user"),
-    "local": t("bandcamp", "placeholder_local"),
+    "local": "",
 }
 DEFAULT_PLACEHOLDER = t("bandcamp", "placeholder_tags")
 # Géneros predefinidos estilo Bandcamp (misma lista/orden que muestra
@@ -295,6 +295,7 @@ SUBGENRES = {
 }
 ART_SIZE = 180
 LOCAL_LIST_MAX_HEIGHT = 240
+LOCAL_FILTER_DELAY_MS = 300
 # corner-radius.json de flipfrog/themer -- sync_radius.py reescribe el
 # border-radius de bandcamp_popup.css, pero no el radio horneado en el
 # pixbuf de las carátulas (_round_corners).
@@ -747,6 +748,8 @@ class Popup:
         self.tag_entry = Gtk.Entry()
         self.tag_entry.set_placeholder_text(DEFAULT_PLACEHOLDER)
         self.tag_entry.connect("activate", self._on_search_clicked)
+        self.tag_entry.connect("changed", self._on_tag_entry_changed)
+        self._local_filter_timer = None
         search_row.pack_start(self.tag_entry, True, True, 0)
 
         # Antes había que escribir "u:usuario"/"b:banda" a mano en
@@ -1420,6 +1423,25 @@ class Popup:
             self.wishlist_row.show_all()
         else:
             self.wishlist_row.hide()
+        if mode == "local":
+            self._schedule_local_filter()
+
+    def _on_tag_entry_changed(self, _entry):
+        if self.slice_combo.get_active_id() == "local":
+            self._schedule_local_filter()
+
+    def _schedule_local_filter(self):
+        """Modo Local: la carpeta ya se conoce, el texto solo filtra --
+        el catálogo se carga al elegir el modo y se refiltra al escribir."""
+        if self._local_filter_timer:
+            GLib.source_remove(self._local_filter_timer)
+        self._local_filter_timer = GLib.timeout_add(LOCAL_FILTER_DELAY_MS, self._run_local_filter)
+
+    def _run_local_filter(self):
+        self._local_filter_timer = None
+        if self.slice_combo.get_active_id() == "local":
+            self._on_search_clicked()
+        return False
 
     def _on_search_clicked(self, *_):
         raw = self.tag_entry.get_text().strip()

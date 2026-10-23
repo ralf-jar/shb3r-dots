@@ -300,17 +300,11 @@ class ArtistFeed:
 
 class LocalFeed:
     """Modo "Local" -- `query` vacío lista la biblioteca entera
-    (local_library.default_music_dir()); si es una carpeta existente se
-    usa como raíz; si no, filtra carpetas por nombre y suma un ítem con
-    las pistas cuyo nombre coincide. Cada ítem se reproduce en aleatorio;
+    (local_library.default_music_dir()); si no, filtra carpetas por
+    nombre y suma un ítem con las pistas cuyo nombre coincide. Cada ítem se reproduce en aleatorio;
     al acabar una carpeta sigue con la siguiente del catálogo."""
     def __init__(self, query=""):
-        query = (query or "").strip()
-        expanded = os.path.expanduser(query)
-        if query and os.path.isdir(expanded):
-            self.root, self.query = os.path.abspath(expanded), ""
-        else:
-            self.root, self.query = local_library.default_music_dir(), query
+        self.root, self.query = local_library.default_music_dir(), (query or "").strip()
         self.skipped = 0
         self._items = None
         self._order = []

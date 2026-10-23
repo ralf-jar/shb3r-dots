@@ -760,7 +760,6 @@
   {"modulo": "bandcamp", "codigo": "no_results_wishlist", "texto": "No tracks found in the wishlist of \"{name}\"."},
   {"modulo": "bandcamp", "codigo": "no_track_playing", "texto": "Nothing playing"},
   {"modulo": "bandcamp", "codigo": "placeholder_artist_name", "texto": "band name"},
-  {"modulo": "bandcamp", "codigo": "placeholder_local", "texto": "folder or filter (empty = all music)"},
   {"modulo": "bandcamp", "codigo": "placeholder_tags", "texto": "tag(s) separated by ; or ,"},
   {"modulo": "bandcamp", "codigo": "placeholder_wishlist_user", "texto": "Bandcamp username"},
   {"modulo": "bandcamp", "codigo": "recommendations_title", "texto": "Recommendations"},
