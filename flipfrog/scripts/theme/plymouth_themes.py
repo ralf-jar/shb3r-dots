@@ -18,6 +18,7 @@ SET_THEME = "plymouth-set-default-theme"
 MARKER = ".flipfrog-store"
 SAFE_NAME_RE = re.compile(r"^[\w.+-]+$")
 FRAME_RE = re.compile(r"^(.*?)[-_]?(\d+)\.png$", re.I)
+PATH_KEY_RE = re.compile(r"^\s*(ImageDir|ScriptFile)\s*=(.*)$", re.M | re.I)
 SCRIPT_BG_RE = re.compile(r"SetBackgroundTopColor\s*\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)")
 STILL_NAMES = ("watermark", "logo", "header-image", "header")
 CONTROL_NAMES = ("box", "bullet", "entry", "lock", "capslock", "keyboard", "keymap-render", "progress_bar",
@@ -231,6 +232,31 @@ def _drop_outside_links(root):
                 os.unlink(path)
 
 
+def _fix_paths(path, name):
+    """ImageDir/ScriptFile a la carpeta donde queda instalado: muchos temas
+    de la tienda traen rutas de Debian/Ubuntu (/lib/plymouth/themes/...)
+    que en Arch no existen y Plymouth caería al modo texto. Se edita la
+    copia en la caché, antes de copiarla."""
+    plymouth = os.path.join(path, name + ".plymouth")
+    target = os.path.join(THEMES_DIR, name)
+
+    def fix(match):
+        key, value = match.group(1), match.group(2).strip()
+        if key.lower() == "imagedir":
+            return f"{key}={target}"
+        return f"{key}={os.path.join(target, os.path.basename(value))}"
+
+    try:
+        with open(plymouth, encoding="utf-8", errors="replace") as f:
+            text = f.read()
+        fixed = PATH_KEY_RE.sub(fix, text)
+        if fixed != text:
+            with open(plymouth, "w", encoding="utf-8") as f:
+                f.write(fixed)
+    except OSError:
+        pass
+
+
 def install(themes, item_id):
     """Copia cada tema a THEMES_DIR/<nombre del .plymouth> con el
     marcador, en una sola llamada a pkexec. Lista de temas instalados, o
@@ -239,6 +265,7 @@ def install(themes, item_id):
     for name, path in themes.items():
         if SAFE_NAME_RE.match(name) and not os.path.exists(theme_dir(name)):
             _drop_outside_links(path)
+            _fix_paths(path, name)
             pairs += [path, name]
     if not pairs:
         return []

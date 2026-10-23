@@ -625,7 +625,8 @@ class ThemePicker:
     def _store_note(self, item, themes=None):
         parts = [t("temas", "cursor_descargas", n=f"{item['downloads']:,}")]
         if not self.AUTO_REMOTE_PREVIEW or self.STORE_SHOT_ONLY:
-            parts.insert(0, f"{item['files'][0][2] / 1024:.1f} MiB")
+            kb = item["files"][0][2]
+            parts.insert(0, f"{kb / 1024:.1f} MiB" if kb >= 1024 else f"{kb} KB")
         if themes and len(themes) > 1:
             parts.insert(0, t("temas", "cursor_variantes", n=len(themes)))
         return " · ".join(parts)
