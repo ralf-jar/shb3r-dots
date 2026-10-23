@@ -1,6 +1,6 @@
 """Base de los selectores con vista previa de "Personalización": cursor
-(cursor_picker.py), íconos (icon_picker.py) y pantalla de inicio de sesión
-(login_picker.py). Dos modos, como "Fuente" /
+(cursor_picker.py), íconos (icon_picker.py) y pantalla de arranque
+(boot_picker.py, Plymouth). Dos modos, como "Fuente" /
 "Obtener fuentes": los temas instalados (clic aplica, la ventana sigue
 abierta) o "Obtener" con pestañas Repositorios (repo_themes.py, pkexec
 pacman) y KDE Store (kde_store.py, a ~/.local/share/icons).
@@ -33,6 +33,7 @@ CSS_FILE = os.path.join(SCRIPT_DIR, "theme_picker.css")
 MAX_LIST_HEIGHT = 520
 STORE_WORKERS = 3
 SHOT_W, SHOT_H, SHOT_RADIUS = 150, 84, 6
+CLICK_SLOP = 8
 
 
 def _clear(box):
@@ -287,6 +288,8 @@ class ThemePicker:
                        lambda _w, e: self._hover(None) if e.detail != Gdk.NotifyType.INFERIOR else False)
         if on_click is not None:
             events.set_tooltip_text(self.text("card_tooltip"))
+            events.connect("button-press-event",
+                           lambda _w, e: entry.update(pressed=(e.x_root, e.y_root) if e.button == 1 else None))
             events.connect("button-release-event", lambda _w, e: self._on_card_click(entry, e, on_click))
         entry["card"] = card
         entry["events"] = events
@@ -296,9 +299,13 @@ class ThemePicker:
         return entry
 
     def _on_card_click(self, entry, event, on_click):
-        """El clic en un botón de la tarjeta (Quitar) también llega aquí."""
+        """El clic en un botón de la tarjeta (Quitar) también llega aquí.
+        Solo cuenta si el botón se presionó en la tarjeta y casi sin mover
+        el puntero: soltar encima al terminar un arrastre no aplica nada."""
+        pressed, entry["pressed"] = entry.get("pressed"), None
         on_button = any(a.get_state_flags() & Gtk.StateFlags.PRELIGHT for a in entry["actions"])
-        if event.button != 1 or on_button:
+        if (event.button != 1 or on_button or pressed is None
+                or math.hypot(event.x_root - pressed[0], event.y_root - pressed[1]) > CLICK_SLOP):
             return False
         on_click()
         return True
@@ -625,7 +632,8 @@ class ThemePicker:
     def _store_note(self, item, themes=None):
         parts = [t("temas", "cursor_descargas", n=f"{item['downloads']:,}")]
         if not self.AUTO_REMOTE_PREVIEW or self.STORE_SHOT_ONLY:
-            parts.insert(0, f"{item['files'][0][2] / 1024:.1f} MiB")
+            kb = item["files"][0][2]
+            parts.insert(0, f"{kb / 1024:.1f} MiB" if kb >= 1024 else f"{kb} KB")
         if themes and len(themes) > 1:
             parts.insert(0, t("temas", "cursor_variantes", n=len(themes)))
         return " · ".join(parts)

@@ -94,7 +94,7 @@ def safe_name(name):
 def _nest_root(kind, target, filename):
     """Archivos con el tema en la raíz (cursors/ o index.theme sin carpeta
     propia): se mueven a <target>/<nombre del archivo>/, como el resto."""
-    if not os.path.exists(os.path.join(target, kind.root_marker)):
+    if kind.root_marker is None or not os.path.exists(os.path.join(target, kind.root_marker)):
         return
     nested = os.path.join(target, _archive_stem(filename))
     os.makedirs(nested, exist_ok=True)
