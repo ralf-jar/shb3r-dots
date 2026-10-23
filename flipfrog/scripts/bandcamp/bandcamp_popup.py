@@ -2212,6 +2212,8 @@ class Popup:
         self._is_local = bool(state.get("local"))
         self._sync_local_tracks(state)
         self.buy_btn.set_sensitive(not self._is_local)
+        # set_child_visible conserva el ancho reservado: el transporte sigue centrado.
+        self.buy_btn.set_child_visible(not self._is_local)
         self.artist_label.set_sensitive(bool(state.get("artist")) and not self._is_local)
         self.album_label.set_sensitive(not self._is_local)
         self._current_artist = state.get("artist") or None
