@@ -1,4 +1,4 @@
-"""Qué es un tema de cursor, de íconos y de SDDM, para las fuentes
+"""Qué es un tema de cursor, de íconos y de Plymouth, para las fuentes
 de temas sin instalar (repo_themes.py, kde_store.py). Sin GTK."""
 
 import configparser
@@ -61,38 +61,44 @@ def find_icon_themes(root):
     return themes
 
 
-def is_sddm_theme(path):
-    """metadata.desktop con [SddmGreeterTheme] y su MainScript (Main.qml
-    si no lo dice)."""
+def plymouth_theme_name(path):
+    """Nombre del tema si `path` es un .plymouth con [Plymouth Theme] y
+    ModuleName; None si no."""
     parser = configparser.ConfigParser(strict=False, interpolation=None)
     try:
-        if not parser.read(os.path.join(path, "metadata.desktop")):
-            return False
-        main = parser.get("SddmGreeterTheme", "MainScript", fallback="Main.qml")
-        return os.path.isfile(os.path.join(path, main))
+        if not parser.read(path) or not parser.get("Plymouth Theme", "ModuleName", fallback=""):
+            return None
     except configparser.Error:
-        return False
+        return None
+    return os.path.basename(path)[:-len(".plymouth")]
 
 
-def find_sddm_themes(root):
+def find_plymouth_themes(root):
+    """{nombre: carpeta}; el nombre es el del .plymouth (plymouth lo busca
+    en themes/<nombre>/<nombre>.plymouth, no por el nombre de la carpeta)."""
     themes = {}
     for dirpath, dirnames, files in os.walk(root):
-        if "metadata.desktop" in files and is_sddm_theme(dirpath):
-            themes.setdefault(os.path.basename(dirpath), dirpath)
-            dirnames[:] = []
+        for name in files:
+            if name.endswith(".plymouth"):
+                theme = plymouth_theme_name(os.path.join(dirpath, name))
+                if theme:
+                    themes.setdefault(theme, dirpath)
+                    dirnames[:] = []
     return themes
 
 
-SDDM = Kind(
-    name="sddm",
-    store_category=101,
-    store_cache=os.path.expanduser("~/.cache/flipfrog-sddm-store"),
+PLYMOUTH = Kind(
+    name="plymouth",
+    store_category=108,
+    store_cache=os.path.expanduser("~/.cache/flipfrog-plymouth-store"),
     repo_cache=None,
     repo_packages=(),
     max_file_kb=150 * 1024,
     skip_file_re=re.compile(r"windows|\.exe$|\.msi$|\.deb$|\.rpm$", re.I),
-    root_marker="metadata.desktop",
-    find_themes=find_sddm_themes,
+    # El .plymouth no tiene nombre fijo: find_themes ya lo encuentra en la
+    # raíz del archivo, no hace falta meterlo en una carpeta.
+    root_marker=None,
+    find_themes=find_plymouth_themes,
 )
 
 CURSORS = Kind(

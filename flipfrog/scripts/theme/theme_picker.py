@@ -1,6 +1,6 @@
 """Base de los selectores con vista previa de "Personalización": cursor
-(cursor_picker.py), íconos (icon_picker.py) y pantalla de inicio de sesión
-(login_picker.py). Dos modos, como "Fuente" /
+(cursor_picker.py), íconos (icon_picker.py) y pantalla de arranque
+(boot_picker.py, Plymouth). Dos modos, como "Fuente" /
 "Obtener fuentes": los temas instalados (clic aplica, la ventana sigue
 abierta) o "Obtener" con pestañas Repositorios (repo_themes.py, pkexec
 pacman) y KDE Store (kde_store.py, a ~/.local/share/icons).
