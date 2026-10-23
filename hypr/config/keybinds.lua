@@ -36,6 +36,34 @@ local function arrow(direction, musicArgs)
     end
 end
 
+-- Ctrl+V en Thunar: con una imagen en el portapapeles la guarda en la
+-- carpeta abierta; si no, el script le reenvía el Ctrl+V a Thunar
+-- (send_shortcut no vuelve a pasar por los binds). El bind solo está
+-- activo con Thunar enfocado y consume la tecla: con non_consuming Thunar
+-- también recibía el Ctrl+V y mostraba "No hay nada en el portapapeles".
+local function thunarPasteImage()
+    local w = hl.get_window("activewindow")
+    if not w then
+        return
+    end
+    if w.class ~= "thunar" then
+        hl.dispatch(hl.dsp.send_shortcut({ mods = "CTRL", key = "V", window = "address:" .. w.address }))
+        return
+    end
+    local title = "'" .. w.title:gsub("'", "'\\''") .. "'"
+    hl.exec_cmd("bash ~/.config/Thunar/scripts/paste-image.sh " .. w.address .. " " .. title)
+end
+
+local thunarPaste = hl.bind("CTRL + V", thunarPasteImage)
+
+local function syncThunarPaste()
+    local w = hl.get_window("activewindow")
+    thunarPaste:set_enabled(w ~= nil and w.class == "thunar")
+end
+
+hl.on("window.active", syncThunarPaste)
+syncThunarPaste()
+
 -- section: Aplicaciones
 hl.bind(mainMod .. " + plus",  hl.dsp.exec_cmd("python3 ~/.config/flipfrog/scripts/dashboard.py"))
 -- description: Abrir dashboard del sistema

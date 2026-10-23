@@ -625,6 +625,13 @@ if [[ ! -f "$TARGET/flipfrog/themer/colors.css" ]]; then
     fi
 fi
 
+# Ruta completa en el título de Thunar: de ahí saca la carpeta el Ctrl+V que
+# pega imágenes (Thunar/scripts/paste-image.sh).
+if command -v xfconf-query >/dev/null \
+    && xfconf-query -c thunar -p /misc-window-title-style -n -t string -s full-path-with-suffix 2>> "$LOG"; then
+    changed "xfconf thunar /misc-window-title-style" "ruta completa en el título (Ctrl+V pega imágenes)"
+fi
+
 if [[ ! -f "$TARGET/radicale/config" ]]; then
     draw 500 "Creando la configuración del calendario"
     mkdir -p "$TARGET/radicale" "$HOME/.local/share/radicale/collections"
