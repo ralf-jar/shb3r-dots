@@ -15,6 +15,7 @@ a media partida pone el fondo nuevo ya congelado) y `thaw` reanuda el
 fondo guardado en ese momento, no el que había al congelar.
 """
 
+import hashlib
 import json
 import os
 import subprocess
@@ -30,10 +31,12 @@ VIDEO_EXTS = {"mp4", "webm", "mkv", "mov", "m4v", "avi"}
 DEMO_WALLPAPER = os.path.join(THEMER_DIR, "wallpaperdemo", "aishot-2062.jpg")
 
 # Mismas opciones que tenía waypaper/config.ini (fill = fill, transición random).
-AWWW_OPTIONS = [
+AWWW_BASE = [
     "--resize", "crop",
     "--fill-color", "ffffff",
     "--filter", "Lanczos3",
+]
+AWWW_OPTIONS = AWWW_BASE + [
     "--transition-type", "random",
     "--transition-step", "63",
     "--transition-angle", "0",
@@ -46,6 +49,9 @@ MPV_OPTIONS = "no-audio loop panscan=1.0"
 FREEZE_WORKSPACES = {"gaming", "🎬"}
 FROZEN_MARKER = "/tmp/flipfrog-wallpaper-frozen"
 FROZEN_FRAME = "/tmp/flipfrog-wallpaper-frame.png"
+# Primer frame de cada video de fondo: al iniciar sesión se pinta al
+# instante con awww mientras mpvpaper carga el video encima.
+FRAME_CACHE = os.path.expanduser("~/.cache/flipfrog-wallpaper-frames")
 
 
 def _collapse_home(path):
@@ -114,11 +120,33 @@ def show_image(path):
     subprocess.run(["awww", "img", path, *AWWW_OPTIONS], check=False)
 
 
+def show_image_now(path):
+    subprocess.run(["awww", "img", path, *AWWW_BASE, "--transition-type", "none"], check=False)
+
+
+def _frame_path(path):
+    key = f"{path}:{os.path.getmtime(path)}".encode()
+    return os.path.join(FRAME_CACHE, hashlib.sha1(key).hexdigest() + ".png")
+
+
+def cache_frame(path):
+    frame = _frame_path(path)
+    if not os.path.isfile(frame):
+        os.makedirs(FRAME_CACHE, exist_ok=True)
+        subprocess.Popen(["ffmpegthumbnailer", "-i", path, "-o", frame, "-s", "0"],
+                         start_new_session=True,
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
 def apply(path):
     """Muestra `path` sin guardarlo."""
     kill_mpvpaper()
     ensure_awww_daemon()
-    (show_video if is_video(path) else show_image)(path)
+    if is_video(path):
+        show_video(path)
+        cache_frame(path)
+    else:
+        show_image(path)
 
 
 def freeze_active():
@@ -177,13 +205,21 @@ def set_wallpaper(path):
 
 
 def restore():
+    """Al iniciar sesión: sin transición, y un video arranca con su frame
+    en caché para que no se vea el fondo vacío mientras carga mpvpaper."""
     path = current_path()
-    if path and os.path.isfile(path):
+    if path and not os.path.isfile(path):
+        path = DEMO_WALLPAPER
+    ensure_awww_daemon()
+    if not path:
+        return
+    if is_video(path):
+        frame = _frame_path(path)
+        if os.path.isfile(frame):
+            show_image_now(frame)
         apply(path)
-    elif path:
-        apply(DEMO_WALLPAPER)
     else:
-        ensure_awww_daemon()
+        show_image_now(path)
 
 
 def main():
