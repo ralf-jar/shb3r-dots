@@ -201,6 +201,13 @@ hl.layer_rule({
     blur = true
 })
 
+-- Fondo de pantalla (themer/wallpaper.py): sin el fade de entrada, que
+-- al iniciar sesión dejaba ver lo de abajo mientras aparecía.
+hl.layer_rule({
+    match = { namespace = "^(awww-daemon|mpvpaper)$" },
+    no_anim = true
+})
+
 -- Dashboard (SUPER+plus, flipfrog/scripts/dashboard.py -- namespace real vía
 -- GtkLayerShell.set_namespace, ver build_layer_window en waybar_lib.py):
 -- blur real detrás del panel, pedido explícito del usuario (/design

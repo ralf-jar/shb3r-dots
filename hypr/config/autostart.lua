@@ -16,13 +16,14 @@
 
 hl.on("hyprland.start", function ()
     local home = os.getenv("HOME")
+    -- Primero el fondo: hasta que aparece se ve el color liso de misc.lua.
+    -- name: Restaurar wallpaper
+    hl.exec_cmd("python3 " .. home .. "/.config/flipfrog/themer/wallpaper.py restore")
     hl.exec_cmd("dbus-update-activation-environment --systemd --all")
 
     -- Basicos
     -- name: Barra
     hl.exec_cmd("python3 " .. home .. "/.config/flipfrog/scripts/bar/bar.py")
-    -- name: Restaurar wallpaper
-    hl.exec_cmd("python3 " .. home .. "/.config/flipfrog/themer/wallpaper.py restore")
     -- Tareas periódicas como timers transitorios de systemd --user: entre
     -- corridas no queda ningún proceso vivo (systemctl --user list-timers).
     -- name: Restaurar cursor
