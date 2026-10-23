@@ -10,6 +10,7 @@ import os
 import re
 import shutil
 import subprocess
+import time
 
 THEMES_DIR = "/usr/share/plymouth/themes"
 MODULES_DIR = "/usr/lib/plymouth"
@@ -189,11 +190,32 @@ def _pkexec(script, *args, timeout=AUTH_TIMEOUT):
     return result.returncode == 0
 
 
-def apply(theme):
-    """Elige el tema y reconstruye el initramfs. True si quedó activo."""
+def apply(theme, on_started=None):
+    """Elige el tema y reconstruye el initramfs. True si quedó activo.
+    `on_started()` (en este hilo) en cuanto pkexec ya autorizó y corre
+    plymouth-set-default-theme: la reconstrucción tarda minutos y la
+    contraseña ya no se va a pedir."""
     if not SAFE_NAME_RE.match(theme):
         return False
-    return _pkexec(f'{SET_THEME} -R "$1"', theme, timeout=APPLY_TIMEOUT) and current() == theme
+    try:
+        proc = subprocess.Popen(["pkexec", "sh", "-c", f'{SET_THEME} -R "$1"', "sh", theme],
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except OSError:
+        return False
+    deadline = time.monotonic() + APPLY_TIMEOUT
+    while proc.poll() is None:
+        if time.monotonic() > deadline:
+            proc.kill()
+            return False
+        # El propio pkexec lleva el comando en su cmdline: se busca el
+        # script ya corriendo bajo bash, que solo existe tras autorizar.
+        if on_started is not None and subprocess.run(
+                ["pgrep", "-u", "root", "-f", f"bash [^ ]*{SET_THEME} -R"],
+                stdout=subprocess.DEVNULL, timeout=TIMEOUT).returncode == 0:
+            on_started()
+            on_started = None
+        time.sleep(0.5)
+    return proc.returncode == 0 and current() == theme
 
 
 def _drop_outside_links(root):

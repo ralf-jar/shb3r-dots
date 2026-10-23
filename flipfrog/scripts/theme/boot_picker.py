@@ -129,11 +129,21 @@ class BootPicker(theme_picker.ThemePicker):
         return plymouth_themes.installed()
 
     def apply(self, theme):
-        self._notify(t("temas", "arranque_aplicando", name=theme))
-        if plymouth_themes.apply(theme):
-            self._notify(t("temas", "arranque_aplicado", name=theme))
-            return None
-        return t("temas", "arranque_error_aplicar")
+        notification = self._notify(t("temas", "arranque_aplicando", name=theme), persistent=True)
+        ok = plymouth_themes.apply(theme, lambda: GLib.idle_add(self._show_applying, theme))
+        self._notify(t("temas", "arranque_aplicado" if ok else "arranque_error_aplicar", name=theme),
+                     replaces=notification)
+        # El error ya salió en la misma notificación.
+        return None
+
+    def _show_applying(self, theme):
+        """La ventana vuelve en cuanto se autorizó (la base la ocultó para
+        el diálogo de polkit); los clics siguen ignorados mientras busy."""
+        self.window.show()
+        entry = self.cards.get("i:" + theme)
+        if entry is not None:
+            theme_picker._set_note(entry, t("temas", "arranque_reconstruyendo"))
+        return False
 
     def load_preview(self, theme, bases=None):
         path = plymouth_themes.theme_dir(theme)
@@ -181,8 +191,17 @@ class BootPicker(theme_picker.ThemePicker):
     def store_uninstall(self, theme):
         plymouth_themes.uninstall(theme)
 
-    def _notify(self, message):
-        subprocess.run(["notify-send", "-i", "system-reboot", self.text("titulo"), message], timeout=5)
+    def _notify(self, message, persistent=False, replaces=None):
+        """Id de la notificación (para reemplazarla después) o None."""
+        cmd = ["notify-send", "-p", "-i", "system-reboot", self.text("titulo"), message]
+        if persistent:
+            cmd[1:1] = ["-t", "0"]
+        if replaces:
+            cmd[1:1] = ["-r", replaces]
+        try:
+            return subprocess.run(cmd, capture_output=True, text=True, timeout=5).stdout.strip() or None
+        except (OSError, subprocess.TimeoutExpired):
+            return None
 
     # ---- KDE Store ------------------------------------------------------------
 

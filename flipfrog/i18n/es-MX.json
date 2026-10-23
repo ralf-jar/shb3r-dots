@@ -635,6 +635,7 @@
   {"modulo": "temas", "codigo": "arranque_logo_fabricante", "texto": "con el logo del fabricante"},
   {"modulo": "temas", "codigo": "arranque_no_es_tema", "texto": "no trae un tema de Plymouth"},
   {"modulo": "temas", "codigo": "arranque_aplicando", "texto": "Aplicando {name}: reconstruyendo el initramfs, puede tardar un par de minutos…"},
+  {"modulo": "temas", "codigo": "arranque_reconstruyendo", "texto": "aplicando: reconstruyendo el initramfs…"},
   {"modulo": "temas", "codigo": "arranque_aplicado", "texto": "{name} se verá en el próximo arranque"},
   {"modulo": "temas", "codigo": "arranque_error_aplicar", "texto": "No se pudo cambiar la pantalla de arranque"},
   {"modulo": "temas", "codigo": "detectar_paleta", "texto": "Detectar Paleta Automáticamente"},

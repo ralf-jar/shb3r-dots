@@ -635,6 +635,7 @@
   {"modulo": "temas", "codigo": "arranque_logo_fabricante", "texto": "with the manufacturer logo"},
   {"modulo": "temas", "codigo": "arranque_no_es_tema", "texto": "does not contain a Plymouth theme"},
   {"modulo": "temas", "codigo": "arranque_aplicando", "texto": "Applying {name}: rebuilding the initramfs, this can take a couple of minutes…"},
+  {"modulo": "temas", "codigo": "arranque_reconstruyendo", "texto": "applying: rebuilding the initramfs…"},
   {"modulo": "temas", "codigo": "arranque_aplicado", "texto": "{name} will show on the next boot"},
   {"modulo": "temas", "codigo": "arranque_error_aplicar", "texto": "Could not change the boot screen"},
   {"modulo": "temas", "codigo": "detectar_paleta", "texto": "Detect palette automatically"},
