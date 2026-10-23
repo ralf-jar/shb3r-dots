@@ -33,6 +33,7 @@ CSS_FILE = os.path.join(SCRIPT_DIR, "theme_picker.css")
 MAX_LIST_HEIGHT = 520
 STORE_WORKERS = 3
 SHOT_W, SHOT_H, SHOT_RADIUS = 150, 84, 6
+CLICK_SLOP = 8
 
 
 def _clear(box):
@@ -287,6 +288,8 @@ class ThemePicker:
                        lambda _w, e: self._hover(None) if e.detail != Gdk.NotifyType.INFERIOR else False)
         if on_click is not None:
             events.set_tooltip_text(self.text("card_tooltip"))
+            events.connect("button-press-event",
+                           lambda _w, e: entry.update(pressed=(e.x_root, e.y_root) if e.button == 1 else None))
             events.connect("button-release-event", lambda _w, e: self._on_card_click(entry, e, on_click))
         entry["card"] = card
         entry["events"] = events
@@ -296,9 +299,13 @@ class ThemePicker:
         return entry
 
     def _on_card_click(self, entry, event, on_click):
-        """El clic en un botón de la tarjeta (Quitar) también llega aquí."""
+        """El clic en un botón de la tarjeta (Quitar) también llega aquí.
+        Solo cuenta si el botón se presionó en la tarjeta y casi sin mover
+        el puntero: soltar encima al terminar un arrastre no aplica nada."""
+        pressed, entry["pressed"] = entry.get("pressed"), None
         on_button = any(a.get_state_flags() & Gtk.StateFlags.PRELIGHT for a in entry["actions"])
-        if event.button != 1 or on_button:
+        if (event.button != 1 or on_button or pressed is None
+                or math.hypot(event.x_root - pressed[0], event.y_root - pressed[1]) > CLICK_SLOP):
             return False
         on_click()
         return True
