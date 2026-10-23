@@ -1,5 +1,6 @@
 """Base de los selectores con vista previa de "Personalización": cursor
-(cursor_picker.py) e íconos (icon_picker.py). Dos modos, como "Fuente" /
+(cursor_picker.py), íconos (icon_picker.py) y pantalla de inicio de sesión
+(login_picker.py). Dos modos, como "Fuente" /
 "Obtener fuentes": los temas instalados (clic aplica, la ventana sigue
 abierta) o "Obtener" con pestañas Repositorios (repo_themes.py, pkexec
 pacman) y KDE Store (kde_store.py, a ~/.local/share/icons).
@@ -70,14 +71,14 @@ def _scroller(child):
     return scroller
 
 
-def _shot_surface(path, scale):
-    """Captura de la tienda recortada a SHOT_W×SHOT_H (cover) con las
-    esquinas horneadas: GTK3 no recorta un Gtk.Image por CSS."""
+def shot_surface(path, scale, width=SHOT_W, height=SHOT_H):
+    """Captura recortada a width×height (cover) con las esquinas
+    horneadas: GTK3 no recorta un Gtk.Image por CSS."""
     try:
         pixbuf = GdkPixbuf.Pixbuf.new_from_file(path)
     except GLib.Error:
         return None
-    width, height = SHOT_W * scale, SHOT_H * scale
+    width, height = width * scale, height * scale
     factor = max(width / pixbuf.get_width(), height / pixbuf.get_height())
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
     cr = cairo.Context(surface)
@@ -105,6 +106,13 @@ class ThemePicker:
     # Vista previa de lo que no está instalado: automática (cursores, pocos
     # KB) o con un botón (íconos, varios MB por tema).
     AUTO_REMOTE_PREVIEW = True
+    # La tienda solo con la captura del autor, sin bajar el tema para la
+    # vista previa (pantallas de inicio de sesión).
+    STORE_SHOT_ONLY = False
+    TABS = ("repos", "store")
+    # Aplicar/instalar/quitar piden contraseña (pkexec): la ventana se
+    # oculta mientras tanto (_run_hidden).
+    NEEDS_AUTH = False
 
     def __init__(self, get_more):
         self.get_more = get_more
@@ -141,19 +149,22 @@ class ThemePicker:
             store_page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
             store_page.pack_start(self.search, False, False, 0)
             store_page.pack_start(_scroller(self.store_box), False, False, 0)
-            self.stack.add_named(_scroller(self.repos_box), "repos")
-            self.stack.add_named(store_page, "store")
+            pages = {"repos": _scroller(self.repos_box), "store": store_page}
+            for name in self.TABS:
+                self.stack.add_named(pages[name], name)
 
             tabs = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
             tabs.set_name("picker-tabs")
             tabs.set_halign(Gtk.Align.CENTER)
-            for name, code in (("repos", "cursor_tab_repos"), ("store", "cursor_tab_tienda")):
-                button = Gtk.Button(label=t("temas", code))
+            codes = {"repos": "cursor_tab_repos", "store": "cursor_tab_tienda"}
+            for name in self.TABS:
+                button = Gtk.Button(label=t("temas", codes[name]))
                 button.get_style_context().add_class("picker-tab")
                 button.connect("clicked", lambda _b, n=name: self._show_tab(n))
                 tabs.pack_start(button, False, False, 0)
                 self.tab_buttons[name] = button
-            container.pack_start(tabs, False, False, 0)
+            if len(self.TABS) > 1:
+                container.pack_start(tabs, False, False, 0)
         else:
             self.stack.add_named(_scroller(self.installed_box), "installed")
         container.pack_start(self.stack, False, False, 0)
@@ -162,7 +173,7 @@ class ThemePicker:
         self.window.connect("destroy", self._on_destroy)
         self._build_installed()
         self.window.show_all()
-        self._show_tab("repos" if get_more else "installed")
+        self._show_tab(self.TABS[0] if get_more else "installed")
 
     # ---- lo que da cada subclase ----------------------------------------------
 
@@ -193,6 +204,27 @@ class ThemePicker:
     def remote_bases(self, theme_dir):
         """Carpetas donde buscar un tema sin instalar (la suya primero)."""
         raise NotImplementedError
+
+    def installed_actions(self, theme):
+        """Botones extra de la tarjeta de un tema instalado."""
+        return []
+
+    def store_actions(self, item):
+        """Botones extra de la tarjeta de la tienda (antes de Instalar)."""
+        return []
+
+    def store_item_installed(self, item):
+        return False
+
+    def store_installed(self, theme):
+        return kde_store.installed_from_store(theme)
+
+    def store_install(self, themes, item_id):
+        """Lista de temas instalados, o None si falló."""
+        return kde_store.install(themes, item_id)
+
+    def store_uninstall(self, theme):
+        kde_store.uninstall(theme)
 
     # ---- pestañas -------------------------------------------------------------
 
@@ -325,12 +357,12 @@ class ThemePicker:
         _clear(self.installed_box)
 
         themes = self.list_installed()
-        if self.active not in themes:
+        if self.active and self.active not in themes:
             themes.insert(0, self.active)
         for theme in themes:
-            actions = []
-            if kde_store.installed_from_store(theme):
-                remove = _small_button(t("temas", "cursor_quitar"), t("temas", "cursor_quitar_tooltip"),
+            actions = self.installed_actions(theme)
+            if self.store_installed(theme):
+                remove = _small_button(t("temas", "cursor_quitar"), self.text("quitar_tooltip"),
                                        lambda th=theme: self._uninstall(th))
                 remove.set_sensitive(theme != self.active)
                 actions.append(remove)
@@ -352,7 +384,15 @@ class ThemePicker:
         return False
 
     def _apply(self, theme):
-        if theme == self.active:
+        if theme == self.active or self.busy:
+            return
+        if self.NEEDS_AUTH:
+            def done(error):
+                if error is not None:
+                    self._notify_error(error)
+                self.active = self.current()
+                self._build_installed()
+            self._run_hidden(lambda: self.apply(theme), done)
             return
         previous, current = self.cards["i:" + self.active], self.cards["i:" + theme]
         previous["card"].get_style_context().remove_class("active")
@@ -365,9 +405,12 @@ class ThemePicker:
         common.run_async(lambda: self.apply(theme))
 
     def _uninstall(self, theme):
-        if theme == self.active:
+        if theme == self.active or self.busy:
             return
-        kde_store.uninstall(theme)
+        if self.NEEDS_AUTH:
+            self._run_hidden(lambda: self.store_uninstall(theme), lambda _r: self._build_installed())
+            return
+        self.store_uninstall(theme)
         self._build_installed()
 
     # ---- repositorios ---------------------------------------------------------
@@ -474,28 +517,31 @@ class ThemePicker:
                 status.set_text(t("temas", "cursor_nada_mas"))
         return False
 
-    def _install_package(self, pkg):
-        """Ventana oculta mientras dura: el diálogo de polkit lo abre otro
-        proceso y quedaría debajo de esta superficie layer-shell (mismo
-        criterio que UFW y el uso de disco)."""
+    def _run_hidden(self, work, done):
+        """`work` en un hilo con la ventana oculta: el diálogo de polkit (o
+        el greeter de prueba) lo abre otro proceso y quedaría debajo de esta
+        superficie layer-shell (mismo criterio que UFW y el uso de disco).
+        `done(resultado)` en el hilo de GTK."""
         if self.busy:
             return
         self.busy = True
         self.window.hide()
 
-        def work():
-            ok = repo_themes.install(pkg)
-            GLib.idle_add(self._package_done, pkg, ok)
+        def finish(result):
+            self.busy = False
+            self.window.show()
+            done(result)
+            return False
 
-        threading.Thread(target=work, daemon=True).start()
+        threading.Thread(target=lambda: GLib.idle_add(finish, work()), daemon=True).start()
+
+    def _install_package(self, pkg):
+        self._run_hidden(lambda: repo_themes.install(pkg), lambda ok: self._package_done(pkg, ok))
 
     def _package_done(self, pkg, ok):
-        self.busy = False
-        self.window.show()
         if not ok:
             self._notify_error(t("temas", "cursor_error_instalar", pkg=pkg))
         self._build_repos()
-        return False
 
     # ---- KDE Store ------------------------------------------------------------
 
@@ -543,6 +589,16 @@ class ThemePicker:
             install = _small_button(t("temas", "cursor_instalar"), self.text("tienda_tooltip"),
                                     lambda it=item: self._install_store(it))
             actions = [install]
+            if self.STORE_SHOT_ONLY:
+                actions = [*self.store_actions(item), install]
+                entry = self._card(key, item["name"], self.store_box, actions=actions, shot=True)
+                entry["item"] = item
+                _set_note(entry, self._store_note(item))
+                if self.store_item_installed(item):
+                    install.set_label(t("temas", "cursor_instalado"))
+                    install.set_sensitive(False)
+                self.pool.submit(self._fetch_store_shot, generation, item)
+                continue
             if not self.AUTO_REMOTE_PREVIEW:
                 actions.insert(0, _small_button(self.text("ver"), self.text("ver_tooltip"),
                                                 lambda it=item: self._view_store_item(it)))
@@ -568,7 +624,7 @@ class ThemePicker:
 
     def _store_note(self, item, themes=None):
         parts = [t("temas", "cursor_descargas", n=f"{item['downloads']:,}")]
-        if not self.AUTO_REMOTE_PREVIEW:
+        if not self.AUTO_REMOTE_PREVIEW or self.STORE_SHOT_ONLY:
             parts.insert(0, f"{item['files'][0][2] / 1024:.1f} MiB")
         if themes and len(themes) > 1:
             parts.insert(0, t("temas", "cursor_variantes", n=len(themes)))
@@ -589,7 +645,7 @@ class ThemePicker:
     def _show_store_shot(self, generation, item, path):
         entry = self.cards.get("s:" + item["id"])
         if generation == self.generation["store"] and entry is not None and "shot" in entry:
-            surface = _shot_surface(path, self.scale)
+            surface = shot_surface(path, self.scale)
             if surface is not None:
                 entry["shot"].set_from_surface(surface)
         return False
@@ -653,27 +709,32 @@ class ThemePicker:
         entry = self.cards.get("s:" + item["id"])
         if entry is None:
             return
-        entry["actions"][-1].set_sensitive(False)
-        for action in entry["actions"][:-1]:
+        if self.busy:
+            return
+        for action in entry["actions"]:
             action.set_sensitive(False)
 
         def work():
             themes = entry.get("themes") or kde_store.fetch(self.KIND, item)
             try:
-                ok = bool(themes) and kde_store.install(themes, item["id"]) is not None
+                ok = bool(themes) and self.store_install(themes, item["id"]) is not None
             except OSError:
                 ok = False
-            GLib.idle_add(self._store_installed, item, themes, ok)
+            return themes, ok
 
-        threading.Thread(target=work, daemon=True).start()
+        if self.NEEDS_AUTH:
+            self._run_hidden(work, lambda result: self._store_installed(item, *result))
+        else:
+            threading.Thread(target=lambda: GLib.idle_add(self._store_installed, item, *work()),
+                             daemon=True).start()
 
     def _store_installed(self, item, themes, ok):
         entry = self.cards.get("s:" + item["id"])
         if not ok:
             self._notify_error(t("temas", "cursor_error_instalar", pkg=item["name"]))
-            if entry is not None:
-                for action in entry["actions"]:
-                    action.set_sensitive(True)
+        if entry is not None:
+            for action in entry["actions"] if not ok else entry["actions"][:-1]:
+                action.set_sensitive(True)
         if entry is not None and themes:
             entry["themes"] = themes
             self._refresh_store_button(entry)

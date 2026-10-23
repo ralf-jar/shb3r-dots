@@ -23,6 +23,7 @@ sys.path.insert(0, os.path.join(SCRIPT_DIR, "..", "menu"))
 import common
 import icon_packs
 import look_settings
+import sddm_themes
 from waybar_lib import load_module_css, svg_icon_image, suppress_close, build_switch_row
 import i18n
 from i18n import t
@@ -49,6 +50,7 @@ THEME_EDITOR_SCRIPT = os.path.join(SCRIPT_DIR, "theme-editor.py")
 THEME_GALLERY_SCRIPT = os.path.join(SCRIPT_DIR, "theme_gallery.py")
 CURSOR_PICKER_SCRIPT = os.path.join(SCRIPT_DIR, "cursor_picker.py")
 ICON_PICKER_SCRIPT = os.path.join(SCRIPT_DIR, "icon_picker.py")
+LOGIN_PICKER_SCRIPT = os.path.join(SCRIPT_DIR, "login_picker.py")
 
 GOOGLE_FONTS_SCRIPT = os.path.join(SCRIPT_DIR, "..", "fonts", "google-fonts.py")
 RADIUS_SYNC_SCRIPT = os.path.join(THEMER_DIR, "sync_radius.py")
@@ -623,6 +625,17 @@ def build_theme_selector(container):
         _action_button(t("temas", "abrir"), lambda _b: _open_picker(CURSOR_PICKER_SCRIPT, "--get"),
                        t("temas", "obtener_cursores_tooltip")))
 
+    login_row = get_login_row = None
+    if sddm_themes.available():
+        login_row = _setting_row(
+            _row_icon(icon_name="system-lock-screen-symbolic"), t("temas", "login_fila"),
+            _picker_button(sddm_themes.current()[0] or "SDDM", t("temas", "login_elegir_tooltip"),
+                           LOGIN_PICKER_SCRIPT))
+        get_login_row = _setting_row(
+            _row_icon(DOWNLOAD_ICON), t("temas", "obtener_login"),
+            _action_button(t("temas", "abrir"), lambda _b: _open_picker(LOGIN_PICKER_SCRIPT, "--get"),
+                           t("temas", "obtener_login_tooltip")))
+
     gallery_row = _setting_row(
         _row_icon(PALETTE_ICON), t("temas", "galeria_btn"),
         _action_button(t("temas", "abrir"), lambda _b: subprocess.Popen(
@@ -658,6 +671,7 @@ def build_theme_selector(container):
         font_row, get_fonts_row,
         cursor_row, get_cursors_row,
         icon_pack_row, get_icons_row,
+        *((login_row, get_login_row) if login_row else ()),
         language_row, gallery_row,
     ]), False, False, 0)
     box.pack_start(_section_title(t("temas", "titulo_ventanas")), False, False, 0)

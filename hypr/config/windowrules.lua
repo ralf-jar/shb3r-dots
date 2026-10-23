@@ -294,6 +294,13 @@ hl.layer_rule({
 })
 
 hl.layer_rule({
+    match = { namespace = "login-picker" },
+    blur = true,
+    xray = false,
+    ignore_alpha = 0.02
+})
+
+hl.layer_rule({
     match = { namespace = "firewall-popup" },
     blur = true,
     xray = false,
@@ -467,6 +474,6 @@ hl.layer_rule({
 -- (waybar_lib._PopupAnimation); la de Hyprland escalaría la superficie
 -- entera, que es pantalla completa.
 hl.layer_rule({
-    match = { namespace = "^(dashboard|calendar|calendar-sync|volume-mixer|volume-simple|sink-selector|brightness|cursor-picker|icon-picker|theme-editor|google-fonts|firewall-popup|firewall-log|keybinds-popup|download-popup|alarms|bandcamp-radio|disk-usage|services-popup|app-launcher|audiobook-popup|vpn-config|notification-history)$" },
+    match = { namespace = "^(dashboard|calendar|calendar-sync|volume-mixer|volume-simple|sink-selector|brightness|cursor-picker|icon-picker|login-picker|theme-editor|google-fonts|firewall-popup|firewall-log|keybinds-popup|download-popup|alarms|bandcamp-radio|disk-usage|services-popup|app-launcher|audiobook-popup|vpn-config|notification-history)$" },
     no_anim = true
 })
