@@ -761,7 +761,6 @@
   {"modulo": "bandcamp", "codigo": "no_results_wishlist", "texto": "No se encontraron canciones en la wishlist de «{name}»."},
   {"modulo": "bandcamp", "codigo": "no_track_playing", "texto": "Nada reproduciendo"},
   {"modulo": "bandcamp", "codigo": "placeholder_artist_name", "texto": "nombre de banda"},
-  {"modulo": "bandcamp", "codigo": "placeholder_local", "texto": "carpeta o filtro (vacío = toda la música)"},
   {"modulo": "bandcamp", "codigo": "placeholder_tags", "texto": "tag(s) separados por ; o ,"},
   {"modulo": "bandcamp", "codigo": "placeholder_wishlist_user", "texto": "usuario de Bandcamp"},
   {"modulo": "bandcamp", "codigo": "recommendations_title", "texto": "Recomendaciones"},
