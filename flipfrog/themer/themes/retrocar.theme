@@ -1,0 +1,11 @@
+/* wallpaper: ~/.config/flipfrog/themer/wallpaperdemo/aishot-1311.jpg */
+@define-color mybackground rgba(0, 0, 0, 0.55);
+@define-color mybackgroundhover rgba(28, 22, 41, 1.00);
+
+@define-color myborders rgba(75, 73, 128, 1.00);
+@define-color myborders2 rgba(128, 57, 50, 1.00);
+@define-color myborderinactive rgba(75, 73, 128, 0.27);
+
+@define-color myforeground rgba(255, 255, 255, 1.00);
+@define-color myforegroundhover rgba(127, 125, 191, 1.00);
+@define-color myforegroundhover2 rgba(191, 104, 96, 1.00);

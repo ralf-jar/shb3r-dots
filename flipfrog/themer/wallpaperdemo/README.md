@@ -6,6 +6,8 @@ Fondos de los temas incluidos en el repo; no son contenido propio.
 |---|---|
 | `aishot-2062.jpg` | `forest-road` (tema predeterminado) |
 | `aishot-1313.jpg` | `dragon-blue` |
+| `aishot-1311.jpg` | `retrocar` |
+| `aishot-5063.jpg` | `train-galactic` |
 
 - **Fuente:** [Ultrawide Wallpapers](https://ultrawidewallpapers.net/gallery?lang=en&tags=Monsters%2CPixel+Art)
   (galería con tags "Monsters" + "Pixel Art")
