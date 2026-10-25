@@ -35,6 +35,7 @@ POLL_MS = 250
 REWIND, FORWARD = 15, 30
 SPEEDS = (0.75, 0.8, 0.9, 1.0, 1.1, 1.25, 1.5, 1.75, 2.0)
 COVER_W, COVER_H = 132, 190
+FONT_SIZE_MIN, FONT_SIZE_MAX = 10, 36
 FOLLOW_GRACE = 5
 CONVERSION_STATUS = {
     "queued": "estado_en_cola", "reading": "estado_leyendo", "voice": "estado_voz",
@@ -568,6 +569,10 @@ class AudiobookPopup:
         toggle_side = _icon_button("view-list-symbolic", t("audiolibros", "mostrar_indice"), "ab-round-btn")
         toggle_side.connect("clicked", lambda _b: self.sidebar.set_reveal_child(not self.sidebar.get_reveal_child()))
         top.pack_start(toggle_side, False, False, 0)
+        text_btn = _icon_button("font-select-symbolic", t("audiolibros", "letra"), "ab-round-btn")
+        text_btn.connect("clicked", lambda _b: self.text_popover.popup())
+        top.pack_end(text_btn, False, False, 0)
+        self.text_popover = self._build_text_popover(text_btn)
         main.pack_start(top, False, False, 0)
 
         self.textview = Gtk.TextView()
@@ -582,6 +587,12 @@ class AudiobookPopup:
         self.textview.connect("button-release-event", self._on_text_click)
         self.textview.connect("scroll-event", self._on_text_scroll)
         self._build_tags()
+        self.text_css = Gtk.CssProvider()
+        Gtk.StyleContext.add_provider_for_screen(
+            Gdk.Screen.get_default(), self.text_css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+        self.reader_prefs = library.load_reader()
+        self.font_lock = False
+        self._apply_text_style()
         text_scroller = Gtk.ScrolledWindow()
         text_scroller.set_name("ab-text-scroller")
         text_scroller.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
@@ -606,6 +617,91 @@ class AudiobookPopup:
                        pixels_above_lines=18, pixels_below_lines=12)
         buf.create_tag("p", pixels_below_lines=14)
         buf.create_tag("current", background_rgba=highlight)
+
+    def _build_text_popover(self, relative_to):
+        popover = Gtk.Popover.new(relative_to)
+        popover.set_position(Gtk.PositionType.BOTTOM)
+        popover.get_style_context().add_class("ab-text-popover")
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+
+        size_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        size_row.pack_start(Gtk.Label(label=t("audiolibros", "tamano_letra"), xalign=0), True, True, 0)
+        smaller = _icon_button("list-remove-symbolic", t("audiolibros", "letra_menor"))
+        smaller.connect("clicked", lambda _b: self._change_font_size(-1))
+        size_row.pack_start(smaller, False, False, 0)
+        self.size_label = Gtk.Label()
+        self.size_label.set_width_chars(5)
+        size_row.pack_start(self.size_label, False, False, 0)
+        larger = _icon_button("list-add-symbolic", t("audiolibros", "letra_mayor"))
+        larger.connect("clicked", lambda _b: self._change_font_size(1))
+        size_row.pack_start(larger, False, False, 0)
+        box.pack_start(size_row, False, False, 0)
+
+        self.font_chooser = Gtk.FontChooserWidget()
+        self.font_chooser.set_level(Gtk.FontChooserLevel.FAMILY)
+        self.font_chooser.set_show_preview_entry(False)
+        self.font_chooser.set_size_request(340, 360)
+        self.font_chooser.connect("notify::font", self._on_font_chosen)
+        box.pack_start(self.font_chooser, True, True, 0)
+
+        reset = Gtk.Button(label=t("audiolibros", "letra_restablecer"))
+        reset.get_style_context().add_class("ab-text-reset")
+        reset.connect("clicked", self._on_text_reset)
+        box.pack_start(reset, False, False, 0)
+
+        box.show_all()
+        popover.add(box)
+        popover.connect("show", self._on_text_popover_show)
+        return popover
+
+    def _text_font(self):
+        return self.textview.get_style_context().get_property("font", Gtk.StateFlags.NORMAL)
+
+    def _font_px(self):
+        if self.reader_prefs["size"]:
+            return self.reader_prefs["size"]
+        desc = self._text_font()
+        size = desc.get_size() / Pango.SCALE
+        return round(size if desc.get_size_is_absolute() else size * 96 / 72)
+
+    def _apply_text_style(self):
+        rules = []
+        if self.reader_prefs["font"]:
+            rules.append('font-family: "%s";' % self.reader_prefs["font"].replace('"', ""))
+        if self.reader_prefs["size"]:
+            rules.append(f"font-size: {self.reader_prefs['size']}px;")
+        css = "#ab-text, #ab-text text { %s }" % " ".join(rules) if rules else ""
+        self.text_css.load_from_data(css.encode())
+
+    def _save_text_style(self):
+        self._apply_text_style()
+        prefs = dict(self.reader_prefs)
+        threading.Thread(target=library.save_reader, args=(prefs,), daemon=True).start()
+
+    def _on_text_popover_show(self, _popover):
+        self.size_label.set_text(f"{self._font_px()} px")
+        family = self.reader_prefs["font"] or self._text_font().get_family().split(",")[0]
+        self.font_lock = True
+        self.font_chooser.set_font(f"{family} {self._font_px()}")
+        self.font_lock = False
+
+    def _change_font_size(self, delta):
+        size = max(FONT_SIZE_MIN, min(FONT_SIZE_MAX, self._font_px() + delta))
+        self.reader_prefs["size"] = size
+        self.size_label.set_text(f"{size} px")
+        self._save_text_style()
+
+    def _on_font_chosen(self, chooser, _pspec):
+        family = chooser.get_font_family()
+        if self.font_lock or family is None:
+            return
+        self.reader_prefs["font"] = family.get_name()
+        self._save_text_style()
+
+    def _on_text_reset(self, _btn):
+        self.reader_prefs = {"font": None, "size": None}
+        self._save_text_style()
+        self._on_text_popover_show(None)
 
     def _build_player_bar(self):
         bar = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
@@ -979,6 +1075,13 @@ class AudiobookPopup:
             return True
         if self.stack.get_visible_child_name() != "reader":
             return False
+        if event.state & Gdk.ModifierType.CONTROL_MASK:
+            if event.keyval in (Gdk.KEY_plus, Gdk.KEY_equal, Gdk.KEY_KP_Add):
+                self._change_font_size(1)
+                return True
+            if event.keyval in (Gdk.KEY_minus, Gdk.KEY_KP_Subtract):
+                self._change_font_size(-1)
+                return True
         if event.keyval == Gdk.KEY_space:
             self.command("toggle_pause")
             return True

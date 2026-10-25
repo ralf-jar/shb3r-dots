@@ -18,6 +18,7 @@ import time
 from audiobook_voices import LIB_DIR
 
 PLAYER_FILE = os.path.join(LIB_DIR, "player.json")
+READER_FILE = os.path.join(LIB_DIR, "reader.json")
 DEFAULT_STATE = {"position": 0.0, "speed": 1.0, "bookmarks": [], "last_played": 0}
 
 
@@ -70,6 +71,15 @@ def load_player():
 def save_player(player):
     os.makedirs(LIB_DIR, exist_ok=True)
     _write(PLAYER_FILE, player)
+
+
+def load_reader():
+    return {"font": None, "size": None, **_read(READER_FILE, {})}
+
+
+def save_reader(reader):
+    os.makedirs(LIB_DIR, exist_ok=True)
+    _write(READER_FILE, reader)
 
 
 def list_books():
