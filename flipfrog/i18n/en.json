@@ -303,7 +303,7 @@
   {"modulo": "fuentes", "codigo": "sin_resultados", "texto": "No results"},
   {"modulo": "fuentes", "codigo": "ya_instalada_tooltip", "texto": "(already installed)"},
   {"modulo": "launcher", "codigo": "buscar_placeholder", "texto": "Search app..."},
-  {"modulo": "launcher", "codigo": "buscar_tooltip", "texto": "End with ? to ask Claude -- start with / to run a console command"},
+  {"modulo": "launcher", "codigo": "buscar_tooltip", "texto": "End with ? to search with Brave -- start with / to run a console command"},
   {"modulo": "launcher", "codigo": "cat_herramientas", "texto": "Tools"},
   {"modulo": "launcher", "codigo": "cat_juegos", "texto": "Games"},
   {"modulo": "launcher", "codigo": "cat_oficina", "texto": "Office"},

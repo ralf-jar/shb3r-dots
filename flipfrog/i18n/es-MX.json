@@ -303,7 +303,7 @@
   {"modulo": "fuentes", "codigo": "sin_resultados", "texto": "Sin resultados"},
   {"modulo": "fuentes", "codigo": "ya_instalada_tooltip", "texto": "(ya instalada)"},
   {"modulo": "launcher", "codigo": "buscar_placeholder", "texto": "Buscar aplicación..."},
-  {"modulo": "launcher", "codigo": "buscar_tooltip", "texto": "Termina en ? para preguntarle a Claude -- empieza con / para ejecutar un comando en la consola"},
+  {"modulo": "launcher", "codigo": "buscar_tooltip", "texto": "Termina en ? para buscar en Brave -- empieza con / para ejecutar un comando en la consola"},
   {"modulo": "launcher", "codigo": "cat_herramientas", "texto": "Herramientas"},
   {"modulo": "launcher", "codigo": "cat_juegos", "texto": "Juegos"},
   {"modulo": "launcher", "codigo": "cat_oficina", "texto": "Oficina"},
