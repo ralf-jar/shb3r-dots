@@ -485,10 +485,8 @@ fi
 # Apps de la instalación base (pedido explícito del usuario); Brave y el
 # resto de apps van en los extras. Se salta si su comando ya existe.
 if [[ $EXTRAS_ONLY == 0 ]]; then  # ---- apps base (no en ff-extras)
-stage $W_APPS "Instalando gamescope y loupe"
+stage $W_APPS "Instalando loupe"
 APPS_PACMAN=()
-# gamescope: resolución y escalado por juego.
-command -v gamescope    >/dev/null || APPS_PACMAN+=(gamescope)
 # loupe: visor de imágenes predeterminado (mimeapps.list).
 command -v loupe        >/dev/null || APPS_PACMAN+=(loupe)
 if [[ ${#APPS_PACMAN[@]} -gt 0 ]]; then
