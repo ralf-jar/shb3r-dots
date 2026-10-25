@@ -269,6 +269,8 @@ class AudiobookPopup:
         self.window.connect("destroy", self._on_destroy)
         self.window.show_all()
         self.stack.set_visible_child_name("library")
+        if self.text_panel.get_reveal_child():
+            self._on_text_panel_show()
 
         self._reload_library()
         threading.Thread(target=self._start_daemon, daemon=True).start()
@@ -603,6 +605,7 @@ class AudiobookPopup:
         main.pack_start(text_scroller, True, True, 0)
         body.pack_start(main, True, True, 0)
         self.text_panel = self._build_text_panel()
+        self.text_panel.set_reveal_child(self.reader_prefs["text_panel"])
         body.pack_start(self.text_panel, False, False, 0)
         page.pack_start(body, True, True, 0)
 
@@ -670,6 +673,8 @@ class AudiobookPopup:
     def _toggle_text_panel(self):
         show = not self.text_panel.get_reveal_child()
         self.text_panel.set_reveal_child(show)
+        self.reader_prefs["text_panel"] = show
+        self._save_reader_prefs()
         if show:
             self._on_text_panel_show()
             self.font_search.grab_focus()
