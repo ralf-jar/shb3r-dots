@@ -327,6 +327,19 @@ class ThemeGallery:
         apply_btn.connect("clicked", self._on_interval_committed)
         bar.pack_start(apply_btn, False, False, 0)
 
+        preset_label = Gtk.Label(label=t("temas", "rotar_con_config"))
+        preset_label.get_style_context().add_class("tg-tool-label")
+        preset_label.set_tooltip_text(t("temas", "tooltip_rotar_con_config"))
+        bar.pack_start(preset_label, False, False, 0)
+
+        preset_switch = Gtk.Switch()
+        preset_switch.set_valign(Gtk.Align.CENTER)
+        preset_switch.get_style_context().add_class("toggle-row-switch")
+        preset_switch.set_active(tm.rotation_applies_preset())
+        preset_switch.set_tooltip_text(t("temas", "tooltip_rotar_con_config"))
+        preset_switch.connect("state-set", lambda _s, state: tm.set_rotation_applies_preset(state) or False)
+        bar.pack_start(preset_switch, False, False, 0)
+
     def _hours_from_entry(self):
         try:
             hours = float(self.interval_entry.get_text().strip())

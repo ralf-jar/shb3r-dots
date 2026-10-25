@@ -124,8 +124,10 @@ def rotate():
     if chosen:
         # Scope propio: al terminar el servicio del timer, systemd mata lo
         # que quede en su cgroup (mpvpaper de un fondo de video, awww-daemon).
+        # apply_preset (switch de la galería): sin él, solo colores y fondo.
+        preset_flag = [] if data.get("apply_preset", True) else ["--no-preset"]
         subprocess.run(["systemd-run", "--user", "--scope", "--quiet", "--collect",
-                        "bash", APPLY_SCRIPT, os.path.join(THEMES_DIR, chosen)])
+                        "bash", APPLY_SCRIPT, *preset_flag, os.path.join(THEMES_DIR, chosen)])
     return data["last_rotation"]
 
 

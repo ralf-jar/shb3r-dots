@@ -4,7 +4,16 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
 
+# --no-preset: solo colores y fondo, sin la configuración de la barra y
+# de "Personalización" que traiga el tema (rotación con el switch apagado).
+APPLY_PRESET=1
+if [[ "${1:-}" == "--no-preset" ]]; then
+    APPLY_PRESET=0
+    shift
+fi
+
 THEME_FILE="${1:-}"
+PRESET_SCRIPT="$SCRIPT_DIR/../scripts/theme/theme_preset.py"
 COLORS_CSS="$SCRIPT_DIR/colors.css"
 LAST_GOOD="$SCRIPT_DIR/.colors.css.lastgood"
 RELOAD_SCRIPT="$SCRIPT_DIR/reload.sh"
@@ -102,11 +111,20 @@ else
     cp "$THEME_FILE" "$TMP_CSS"
 fi
 
+# La línea preset tampoco va a colors.css.
+sed -i '1{/^\/\* preset:.*\*\/$/d}' "$TMP_CSS"
+
 mv "$TMP_CSS" "$COLORS_CSS"
 # Snapshot del último estado bueno conocido, para el paso 1 de la próxima
 # corrida -- ya pasó por la validación de arriba, así que es seguro
 # guardarlo como referencia de rollback.
 cp "$COLORS_CSS" "$LAST_GOOD"
+
+# Antes de reload.sh: su `hyprctl reload` toma también gaps/borde/blur
+# del preset (look.lua y decorations.lua releen los JSON).
+if [[ "$APPLY_PRESET" == 1 ]]; then
+    python3 "$PRESET_SCRIPT" apply "$THEME_FILE" || true
+fi
 
 if [[ -x "$RELOAD_SCRIPT" ]]; then
     bash "$RELOAD_SCRIPT"
