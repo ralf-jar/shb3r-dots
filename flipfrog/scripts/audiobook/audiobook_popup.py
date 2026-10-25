@@ -17,7 +17,8 @@ import time
 import cairo
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, Gdk, GdkPixbuf, GLib, Pango
+gi.require_version("PangoCairo", "1.0")
+from gi.repository import Gtk, Gdk, GdkPixbuf, GLib, Pango, PangoCairo
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.dirname(SCRIPT_DIR))
@@ -591,7 +592,6 @@ class AudiobookPopup:
         Gtk.StyleContext.add_provider_for_screen(
             Gdk.Screen.get_default(), self.text_css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
         self.reader_prefs = library.load_reader()
-        self.font_lock = False
         self._apply_text_style()
         text_scroller = Gtk.ScrolledWindow()
         text_scroller.set_name("ab-text-scroller")
@@ -637,12 +637,21 @@ class AudiobookPopup:
         size_row.pack_start(larger, False, False, 0)
         box.pack_start(size_row, False, False, 0)
 
-        self.font_chooser = Gtk.FontChooserWidget()
-        self.font_chooser.set_level(Gtk.FontChooserLevel.FAMILY)
-        self.font_chooser.set_show_preview_entry(False)
-        self.font_chooser.set_size_request(340, 360)
-        self.font_chooser.connect("notify::font", self._on_font_chosen)
-        box.pack_start(self.font_chooser, True, True, 0)
+        self.font_search = Gtk.SearchEntry()
+        self.font_search.set_placeholder_text(t("audiolibros", "buscar_letra"))
+        self.font_search.connect("search-changed", lambda _e: self.font_list.invalidate_filter())
+        box.pack_start(self.font_search, False, False, 0)
+
+        self.font_list = Gtk.ListBox()
+        self.font_list.set_selection_mode(Gtk.SelectionMode.NONE)
+        self.font_list.get_style_context().add_class("ab-font-list")
+        self.font_list.set_filter_func(self._font_row_visible)
+        self.font_list.connect("row-activated", self._on_font_chosen)
+        self.font_scroller = Gtk.ScrolledWindow()
+        self.font_scroller.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        self.font_scroller.set_size_request(320, 340)
+        self.font_scroller.add(self.font_list)
+        box.pack_start(self.font_scroller, True, True, 0)
 
         reset = Gtk.Button(label=t("audiolibros", "letra_restablecer"))
         reset.get_style_context().add_class("ab-text-reset")
@@ -678,12 +687,50 @@ class AudiobookPopup:
         prefs = dict(self.reader_prefs)
         threading.Thread(target=library.save_reader, args=(prefs,), daemon=True).start()
 
+    def _fill_font_list(self):
+        families = sorted({f.get_name() for f in PangoCairo.FontMap.get_default().list_families()},
+                          key=str.casefold)
+        for name in families:
+            label = Gtk.Label(xalign=0)
+            label.set_markup('<span font_family="%s">%s</span>' % (
+                GLib.markup_escape_text(name), GLib.markup_escape_text(name)))
+            label.set_ellipsize(Pango.EllipsizeMode.END)
+            label.set_max_width_chars(1)
+            row = Gtk.ListBoxRow()
+            row.family = name
+            row.add(label)
+            self.font_list.add(row)
+        self.font_list.show_all()
+
+    def _font_row_visible(self, row):
+        return self.font_search.get_text().casefold() in row.family.casefold()
+
+    def _mark_font_rows(self):
+        current = self.reader_prefs["font"] or self._text_font().get_family().split(",")[0]
+        selected = None
+        for row in self.font_list.get_children():
+            ctx = row.get_style_context()
+            if row.family == current:
+                ctx.add_class("selected-font")
+                selected = row
+            else:
+                ctx.remove_class("selected-font")
+        return selected
+
     def _on_text_popover_show(self, _popover):
         self.size_label.set_text(f"{self._font_px()} px")
-        family = self.reader_prefs["font"] or self._text_font().get_family().split(",")[0]
-        self.font_lock = True
-        self.font_chooser.set_font(f"{family} {self._font_px()}")
-        self.font_lock = False
+        if not self.font_list.get_children():
+            self._fill_font_list()
+        self.font_search.set_text("")
+        selected = self._mark_font_rows()
+        if selected:
+            GLib.idle_add(self._scroll_font_into_view, selected)
+
+    def _scroll_font_into_view(self, row):
+        alloc = row.get_allocation()
+        adj = self.font_scroller.get_vadjustment()
+        adj.set_value(max(0, alloc.y - (adj.get_page_size() - alloc.height) / 2))
+        return False
 
     def _change_font_size(self, delta):
         size = max(FONT_SIZE_MIN, min(FONT_SIZE_MAX, self._font_px() + delta))
@@ -691,12 +738,10 @@ class AudiobookPopup:
         self.size_label.set_text(f"{size} px")
         self._save_text_style()
 
-    def _on_font_chosen(self, chooser, _pspec):
-        family = chooser.get_font_family()
-        if self.font_lock or family is None:
-            return
-        self.reader_prefs["font"] = family.get_name()
+    def _on_font_chosen(self, _list, row):
+        self.reader_prefs["font"] = row.family
         self._save_text_style()
+        self._mark_font_rows()
 
     def _on_text_reset(self, _btn):
         self.reader_prefs = {"font": None, "size": None}
