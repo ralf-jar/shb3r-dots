@@ -743,6 +743,25 @@ class AudiobookPopup:
         self._save_text_style()
         self._mark_font_rows()
 
+    def _on_font_key(self, event):
+        if event.keyval in (Gdk.KEY_Escape, Gdk.KEY_Return, Gdk.KEY_KP_Enter):
+            self.text_popover.popdown()
+            return True
+        if event.keyval not in (Gdk.KEY_Up, Gdk.KEY_Down):
+            return False
+        rows = [r for r in self.font_list.get_children() if self._font_row_visible(r)]
+        if not rows:
+            return True
+        current = [i for i, r in enumerate(rows) if r.get_style_context().has_class("selected-font")]
+        if not current:
+            index = 0
+        else:
+            step = 1 if event.keyval == Gdk.KEY_Down else -1
+            index = max(0, min(len(rows) - 1, current[0] + step))
+        self._on_font_chosen(None, rows[index])
+        self._scroll_font_into_view(rows[index])
+        return True
+
     def _on_text_reset(self, _btn):
         self.reader_prefs = {"font": None, "size": None}
         self._save_text_style()
@@ -1115,6 +1134,8 @@ class AudiobookPopup:
     # ---- ciclo de vida ------------------------------------------------------------
 
     def _on_key(self, _widget, event):
+        if self.text_popover.get_visible():
+            return self._on_font_key(event)
         if event.keyval == Gdk.KEY_Escape:
             self.window.destroy()
             return True
