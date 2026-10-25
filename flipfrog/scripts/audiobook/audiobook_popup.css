@@ -333,3 +333,24 @@ button:focus {
 button:disabled {
     opacity: 0.3;
 }
+
+.ab-text-popover {
+    background-color: @mybackground;
+    color: @myforeground;
+    padding: 12px;
+}
+
+.ab-text-popover .ab-icon-btn {
+    border: 1px solid alpha(@myforeground, 0.25);
+}
+
+.ab-text-reset {
+    background-color: alpha(@myforeground, 0.08);
+    color: @myforeground;
+    border: none;
+    box-shadow: none;
+}
+
+.ab-text-reset:hover {
+    background-color: alpha(@myforegroundhover, 0.2);
+}
