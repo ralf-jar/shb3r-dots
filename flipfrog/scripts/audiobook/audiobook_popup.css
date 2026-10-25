@@ -84,7 +84,8 @@ window {
 
 #ab-library-scroller scrollbar,
 #ab-text-scroller scrollbar,
-#ab-sidebar scrollbar {
+#ab-sidebar scrollbar,
+#ab-text-panel scrollbar {
     opacity: 0;
 }
 
@@ -334,17 +335,17 @@ button:disabled {
     opacity: 0.3;
 }
 
-.ab-text-popover {
-    background-color: @mybackground;
+#ab-text-panel {
+    min-width: 280px;
+    margin-left: 12px;
     color: @myforeground;
-    padding: 12px;
 }
 
-.ab-text-popover .ab-icon-btn {
+#ab-text-panel .ab-icon-btn {
     border: 1px solid alpha(@myforeground, 0.25);
 }
 
-.ab-text-popover entry {
+#ab-text-panel entry {
     margin-bottom: 0;
 }
 
@@ -366,8 +367,9 @@ button:disabled {
 }
 
 .ab-font-list row.selected-font {
-    background-color: alpha(@myforegroundhover, 0.25);
-    color: @myforegroundhover;
+    background-color: alpha(@myforeground, 0.08);
+    box-shadow: inset 0 0 0 1px alpha(@myforeground, 0.25);
+    color: @myforeground;
 }
 
 .ab-text-reset {
