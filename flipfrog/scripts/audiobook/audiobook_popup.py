@@ -521,10 +521,11 @@ class AudiobookPopup:
         page.set_name("ab-reader")
 
         body = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        self.reader_prefs = library.load_reader()
 
         self.sidebar = Gtk.Revealer()
         self.sidebar.set_transition_type(Gtk.RevealerTransitionType.SLIDE_RIGHT)
-        self.sidebar.set_reveal_child(True)
+        self.sidebar.set_reveal_child(self.reader_prefs["sidebar"])
         self.sidebar.set_hexpand(False)
         side = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         side.set_name("ab-sidebar")
@@ -569,7 +570,7 @@ class AudiobookPopup:
         main = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         top = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
         toggle_side = _icon_button("view-list-symbolic", t("audiolibros", "mostrar_indice"), "ab-round-btn")
-        toggle_side.connect("clicked", lambda _b: self.sidebar.set_reveal_child(not self.sidebar.get_reveal_child()))
+        toggle_side.connect("clicked", lambda _b: self._set_sidebar(not self.sidebar.get_reveal_child()))
         top.pack_start(toggle_side, False, False, 0)
         text_btn = _icon_button("font-select-symbolic", t("audiolibros", "letra"), "ab-round-btn")
         text_btn.connect("clicked", lambda _b: self._toggle_text_panel())
@@ -594,7 +595,6 @@ class AudiobookPopup:
         self.text_css = Gtk.CssProvider()
         Gtk.StyleContext.add_provider_for_screen(
             Gdk.Screen.get_default(), self.text_css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
-        self.reader_prefs = library.load_reader()
         self._apply_text_style()
         text_scroller = Gtk.ScrolledWindow()
         text_scroller.set_name("ab-text-scroller")
@@ -697,8 +697,17 @@ class AudiobookPopup:
 
     def _save_text_style(self):
         self._apply_text_style()
+        self._save_reader_prefs()
+
+    def _save_reader_prefs(self):
         prefs = dict(self.reader_prefs)
         threading.Thread(target=library.save_reader, args=(prefs,), daemon=True).start()
+
+    def _set_sidebar(self, show):
+        self.sidebar.set_reveal_child(show)
+        if self.reader_prefs["sidebar"] != show:
+            self.reader_prefs["sidebar"] = show
+            self._save_reader_prefs()
 
     def _fill_font_list(self):
         families = sorted({f.get_name() for f in PangoCairo.FontMap.get_default().list_families()},
@@ -776,7 +785,7 @@ class AudiobookPopup:
         return True
 
     def _on_text_reset(self, _btn):
-        self.reader_prefs = {"font": None, "size": None}
+        self.reader_prefs.update(font=None, size=None)
         self._save_text_style()
         self._on_text_panel_show()
 
@@ -1072,7 +1081,7 @@ class AudiobookPopup:
     def _on_add_bookmark(self, _btn):
         self.command("add_bookmark")
         self.tab_marks.set_active(True)
-        self.sidebar.set_reveal_child(True)
+        self._set_sidebar(True)
 
     def _on_volume_changed(self, scale):
         if not self.volume_lock:
