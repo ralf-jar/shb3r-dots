@@ -102,6 +102,7 @@
   {"modulo": "audiolibros", "codigo": "tiempo_m", "texto": "{m} min"},
   {"modulo": "audiolibros", "codigo": "titulo", "texto": "Audiolibros"},
   {"modulo": "audiolibros", "codigo": "letra", "texto": "Tipo y tamaño de letra (Ctrl + / Ctrl -)"},
+  {"modulo": "audiolibros", "codigo": "buscar_letra", "texto": "Buscar tipo de letra"},
   {"modulo": "audiolibros", "codigo": "tamano_letra", "texto": "Tamaño"},
   {"modulo": "audiolibros", "codigo": "letra_menor", "texto": "Letra más chica"},
   {"modulo": "audiolibros", "codigo": "letra_mayor", "texto": "Letra más grande"},

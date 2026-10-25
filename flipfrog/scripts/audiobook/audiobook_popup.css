@@ -344,6 +344,32 @@ button:disabled {
     border: 1px solid alpha(@myforeground, 0.25);
 }
 
+.ab-text-popover entry {
+    margin-bottom: 0;
+}
+
+.ab-font-list {
+    background-color: transparent;
+}
+
+.ab-font-list row {
+    padding: 6px 10px;
+    color: @myforeground;
+}
+
+.ab-font-list row label {
+    font-size: 16px;
+}
+
+.ab-font-list row:hover {
+    background-color: alpha(@myforeground, 0.08);
+}
+
+.ab-font-list row.selected-font {
+    background-color: alpha(@myforegroundhover, 0.25);
+    color: @myforegroundhover;
+}
+
 .ab-text-reset {
     background-color: alpha(@myforeground, 0.08);
     color: @myforeground;
