@@ -74,7 +74,7 @@ def save_player(player):
 
 
 def load_reader():
-    return {"font": None, "size": None, "sidebar": True, **_read(READER_FILE, {})}
+    return {"font": None, "size": None, "sidebar": True, "text_panel": False, **_read(READER_FILE, {})}
 
 
 def save_reader(reader):
