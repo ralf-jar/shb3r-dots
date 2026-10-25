@@ -525,6 +525,7 @@ class AudiobookPopup:
         self.sidebar = Gtk.Revealer()
         self.sidebar.set_transition_type(Gtk.RevealerTransitionType.SLIDE_RIGHT)
         self.sidebar.set_reveal_child(True)
+        self.sidebar.set_hexpand(False)
         side = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         side.set_name("ab-sidebar")
 
@@ -597,7 +598,7 @@ class AudiobookPopup:
         self._apply_text_style()
         text_scroller = Gtk.ScrolledWindow()
         text_scroller.set_name("ab-text-scroller")
-        text_scroller.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        text_scroller.set_policy(Gtk.PolicyType.EXTERNAL, Gtk.PolicyType.AUTOMATIC)
         text_scroller.add(self.textview)
         main.pack_start(text_scroller, True, True, 0)
         body.pack_start(main, True, True, 0)
@@ -625,6 +626,7 @@ class AudiobookPopup:
     def _build_text_panel(self):
         revealer = Gtk.Revealer()
         revealer.set_transition_type(Gtk.RevealerTransitionType.SLIDE_LEFT)
+        revealer.set_hexpand(False)
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_name("ab-text-panel")
 
@@ -652,7 +654,7 @@ class AudiobookPopup:
         self.font_list.set_filter_func(self._font_row_visible)
         self.font_list.connect("row-activated", self._on_font_chosen)
         self.font_scroller = Gtk.ScrolledWindow()
-        self.font_scroller.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        self.font_scroller.set_policy(Gtk.PolicyType.EXTERNAL, Gtk.PolicyType.AUTOMATIC)
         self.font_scroller.set_vexpand(True)
         self.font_scroller.add(self.font_list)
         box.pack_start(self.font_scroller, True, True, 0)
