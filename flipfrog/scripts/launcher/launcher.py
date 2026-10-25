@@ -14,8 +14,8 @@ CLAUDE.md "Referencia: launcher Android"), o por categoría si se
 togglea la vista (categorías editables, ver launcher_store.py).
 
 Bang de búsqueda: si el texto termina en "?" y se presiona Enter, no se
-interpreta como nombre de app -- se abre como consulta en el navegador
-(brave-origin) contra un asistente de IA en vez de listar resultados.
+interpreta como nombre de app -- se busca en Brave Search (brave-origin),
+sin el "?" final.
 
 Extras: al final de la lista (sin búsqueda) un botón abre la página
 "Extras" con los extras opcionales de install.sh (los mismos de
@@ -63,11 +63,7 @@ ROW_ICON_SIZE = 20
 TOP_APPS_LIMIT = 5
 NUM_COLUMNS = 1
 
-# https://claude.ai/new?q=<texto> antepone el texto al chat nuevo y lo
-# manda -- confirmado a mano solo hasta cierto punto (ver documento de
-# dudas que deja esta sesión): si en el futuro deja de auto-enviar, o si
-# se prefiere Gemini, alcanza con cambiar esta constante.
-BANG_URL_TEMPLATE = "https://claude.ai/new?q={query}"
+BANG_URL_TEMPLATE = "https://search.brave.com/search?q={query}"
 BROWSER_BIN = "brave-origin"
 
 
@@ -798,15 +794,16 @@ class AppLauncher:
             if command:
                 self._run_console_command(command)
             return
-        if text.endswith("?"):
-            self._launch_web_query(text)
+        query = text.rstrip("?").strip()
+        if text.endswith("?") and query:
+            self._launch_web_query(query)
             return
         if self._flat_order:
             index = self._selected_index if self._selected_index < len(self._flat_order) else 0
             self._launch(self._flat_order[index])
 
     def _launch_web_query(self, text):
-        url = BANG_URL_TEMPLATE.format(query=urllib.parse.quote(text))
+        url = BANG_URL_TEMPLATE.format(query=urllib.parse.quote_plus(text))
         try:
             subprocess.Popen([BROWSER_BIN, url], start_new_session=True,
                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
