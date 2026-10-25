@@ -61,7 +61,6 @@ Pedido explícito del usuario para que una instalación nueva quede lista para u
 | `brave-origin-bin` (*extra*, marcado por defecto) | Navegador (SUPER+B, `mimeapps.list`, búsqueda con "?" del launcher) |
 | `steam` (multilib, *extra*) | Juegos; los íconos de juegos los genera `steam/steam-icons-sync.py` |
 | `vesktop-bin` (*extra*) | Discord (autostart). `vesktop` sin `-bin` no está en los repos, solo en AUR |
-| `gamescope` | Resolución y escalado por juego |
 | `loupe` | Visor de imágenes predeterminado (`mimeapps.list`) |
 | `bibata-cursor-theme-bin` (AUR) | Cursor que espera `uwsm/env` |
 | `millennium-bin` (AUR, *extra*) | Temas de Steam (`sync_millennium.py`) |
