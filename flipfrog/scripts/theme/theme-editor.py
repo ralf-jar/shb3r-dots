@@ -627,7 +627,6 @@ class ThemeEditorPopup:
             flags=0, message_type=Gtk.MessageType.QUESTION,
             buttons=Gtk.ButtonsType.YES_NO, text=t("temas", "preguntar_preset"),
         )
-        dialog.format_secondary_text(t("temas", "preguntar_preset_secundario"))
         original_prgname = GLib.get_prgname()
         GLib.set_prgname("theme-preset-dialog")
         dialog.show_all()
