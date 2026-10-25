@@ -571,9 +571,8 @@ class AudiobookPopup:
         toggle_side.connect("clicked", lambda _b: self.sidebar.set_reveal_child(not self.sidebar.get_reveal_child()))
         top.pack_start(toggle_side, False, False, 0)
         text_btn = _icon_button("font-select-symbolic", t("audiolibros", "letra"), "ab-round-btn")
-        text_btn.connect("clicked", lambda _b: self.text_popover.popup())
+        text_btn.connect("clicked", lambda _b: self._toggle_text_panel())
         top.pack_end(text_btn, False, False, 0)
-        self.text_popover = self._build_text_popover(text_btn)
         locate_btn = _icon_button("find-location-symbolic", t("audiolibros", "ir_a_narracion"), "ab-round-btn")
         locate_btn.connect("clicked", self._on_locate_clicked)
         top.pack_end(locate_btn, False, False, 0)
@@ -602,6 +601,8 @@ class AudiobookPopup:
         text_scroller.add(self.textview)
         main.pack_start(text_scroller, True, True, 0)
         body.pack_start(main, True, True, 0)
+        self.text_panel = self._build_text_panel()
+        body.pack_start(self.text_panel, False, False, 0)
         page.pack_start(body, True, True, 0)
 
         page.pack_start(self._build_player_bar(), False, False, 0)
@@ -621,11 +622,11 @@ class AudiobookPopup:
         buf.create_tag("p", pixels_below_lines=14)
         buf.create_tag("current", background_rgba=highlight)
 
-    def _build_text_popover(self, relative_to):
-        popover = Gtk.Popover.new(relative_to)
-        popover.set_position(Gtk.PositionType.BOTTOM)
-        popover.get_style_context().add_class("ab-text-popover")
+    def _build_text_panel(self):
+        revealer = Gtk.Revealer()
+        revealer.set_transition_type(Gtk.RevealerTransitionType.SLIDE_LEFT)
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        box.set_name("ab-text-panel")
 
         size_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         size_row.pack_start(Gtk.Label(label=t("audiolibros", "tamano_letra"), xalign=0), True, True, 0)
@@ -652,7 +653,7 @@ class AudiobookPopup:
         self.font_list.connect("row-activated", self._on_font_chosen)
         self.font_scroller = Gtk.ScrolledWindow()
         self.font_scroller.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        self.font_scroller.set_size_request(320, 340)
+        self.font_scroller.set_vexpand(True)
         self.font_scroller.add(self.font_list)
         box.pack_start(self.font_scroller, True, True, 0)
 
@@ -661,10 +662,17 @@ class AudiobookPopup:
         reset.connect("clicked", self._on_text_reset)
         box.pack_start(reset, False, False, 0)
 
-        box.show_all()
-        popover.add(box)
-        popover.connect("show", self._on_text_popover_show)
-        return popover
+        revealer.add(box)
+        return revealer
+
+    def _toggle_text_panel(self):
+        show = not self.text_panel.get_reveal_child()
+        self.text_panel.set_reveal_child(show)
+        if show:
+            self._on_text_panel_show()
+            self.font_search.grab_focus()
+        else:
+            self.window.set_focus(None)
 
     def _text_font(self):
         return self.textview.get_style_context().get_property("font", Gtk.StateFlags.NORMAL)
@@ -720,7 +728,7 @@ class AudiobookPopup:
                 ctx.remove_class("selected-font")
         return selected
 
-    def _on_text_popover_show(self, _popover):
+    def _on_text_panel_show(self):
         self.size_label.set_text(f"{self._font_px()} px")
         if not self.font_list.get_children():
             self._fill_font_list()
@@ -748,7 +756,7 @@ class AudiobookPopup:
 
     def _on_font_key(self, event):
         if event.keyval in (Gdk.KEY_Escape, Gdk.KEY_Return, Gdk.KEY_KP_Enter):
-            self.text_popover.popdown()
+            self._toggle_text_panel()
             return True
         if event.keyval not in (Gdk.KEY_Up, Gdk.KEY_Down):
             return False
@@ -768,7 +776,7 @@ class AudiobookPopup:
     def _on_text_reset(self, _btn):
         self.reader_prefs = {"font": None, "size": None}
         self._save_text_style()
-        self._on_text_popover_show(None)
+        self._on_text_panel_show()
 
     def _build_player_bar(self):
         bar = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
@@ -1144,8 +1152,11 @@ class AudiobookPopup:
     # ---- ciclo de vida ------------------------------------------------------------
 
     def _on_key(self, _widget, event):
-        if self.text_popover.get_visible():
-            return self._on_font_key(event)
+        if self.text_panel.get_reveal_child():
+            if self._on_font_key(event):
+                return True
+            if self.font_search.has_focus() and not event.state & Gdk.ModifierType.CONTROL_MASK:
+                return False
         if event.keyval == Gdk.KEY_Escape:
             self.window.destroy()
             return True
