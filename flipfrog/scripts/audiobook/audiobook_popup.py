@@ -566,7 +566,7 @@ class AudiobookPopup:
         body.pack_start(self.sidebar, False, False, 0)
 
         main = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        top = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        top = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
         toggle_side = _icon_button("view-list-symbolic", t("audiolibros", "mostrar_indice"), "ab-round-btn")
         toggle_side.connect("clicked", lambda _b: self.sidebar.set_reveal_child(not self.sidebar.get_reveal_child()))
         top.pack_start(toggle_side, False, False, 0)
@@ -574,6 +574,9 @@ class AudiobookPopup:
         text_btn.connect("clicked", lambda _b: self.text_popover.popup())
         top.pack_end(text_btn, False, False, 0)
         self.text_popover = self._build_text_popover(text_btn)
+        locate_btn = _icon_button("find-location-symbolic", t("audiolibros", "ir_a_narracion"), "ab-round-btn")
+        locate_btn.connect("clicked", self._on_locate_clicked)
+        top.pack_end(locate_btn, False, False, 0)
         main.pack_start(top, False, False, 0)
 
         self.textview = Gtk.TextView()
@@ -1014,6 +1017,13 @@ class AudiobookPopup:
         if alloc.y < adj.get_value() or alloc.y + alloc.height > adj.get_value() + adj.get_page_size():
             adj.set_value(max(0, alloc.y - adj.get_page_size() / 3))
         return False
+
+    def _on_locate_clicked(self, _btn):
+        self.last_user_scroll = 0
+        if 0 <= self.current_sentence < len(self.s_offsets):
+            buf = self.textview.get_buffer()
+            start_iter = buf.get_iter_at_offset(self.s_offsets[self.current_sentence][0])
+            self.textview.scroll_to_iter(start_iter, 0.1, True, 0.0, 0.3)
 
     def _on_text_scroll(self, *_args):
         self.last_user_scroll = time.time()
