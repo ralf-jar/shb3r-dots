@@ -24,6 +24,7 @@ import common
 import icon_packs
 import look_settings
 import plymouth_themes
+from theme_preset import PREFIX as PRESET_PREFIX, current_font_family, set_font_family
 from waybar_lib import load_module_css, svg_icon_image, suppress_close, build_switch_row
 import i18n
 from i18n import t
@@ -65,19 +66,6 @@ THUMB_CACHE_DIR = os.path.expanduser("~/.cache/waybar-theme-thumbs")
 VIDEO_EXTS = {"mp4", "webm", "mkv", "mov", "m4v", "avi"}
 THUMB_W, THUMB_H = 370, 180
 
-FONT_FAMILY_RE = re.compile(r'font-family:\s*"([^"]+)"')
-DEFAULT_FONT_FAMILY = "JetBrainsMono Nerd Font"
-
-
-def current_font_family():
-    try:
-        with open(GLOBAL_CSS) as f:
-            content = f.read()
-    except FileNotFoundError:
-        return DEFAULT_FONT_FAMILY
-    m = FONT_FAMILY_RE.search(content)
-    return m.group(1) if m else DEFAULT_FONT_FAMILY
-
 
 def current_font_size():
     try:
@@ -91,20 +79,6 @@ def apply_font_size(value):
     subprocess.Popen(["python3", FONT_SIZE_SYNC_SCRIPT, str(value)],
                       start_new_session=True,
                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-
-def set_font_family(name):
-    try:
-        with open(GLOBAL_CSS) as f:
-            content = f.read()
-    except FileNotFoundError:
-        return
-    escaped = name.replace('"', '\\"')
-    new_value = f'font-family: "{escaped}", "Symbols Nerd Font", sans-serif;'
-    new_content, count = re.subn(r'font-family:\s*[^;]+;', new_value, content, count=1)
-    if count == 0:
-        return
-    common.atomic_write(GLOBAL_CSS, new_content)
 
 
 _live_font_provider = None
@@ -182,6 +156,8 @@ def save_favorites(favs):
 def _strip_wallpaper_comment(content):
     lines = content.splitlines()
     if lines and lines[0].startswith("/* wallpaper:"):
+        lines = lines[1:]
+    if lines and lines[0].startswith(PRESET_PREFIX):
         lines = lines[1:]
     return "\n".join(lines).strip()
 
@@ -320,14 +296,31 @@ def load_rotation_config():
 
 
 def save_rotation_config(enabled, minutes, reset_last_rotation=False):
+    changes = dict(enabled=enabled, interval_minutes=minutes)
+    if reset_last_rotation:
+        changes["last_rotation"] = time.time()
+    _update_rotation_config(changes)
+
+
+def rotation_applies_preset():
+    try:
+        with open(ROTATION_CONFIG) as f:
+            return bool(json.load(f).get("apply_preset", True))
+    except (FileNotFoundError, json.JSONDecodeError, AttributeError):
+        return True
+
+
+def set_rotation_applies_preset(enabled):
+    _update_rotation_config({"apply_preset": enabled})
+
+
+def _update_rotation_config(changes):
     try:
         with open(ROTATION_CONFIG) as f:
             data = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         data = {}
-    data.update(enabled=enabled, interval_minutes=minutes)
-    if reset_last_rotation:
-        data["last_rotation"] = time.time()
+    data.update(changes)
     # Atómico -- theme-rotator.py (proceso aparte) también escribe este archivo.
     fd, tmp_path = tempfile.mkstemp(dir=THEMER_DIR, suffix=".tmp")
     try:

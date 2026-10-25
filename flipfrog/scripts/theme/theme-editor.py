@@ -47,6 +47,7 @@ RELOAD_SCRIPT = os.path.join(THEMER_DIR, "reload.sh")
 SAVE_THEME_SCRIPT = os.path.join(THEMER_DIR, "save-theme.sh")
 sys.path.insert(0, THEMER_DIR)
 import wallpaper as wallpaper_state
+import theme_preset
 CSS_FILE = os.path.join(SCRIPT_DIR, "theme-editor.css")
 LOCK = "/tmp/theme-editor.pid"
 
@@ -169,23 +170,25 @@ def run_reload():
     return r.returncode == 0, r.stderr
 
 
-def save_as_theme(lines, colors, name):
+def save_as_theme(lines, colors, name, with_preset):
     """Guarda el estado actual (editado o no) como themer/themes/<name>.theme,
     delegando en save-theme.sh: detecta el wallpaper activo y evita
-    sobreescribir un tema existente con el mismo nombre."""
+    sobreescribir un tema existente con el mismo nombre. with_preset:
+    también la configuración de la barra y de "Personalización"."""
     content = build_css_content(lines, colors)
     with tempfile.NamedTemporaryFile("w", suffix=".css", delete=False) as tmp:
         tmp.write(content)
         tmp_path = tmp.name
     try:
-        r = subprocess.run(["bash", SAVE_THEME_SCRIPT, name, tmp_path],
+        preset_flag = "--preset" if with_preset else "--no-preset"
+        r = subprocess.run(["bash", SAVE_THEME_SCRIPT, preset_flag, name, tmp_path],
                             capture_output=True, text=True)
         return r.returncode == 0, r.stderr
     finally:
         os.remove(tmp_path)
 
 
-def overwrite_theme(name, colors):
+def overwrite_theme(name, colors, with_preset):
     """Sobrescribe themer/themes/<name> (el tema detectado como aplicado al
     abrir el editor, ver active_theme_name en theme_module.py) con `colors`
     aplicados sobre el contenido PROPIO de ese archivo, no sobre
@@ -209,6 +212,12 @@ def overwrite_theme(name, colors):
         if theme_lines and theme_lines[0].startswith("/* wallpaper:"):
             theme_lines = theme_lines[1:]
         theme_lines.insert(0, f"/* wallpaper: {wallpaper} */")
+
+    # Línea preset, debajo de la del wallpaper (mismo lugar que save-theme.sh).
+    at = 1 if theme_lines and theme_lines[0].startswith("/* wallpaper:") else 0
+    if len(theme_lines) > at and theme_lines[at].startswith(theme_preset.PREFIX):
+        del theme_lines[at]
+    theme_lines.insert(at, theme_preset.preset_line(theme_preset.dump() if with_preset else None))
 
     content = build_css_content(theme_lines, colors)
     fd, tmp_path = tempfile.mkstemp(dir=THEMES_DIR, suffix=".tmp")
@@ -610,13 +619,39 @@ class ThemeEditorPopup:
             self.status.set_text(t("temas", "status_guardado_reload_fallo"))
             print(err)
 
+    def _ask_preset(self):
+        """True/False según la respuesta, None si se cerró sin contestar
+        (no se guarda nada). Ventana oculta mientras dura: layer-shell se
+        come los clics del diálogo."""
+        dialog = Gtk.MessageDialog(
+            flags=0, message_type=Gtk.MessageType.QUESTION,
+            buttons=Gtk.ButtonsType.YES_NO, text=t("temas", "preguntar_preset"),
+        )
+        dialog.format_secondary_text(t("temas", "preguntar_preset_secundario"))
+        original_prgname = GLib.get_prgname()
+        GLib.set_prgname("theme-preset-dialog")
+        dialog.show_all()
+        GLib.set_prgname(original_prgname)
+        self.window.hide()
+        response = dialog.run()
+        dialog.destroy()
+        self.window.show()
+        if response == Gtk.ResponseType.YES:
+            return True
+        if response == Gtk.ResponseType.NO:
+            return False
+        return None
+
     def _on_overwrite_theme(self, _btn):
         if not self.colors or not self.active_theme:
+            return
+        with_preset = self._ask_preset()
+        if with_preset is None:
             return
         active_name = self.active_theme[: -len(".theme")]
         self.status.set_text(t("temas", "status_sobrescribiendo", name=active_name))
         try:
-            overwrite_theme(self.active_theme, self.colors)
+            overwrite_theme(self.active_theme, self.colors, with_preset)
         except OSError as e:
             self.status.set_text(t("temas", "status_sobrescribir_error"))
             print(e)
@@ -634,8 +669,11 @@ class ThemeEditorPopup:
         if not name or "/" in name:
             self.status.set_text(t("temas", "status_nombre_invalido"))
             return
+        with_preset = self._ask_preset()
+        if with_preset is None:
+            return
         self.status.set_text(t("temas", "status_guardando_tema"))
-        ok, err = save_as_theme(self.original_lines, self.colors, name)
+        ok, err = save_as_theme(self.original_lines, self.colors, name, with_preset)
         if ok:
             self.status.set_text(t("temas", "status_tema_guardado_ok", name=name))
             self.theme_name_entry.set_text("")
