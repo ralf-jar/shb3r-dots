@@ -43,7 +43,7 @@ PROTECTED = {
     "ttf-jetbrains-mono-nerd", "radicale", "python-caldav", "python-icalendar",
     "python-httpx", "hyprpolkitagent", "nethogs", "python-psutil", "mpv",
     "python-requests", "yt-dlp", "libtorrent-rasterbar", "imagemagick",
-    "libjpeg-turbo", "fuse2", "sddm", "paru", "gamescope",
+    "libjpeg-turbo", "fuse2", "sddm", "paru",
     "base", "linux", "linux-cachyos", "systemd", "glibc", "bash", "sudo", "pacman",
     "python", "gtk3", "polkit", "networkmanager", "pipewire", "wireplumber", "mesa",
     "flatpak", "steam", "waydroid",
