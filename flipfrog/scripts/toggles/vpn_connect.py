@@ -31,6 +31,20 @@ def _last_line(r):
     return lines[-1] if lines else ""
 
 
+def _proton_needs_signin(profile):
+    """La CLI de ProtonVPN falla con "An unexpected error occurred" si la
+    sesión del llavero no trae los datos de la cuenta VPN (se arregla con
+    signout + signin)."""
+    if "protonvpn" not in profile["connect"]:
+        return False
+    try:
+        from proton.sso import ProtonSSO
+        state = ProtonSSO().get_default_session().__getstate__() or {}
+    except Exception:
+        return False
+    return "vpn" not in state
+
+
 def connect():
     profile = vpn_profiles.active_profile()
     r = vpn_profiles.run(profile["connect"], TIMEOUT)
@@ -38,6 +52,9 @@ def connect():
         _notify(t("sistema", "vpn_error"), t("sistema", "vpn_timeout"), "critical")
         return
     connected = vpn_profiles.status_connected(profile)
+    if r.returncode != 0 and _proton_needs_signin(profile):
+        _notify(t("sistema", "vpn_error"), t("sistema", "vpn_reiniciar_sesion"), "critical")
+        return
     if r.returncode != 0 or connected is False:
         _notify(t("sistema", "vpn_error"), _last_line(r), "critical")
         return

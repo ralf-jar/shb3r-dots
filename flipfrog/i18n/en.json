@@ -749,6 +749,7 @@
   {"modulo": "sistema", "codigo": "vpn_timeout", "texto": "The connection took too long"},
   {"modulo": "sistema", "codigo": "vpn_servidor", "texto": "{server} in {location}"},
   {"modulo": "sistema", "codigo": "vpn_ip", "texto": "IP: {ip}"},
+  {"modulo": "sistema", "codigo": "vpn_reiniciar_sesion", "texto": "ProtonVPN session needs a restart: run protonvpn signout, then protonvpn signin"},
   {"modulo": "bandcamp", "codigo": "album_of_artist", "texto": "Albums by {band}"},
   {"modulo": "bandcamp", "codigo": "albums_title", "texto": "Albums"},
   {"modulo": "bandcamp", "codigo": "artists_title", "texto": "Artists"},
