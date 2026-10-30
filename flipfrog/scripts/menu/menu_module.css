@@ -115,7 +115,7 @@
 .menu-icon-preview-btn {
     background-color: transparent;
     border: none;
-    border-radius: 20px;
+    border-radius: 0px;
     box-shadow: none;
     outline: none;
     padding: 4px;
@@ -145,7 +145,7 @@ entry {
     background-color: @mybackground;
     color: @myforegroundhover;
     border: none;
-    border-radius: 20px;
+    border-radius: 0px;
     font-weight: 800;
     padding: 2px 8px;
     min-height: 25px;
@@ -160,7 +160,7 @@ entry {
    listas y el panel de edición. */
 #menu-uninstall-zone {
     border: 1px dashed alpha(@myforegroundhover, 0.4);
-    border-radius: 20px;
+    border-radius: 0px;
     padding: 8px;
     margin-top: 10px;
     color: @myforegroundhover;

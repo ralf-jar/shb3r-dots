@@ -110,7 +110,7 @@
         },
         "ClientTheme": {
             "enabled": true,
-            "color": "000000"
+            "color": "090909"
         },
         "ColorSighted": {
             "enabled": false

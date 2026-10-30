@@ -6,7 +6,7 @@ window {
 
 #container {
     background-color: @mybackground;
-    border-radius: 20px;
+    border-radius: 0px;
     padding: 16px 20px 18px 20px;
     min-width: 560px;
 }
@@ -22,7 +22,7 @@ window {
     background-color: transparent;
     background-image: none;
     border: 1px solid @myborderinactive;
-    border-radius: 20px;
+    border-radius: 0px;
     box-shadow: none;
     padding: 10px 14px;
     transition: background-color 200ms ease, border-color 200ms ease;
@@ -59,7 +59,7 @@ window {
     background-color: transparent;
     background-image: none;
     border: 1px solid @myborderinactive;
-    border-radius: 20px;
+    border-radius: 0px;
     box-shadow: none;
     color: @myforegroundhover;
     font-weight: 700;
@@ -89,7 +89,7 @@ window {
     background-color: transparent;
     background-image: none;
     border: none;
-    border-radius: 20px;
+    border-radius: 0px;
     box-shadow: none;
     color: alpha(@myforeground, 0.65);
     font-weight: 700;
@@ -115,7 +115,7 @@ entry {
     background-color: @mybackground;
     color: @myforegroundhover;
     border: none;
-    border-radius: 20px;
+    border-radius: 0px;
     box-shadow: none;
     font-weight: 700;
     min-height: 25px;
@@ -130,7 +130,7 @@ entry {
     background-color: transparent;
     background-image: none;
     border: 1px solid @myborderinactive;
-    border-radius: 20px;
+    border-radius: 0px;
     box-shadow: none;
     color: @myforegroundhover;
     font-weight: 700;

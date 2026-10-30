@@ -11,7 +11,7 @@ window {
 }
 
 #container {
-    border-radius: 20px;
+    border-radius: 0px;
 }
 
 /* Label: "Mezclador" (mixer.py) */
@@ -67,7 +67,7 @@ scale slider {
 
 scale trough,
 scale highlight {
-    border-radius: 20px;
+    border-radius: 0px;
 }
 
 scale slider {
