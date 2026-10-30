@@ -17,7 +17,10 @@ hl.config({
         vrr = 3,
     },
     xwayland = {
-        force_zero_scaling = true
+        -- false = Hyprland escala las apps XWayland con la escala del monitor
+        -- (GitHub Desktop/Electron, Steam/CEF). Con true se dibujaban a 1x y
+        -- se veían diminutas en HDMI-A-2 (escala 1.5).
+        force_zero_scaling = false
     },
     ecosystem = {
         no_update_news = true,
