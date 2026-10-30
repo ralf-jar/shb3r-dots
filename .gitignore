@@ -22,6 +22,7 @@
 /waybar/modules.jsonc.bak-*
 /waybar/updates-cache.json
 /waybar/bluetooth-autoconnect.json
+/waybar/bluetooth-usage.json
 /waybar/firewall-log.jsonl
 /waybar/network-usage.json
 # archivo sin ninguna referencia real en el repo (revisar antes de borrar):
