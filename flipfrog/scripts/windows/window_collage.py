@@ -101,8 +101,8 @@ def _hypr_json(*args):
 
 def _ws_selector(ws):
     """Numéricos por id, con nombre por "name:" (mismo formato que los
-    keybinds)."""
-    return str(ws["id"]) if ws["id"] > 0 else f'"name:{ws["name"]}"'
+    keybinds). Un workspace con nombre no trae `id` desde Hyprland 0.57."""
+    return common.workspace_selector(ws)
 
 
 def _focus_workspace(ws):
@@ -119,9 +119,9 @@ def _list_windows():
 
 
 def _ws_sort_key(win):
-    """Numéricos primero en orden, después los de nombre (gaming, 🎬...)."""
-    ws = win["workspace"]
-    return (0, ws["id"], "") if ws["id"] > 0 else (1, 0, ws["name"])
+    """Numéricos primero en orden, después los de nombre (gaming, 🎬...).
+    Ojo: un workspace con nombre no trae `id` desde Hyprland 0.57."""
+    return common.workspace_sort_key(win["workspace"])
 
 
 def _app_keys(windows):

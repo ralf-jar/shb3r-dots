@@ -91,6 +91,33 @@ def run_async(fn):
     _WORK_QUEUE.put(fn)
 
 
+def workspace_selector(ws):
+    """Selector de workspace para `hl.dsp.focus`/`hl.dsp.window.move`.
+
+    Hyprland 0.57 dejó de poner `id` en los workspaces con nombre
+    ("gaming", "🎬", "🎨", "🪟"): el JSON solo trae `name`. Los
+    numerados sí traen `id` (y `name` = str(id)). Leer `ws["id"]` directo
+    truena con KeyError en cuanto hay un workspace con nombre activo."""
+    ws = ws or {}
+    ws_id = ws.get("id")
+    name = ws.get("name") or ""
+    if isinstance(ws_id, int) and ws_id > 0:
+        return str(ws_id)
+    if name:
+        return f'"name:{name}"'
+    return "1"
+
+
+def workspace_sort_key(ws):
+    """Orden de workspaces: numerados primero por id, después los de
+    nombre alfabético (mismo criterio que el visor de la barra)."""
+    ws = ws or {}
+    ws_id = ws.get("id")
+    if isinstance(ws_id, int) and ws_id > 0:
+        return (0, ws_id, "")
+    return (1, 0, ws.get("name") or "")
+
+
 def atomic_write(path, content, binary=False):
     """Escribe `path` de forma atómica (archivo temporal + os.replace())
     -- nunca open(path, "w") directo, que trunca el archivo antes de
