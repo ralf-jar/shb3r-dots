@@ -78,10 +78,10 @@ def _active_workspace():
 
 
 def _focus_workspace(ws):
-    """ws: dict de `hyprctl activeworkspace -j`. Numéricos por id, con
-    nombre por "name:" (mismo formato que los keybinds)."""
-    target = ws["id"] if ws["id"] > 0 else f'"name:{ws["name"]}"'
-    _hypr(f"hl.dsp.focus({{ workspace = {target} }})")
+    """ws: dict de `hyprctl activeworkspace -j` (o de `workspaces -j`).
+    Un workspace con nombre ("gaming", "🎬", "🎨") no trae `id` desde
+    Hyprland 0.57 -- common.workspace_selector lo resuelve por nombre."""
+    _hypr(f"hl.dsp.focus({{ workspace = {common.workspace_selector(ws)} }})")
 
 
 def _format_hours(hours):

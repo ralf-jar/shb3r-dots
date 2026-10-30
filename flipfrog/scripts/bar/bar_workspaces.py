@@ -16,6 +16,7 @@ from gi.repository import Gdk, Gtk
 
 import bar_hypr
 import bar_icons
+import common
 from bar_modules import clickable, styled_box, track_hover
 
 ICON_SIZE = 18
@@ -43,8 +44,7 @@ def _workspace_list(snap):
     by_name = {w["name"]: w for w in snap["workspaces"] if not w["name"].startswith("special:")}
     for name in PERSISTENT:
         by_name.setdefault(name, {"id": int(name), "name": name})
-    return sorted(by_name.values(),
-                  key=lambda w: (not w["name"].isdigit(), int(w["name"]) if w["name"].isdigit() else w["id"]))
+    return sorted(by_name.values(), key=common.workspace_sort_key)
 
 
 def _class_of(client):

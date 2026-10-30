@@ -4,7 +4,8 @@
 -- tema en medio sí está permitido: wallpaper.py pone el fondo nuevo ya
 -- congelado (ver flipfrog/themer/wallpaper.py, freeze/thaw/set).
 --
--- "gaming" es un workspace nombrado normal (id -1337, ver
+-- "gaming" es un workspace nombrado normal (desde Hyprland 0.57 los
+-- workspaces con nombre ya NO traen `id`, ver
 -- windowrules.lua: `workspace = "name:gaming"`), NO un escritorio
 -- especial/overlay de Hyprland pese al nombre.
 --

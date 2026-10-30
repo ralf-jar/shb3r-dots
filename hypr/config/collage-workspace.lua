@@ -14,10 +14,18 @@ local COLLAGE_CLASS = "flipfrog-window-collage"
 local last_ws = {}
 
 local function selector(ws)
-    if ws.id > 0 then
+    -- Los workspaces con nombre (como "🎨" de la galería de temas o "🪟"
+    -- del collage) NO traen `id` en la API Lua: es nil, no un número
+    -- negativo. Comparar `ws.id > 0` ahí truena y deja la config entera
+    -- con errores en cada `hyprctl reload` (por eso fallaba al cambiar de
+    -- tema, que abre la galería en "🎨" y luego recarga Hyprland).
+    if type(ws.id) == "number" and ws.id > 0 then
         return ws.id
     end
-    return "name:" .. ws.name
+    if type(ws.name) == "string" and ws.name ~= "" then
+        return "name:" .. ws.name
+    end
+    return 1
 end
 
 local function remember(ws)
