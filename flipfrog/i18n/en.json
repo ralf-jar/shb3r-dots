@@ -121,6 +121,8 @@
   {"modulo": "bluetooth", "codigo": "autoconnect_delay_tooltip", "texto": "Seconds to wait before connecting devices marked \"Auto\" -- the Bluetooth adapter isn't ready right when the session starts"},
   {"modulo": "bluetooth", "codigo": "connect_tooltip", "texto": "Connect"},
   {"modulo": "bluetooth", "codigo": "connecting", "texto": "Connecting to {name}..."},
+  {"modulo": "bluetooth", "codigo": "connection_count_many", "texto": "{n} connections"},
+  {"modulo": "bluetooth", "codigo": "connection_count_one", "texto": "1 connection"},
   {"modulo": "bluetooth", "codigo": "disconnect_tooltip", "texto": "Disconnect"},
   {"modulo": "bluetooth", "codigo": "disconnecting", "texto": "Disconnecting {name}..."},
   {"modulo": "bluetooth", "codigo": "empty_devices", "texto": "No devices -- try \"Scan\""},

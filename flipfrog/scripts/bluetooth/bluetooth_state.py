@@ -9,6 +9,8 @@ import json
 import os
 import subprocess
 
+import bluetooth_usage
+
 INFO_TIMEOUT = 5
 
 WAYBAR_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", "..", "waybar"))
@@ -65,28 +67,36 @@ def device_icon(mac):
     return None
 
 
-def connected_count():
-    """Solo el conteo de conectados (2 subprocess en total junto con
-    adapter_info: show + devices Connected) -- versión liviana de
-    get_devices() para el ícono de Waybar (custom/bluetooth,
-    bluetooth_status.py), que no necesita nombres/MACs."""
-    return len(_device_macs("Connected"))
+def connected_macs():
+    """MACs conectados ahora (`devices Connected`, un solo subprocess --
+    2 en total junto con adapter_info: show + devices Connected) -- lo usa
+    el ícono de Waybar (custom/bluetooth, bluetooth_status.py), que no
+    necesita nombres, y el conteo de conexiones por dispositivo
+    (bluetooth_usage.py)."""
+    return _device_macs("Connected")
 
 
 def get_devices():
     """Todos los dispositivos conocidos por bluetoothctl (emparejados o
-    vistos en algún scan anterior), con su estado de pareo/conexión --
-    conectados primero, luego emparejados, luego el resto por nombre."""
+    vistos en algún scan anterior), con su estado de pareo/conexión y
+    cuántas veces se ha conectado a cada uno (`count`, ver
+    bluetooth_usage.py) -- más conectado primero, pedido explícito del
+    usuario; el orden anterior (conectados, emparejados, nombre) queda
+    solo como desempate entre dispositivos con el mismo contador."""
     r = subprocess.run(["bluetoothctl", "devices"], capture_output=True, text=True, timeout=INFO_TIMEOUT)
     all_devices = _parse_device_lines(r.stdout)
     paired = _device_macs("Paired")
     connected = _device_macs("Connected")
+    counts = bluetooth_usage.load_counts()
 
     devices = [
-        {"mac": mac, "name": name, "paired": mac in paired, "connected": mac in connected}
+        {
+            "mac": mac, "name": name, "paired": mac in paired,
+            "connected": mac in connected, "count": counts.get(mac, 0),
+        }
         for mac, name in all_devices
     ]
-    devices.sort(key=lambda d: (not d["connected"], not d["paired"], d["name"].lower()))
+    devices.sort(key=lambda d: (-d["count"], not d["connected"], not d["paired"], d["name"].lower()))
     return devices
 
 

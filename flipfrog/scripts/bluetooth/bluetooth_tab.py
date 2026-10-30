@@ -14,6 +14,7 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, SCRIPT_DIR)
 import bluetooth_state
 import bluetooth_actions
+import bluetooth_usage
 
 sys.path.insert(0, os.path.join(SCRIPT_DIR, ".."))
 from waybar_lib import (
@@ -286,6 +287,12 @@ class BluetoothTab:
         def worker():
             adapter = bluetooth_state.adapter_info()
             devices = bluetooth_state.get_devices() if adapter and adapter["powered"] else []
+            # Mismo conteo que hace la barra cada 5s, repetido acá para que
+            # el orden se actualice al instante aunque el módulo de
+            # Bluetooth de la barra esté apagado -- record_connected toma un
+            # flock, así que ver la misma transición desde los dos lados no
+            # cuenta doble.
+            bluetooth_usage.record_connected({d["mac"] for d in devices if d["connected"]})
             GLib.idle_add(self._apply_refresh, adapter, devices, resolve_icons)
 
         threading.Thread(target=worker, daemon=True).start()
@@ -342,8 +349,15 @@ class BluetoothTab:
         row.get_style_context().add_class("bluetooth-device-row")
         # La MAC solo en tooltip (pedido explícito del usuario) -- ya no
         # hay un label aparte para ella, ver .bluetooth-device-mac
-        # (removido de bluetooth_tab.css).
-        row.set_tooltip_text(device["mac"])
+        # (removido de bluetooth_tab.css). Se agrega el número de
+        # conexiones para que se entienda por qué la lista va ordenada
+        # así (más conectado primero, ver bluetooth_usage.py).
+        tooltip = device["mac"]
+        count = device.get("count", 0)
+        if count:
+            key = "connection_count_one" if count == 1 else "connection_count_many"
+            tooltip = f"{tooltip}\n{t('bluetooth', key, n=count)}"
+        row.set_tooltip_text(tooltip)
 
         row.pack_start(self._make_icon_slot(device["mac"], resolve_icons), False, False, 0)
 

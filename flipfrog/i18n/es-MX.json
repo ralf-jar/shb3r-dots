@@ -121,6 +121,8 @@
   {"modulo": "bluetooth", "codigo": "autoconnect_delay_tooltip", "texto": "Segundos de espera antes de conectar los dispositivos marcados como \"Auto\" -- el adaptador de Bluetooth no está listo apenas arranca la sesión"},
   {"modulo": "bluetooth", "codigo": "connect_tooltip", "texto": "Conectar"},
   {"modulo": "bluetooth", "codigo": "connecting", "texto": "Conectando con {name}..."},
+  {"modulo": "bluetooth", "codigo": "connection_count_many", "texto": "{n} conexiones"},
+  {"modulo": "bluetooth", "codigo": "connection_count_one", "texto": "1 conexión"},
   {"modulo": "bluetooth", "codigo": "disconnect_tooltip", "texto": "Desconectar"},
   {"modulo": "bluetooth", "codigo": "disconnecting", "texto": "Desconectando {name}..."},
   {"modulo": "bluetooth", "codigo": "empty_devices", "texto": "Sin dispositivos -- prueba \"Buscar\""},
