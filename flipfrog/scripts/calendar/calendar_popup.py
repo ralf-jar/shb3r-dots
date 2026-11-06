@@ -11,7 +11,7 @@ import os
 import subprocess
 import sys
 import threading
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 
 import caldav
 
@@ -28,6 +28,8 @@ CALDAV_URL = "http://127.0.0.1:5232/"
 CALDAV_USER = "waybar"
 CALDAV_PASSWORD = "waybar"
 CALENDAR_NAME = "Notas"
+DEFAULT_EVENT_TIME = time(9, 0)
+DEFAULT_EVENT_DURATION = timedelta(hours=1)
 
 WEEKDAY_LABELS = [
     t("calendario", "wd_dom"), t("calendario", "wd_lun"), t("calendario", "wd_mar"),
@@ -320,9 +322,10 @@ class CalendarPopup:
                 existing.icalendar_component["summary"] = text
                 existing.save()
             else:
+                start = datetime.combine(self.selected, DEFAULT_EVENT_TIME)
                 self.note_events[key] = self.cal.save_event(
-                    dtstart=self.selected,
-                    dtend=self.selected + timedelta(days=1),
+                    dtstart=start,
+                    dtend=start + DEFAULT_EVENT_DURATION,
                     summary=text,
                     uid=uid_for(self.selected),
                 )
