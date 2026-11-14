@@ -231,4 +231,30 @@
 	<text-files/>
 	<video-files/>
 </action>
+<action>
+	<icon>androidstudio</icon>
+	<name>Instalar APK (Waydroid)</name>
+	<submenu></submenu>
+	<unique-id>1793389209091590-1</unique-id>
+	<command>waydroid app install %f</command>
+	<description>Instalar el APK seleccionado con Waydroid</description>
+	<range>*</range>
+	<patterns>*.apk</patterns>
+	<other-files/>
+</action>
+<action>
+	<icon>android-sdk</icon>
+	<name>Enviar a Waydroid </name>
+	<submenu></submenu>
+	<unique-id>1793391974969308-1</unique-id>
+	<command>bash -c &quot;pkexec cp %f $HOME/.local/share/waydroid/data/media/0/Download&quot;</command>
+	<description>Envia un documento al almacenamiento de Waydroid</description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<audio-files/>
+	<image-files/>
+	<other-files/>
+	<text-files/>
+	<video-files/>
+</action>
 </actions>
