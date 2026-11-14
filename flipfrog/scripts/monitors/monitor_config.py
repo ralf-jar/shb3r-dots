@@ -1,7 +1,8 @@
 """monitor_config.py
 Helpers sin GTK del configurador de monitores (monitor_module.py, tab
-"Monitores" del dashboard): estado en vivo vía `hyprctl monitors -j`,
-serialización a `hypr/monitor-config.lua` (leído por
+"Monitores" del dashboard): estado en vivo vía
+`hyprctl monitors -j all` (el `all` es obligatorio para que un monitor
+apagado siga apareciendo), serialización a `hypr/monitor-config.lua` (leído por
 `hypr/config/monitors.lua` en cada `hyprctl reload`) y el cálculo de
 tamaño lógico (post-scale/rotación) para el canvas de posición.
 
@@ -48,12 +49,16 @@ MONITOR_FIELDS = ("output", "mode", "position", "scale", "transform", "disabled"
 
 
 def live_monitors():
-    """Estado real de TODOS los monitores (activos y deshabilitados,
-    `-a`) -- si un monitor apagado desapareciera de la lista, la UI no
-    podría volver a encenderlo. [] si hyprctl no responde."""
+    """Estado real de TODOS los monitores (activos y deshabilitados) --
+    si un monitor apagado desapareciera de la lista, la UI no podría
+    volver a encenderlo. `all` es un ARGUMENTO posicional, no un flag:
+    `-a` no existe como alias, Hyprland lo ignora en silencio y omite
+    del listado al monitor apagado (bug real 2026-11-13: al deshabilitar
+    uno y reabrir el dashboard ya no aparecía, y no había forma de
+    reactivarlo sin editar el .lua a mano). [] si hyprctl no responde."""
     try:
         out = subprocess.run(
-            ["hyprctl", "monitors", "-j", "-a"],
+            ["hyprctl", "monitors", "-j", "all"],
             capture_output=True, text=True, timeout=3, check=True,
         ).stdout
         return json.loads(out)
