@@ -6,8 +6,9 @@ que el panel de pantallas de Windows: arrastrar reposiciona un monitor
 respecto de los otros (con snap a los bordes), un ícono en la esquina
 rota. Clic en un rectángulo carga sus controles (Resolución/Escala/
 Modo/Encendido/Principal) en el panel de abajo -- nunca se muestran
-todos los monitores a la vez. Estado real vía `hyprctl monitors -j -a`
-(monitor_config.py); "Guardar y aplicar" escribe hypr/monitor-config.lua
+todos los monitores a la vez. Estado real vía `hyprctl monitors -j all`
+(monitor_config.py; `all` es obligatorio -- con `-a` el monitor apagado
+desaparece del listado y ya no se puede volver a encender); "Guardar y aplicar" escribe hypr/monitor-config.lua
 y dispara `hyprctl reload` -- monitors.lua (hypr/config/) es quien
 reaplica esto en cada reload real, ver ese archivo para el porqué de
 "reaplicar siempre, sin excepción" (modo cine).
