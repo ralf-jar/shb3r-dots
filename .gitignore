@@ -123,6 +123,11 @@
 # estado/config personal como colors.css, no código; monitors.lua cae a
 # autodetectar todo si este archivo no existe:
 /hypr/monitor-config.lua
+# espejo JSON de lo último guardado (modo/escala/posición de cada output) --
+# Hyprland no retiene el estado de un monitor apagado, así que el dashboard
+# lo lee para reponerlo cuando se vuelve a encender (ver monitor_config.py,
+# save_state()):
+/hypr/monitor-config.json
 # mapeo touch->monitor, mismo criterio (ver monitor_config.py,
 # save_touch()) -- .lua lo consume monitors.lua, .json es el espejo que
 # lee el dashboard para preseleccionar el droplist (no hay parser Lua
