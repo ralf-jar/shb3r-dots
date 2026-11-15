@@ -79,21 +79,40 @@ class MonitorConfigurator:
             container.pack_start(box, True, True, 0)
             return
 
+        # Lo último guardado desde la UI (espejo JSON de monitor_config):
+        # Hyprland no retiene resolución/escala/posición de un monitor
+        # apagado (`hyprctl monitors -j all` lo devuelve con width/height
+        # 0, x/y -1/-1 y scale 1), así que es la única fuente para
+        # reponerlo al volver a encenderlo.
+        self.saved = monitor_config.load_saved_state()
+
         # Estado editable en memoria -- un solo panel visible a la vez
         # (el seleccionado), así que los cambios de CUALQUIER monitor
         # (posición/rotación por canvas, resolución/escala/modo por el
         # panel) tienen que persistir acá, no solo en widgets vivos.
         self.pending = {}
         for mon in self.monitors:
+            saved = self.saved.get(mon["name"]) or {}
+            mode = monitor_config.current_mode_keyword(mon)
+            scale = mon.get("scale", 1.0)
+            transform = mon.get("transform", 0)
+            pos = monitor_config.live_position(mon)
+            if mon.get("disabled"):
+                mode = monitor_config.saved_mode(saved) or mode
+                scale = saved.get("scale") or scale
+                transform = saved.get("transform", transform)
+                pos = monitor_config.saved_position(saved) or pos
+            x, y = pos if pos else (None, None)
             self.pending[mon["name"]] = {
-                "mode": monitor_config.current_mode_keyword(mon),
-                "scale": mon.get("scale", 1.0),
-                "transform": mon.get("transform", 0),
+                "mode": mode,
+                "scale": scale,
+                "transform": transform,
                 "disabled": mon.get("disabled", False),
                 "mirror_of": None,
-                "x": mon["x"],
-                "y": mon["y"],
+                "x": x,
+                "y": y,
             }
+        self._assign_missing_positions()
         self.primary_output = next(
             (m["name"] for m in self.monitors if m.get("focused")), self.outputs[0])
         self.selected_output = self.primary_output
@@ -351,6 +370,24 @@ class MonitorConfigurator:
         self.canvas.queue_draw()
 
     # ---- Canvas: layout, dibujo, drag & drop, rotación --------------------
+
+    def _assign_missing_positions(self):
+        """Hyprland devuelve x/y = -1/-1 (sin posición) para un monitor
+        apagado. Dejarlo así lo dibujaría encimado con los demás en una
+        esquina y, al guardar, escribiría un "-1x-1" inválido -- a los
+        que no tienen posición se les busca un lugar pegado a la
+        izquierda del bloque del resto, sin hueco lógico (mismo criterio
+        que _snap())."""
+        known = [p for p in self.pending.values() if p["x"] is not None]
+        left = min((p["x"] for p in known), default=0)
+        top = min((p["y"] for p in known), default=0)
+        for p in self.pending.values():
+            if p["x"] is not None:
+                continue
+            width, _height = monitor_config.logical_size(
+                p["mode"], p["scale"], p["transform"])
+            left -= round(width)
+            p["x"], p["y"] = left, top
 
     def _compute_canvas_rects(self):
         """{output: (x, y, w, h)} en píxeles de pantalla del canvas --
