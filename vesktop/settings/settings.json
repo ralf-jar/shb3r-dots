@@ -110,7 +110,7 @@
         },
         "ClientTheme": {
             "enabled": true,
-            "color": "090909"
+            "color": "000000"
         },
         "ColorSighted": {
             "enabled": false
@@ -158,9 +158,6 @@
             "enabled": false
         },
         "Experiments": {
-            "enabled": false
-        },
-        "ExpressionCloner": {
             "enabled": false
         },
         "F8Break": {
@@ -564,6 +561,9 @@
         },
         "GifProviderSwitcher": {
             "enabled": false
+        },
+        "ExpressionManager": {
+            "enabled": false
         }
     },
     "uiElements": {
@@ -580,7 +580,7 @@
         "authenticated": false,
         "url": "https://api.vencord.dev/",
         "settingsSync": false,
-        "settingsSyncVersion": 1791849407361
+        "settingsSyncVersion": 1793392526420
     },
     "nativeTitleBar": false
 }

@@ -27,6 +27,7 @@ from common import theme_color_rgba
 from i18n import t
 import audiobook_ipc
 import audiobook_library as library
+import audiobook_search as search
 import audiobook_voices as voices
 
 CSS_FILE = os.path.join(SCRIPT_DIR, "audiobook_popup.css")
@@ -38,6 +39,8 @@ SPEEDS = (0.75, 0.8, 0.9, 1.0, 1.1, 1.25, 1.5, 1.75, 2.0)
 COVER_W, COVER_H = 132, 190
 FONT_SIZE_MIN, FONT_SIZE_MAX = 10, 36
 FOLLOW_GRACE = 5
+SEARCH_DEBOUNCE_MS = 220
+SEARCH_LIMIT = 60
 CONVERSION_STATUS = {
     "queued": "estado_en_cola", "reading": "estado_leyendo", "voice": "estado_voz",
     "speaking": "estado_narrando", "encoding": "estado_codificando", "error": "estado_error",
@@ -63,6 +66,10 @@ def _rgba(name, alpha=None):
     except (OSError, AttributeError, ValueError):
         r, g, b, a = 255, 255, 255, 1.0
     return r / 255, g / 255, b / 255, a if alpha is None else alpha
+
+
+def _hex(rgba):
+    return "#%02x%02x%02x" % tuple(int(round(c * 255)) for c in rgba[:3])
 
 
 def _radius():
@@ -258,6 +265,10 @@ class AudiobookPopup:
         self.last_user_scroll = 0
         self.volume_lock = False
         self._poll_in_flight = False
+        self.search_index = None
+        self.search_index_book = None
+        self.search_seq = 0
+        self.search_timeout = None
 
         self.stack = Gtk.Stack()
         self.stack.set_transition_type(Gtk.StackTransitionType.CROSSFADE)
@@ -536,7 +547,10 @@ class AudiobookPopup:
         tabs.set_name("ab-side-tabs")
         self.tab_chapters = Gtk.ToggleButton(label=t("audiolibros", "capitulos"))
         self.tab_marks = Gtk.ToggleButton(label=t("audiolibros", "marcadores"))
-        for btn in (self.tab_chapters, self.tab_marks):
+        self.tab_search = Gtk.ToggleButton(label=t("audiolibros", "buscar"))
+        self.tabs = {self.tab_chapters: "chapters", self.tab_marks: "marks",
+                     self.tab_search: "search"}
+        for btn in self.tabs:
             btn.get_style_context().add_class("ab-tab")
             btn.connect("toggled", self._on_tab_toggled)
             tabs.pack_start(btn, True, True, 0)
@@ -564,6 +578,34 @@ class AudiobookPopup:
         marks_scroller.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         marks_scroller.add(self.mark_list)
         self.side_stack.add_named(marks_scroller, "marks")
+
+        search_page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        self.search_entry = Gtk.SearchEntry()
+        self.search_entry.set_name("ab-search-entry")
+        self.search_entry.set_placeholder_text(t("audiolibros", "buscar_placeholder"))
+        self.search_entry.set_tooltip_text(t("audiolibros", "buscar_tooltip"))
+        self.search_entry.connect("changed", self._on_search_changed)
+        self.search_entry.connect("key-press-event", self._on_search_key)
+        search_page.pack_start(self.search_entry, False, False, 0)
+        self.search_info = Gtk.Label(xalign=0)
+        self.search_info.get_style_context().add_class("ab-search-info")
+        search_page.pack_start(self.search_info, False, False, 0)
+
+        self.search_list = Gtk.ListBox()
+        self.search_list.set_selection_mode(Gtk.SelectionMode.NONE)
+        self.search_list.get_style_context().add_class("ab-list")
+        self.search_list.connect("row-activated", self._on_search_activated)
+        self.search_hint = Gtk.Label(label=t("audiolibros", "buscar_pista"), xalign=0)
+        self.search_hint.set_line_wrap(True)
+        self.search_hint.set_max_width_chars(1)
+        self.search_hint.get_style_context().add_class("ab-empty-small")
+        self.search_hint.show()
+        self.search_list.set_placeholder(self.search_hint)
+        search_scroller = Gtk.ScrolledWindow()
+        search_scroller.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        search_scroller.add(self.search_list)
+        search_page.pack_start(search_scroller, True, True, 0)
+        self.side_stack.add_named(search_page, "search")
         side.pack_start(self.side_stack, True, True, 0)
 
         self.sidebar.add(side)
@@ -580,6 +622,9 @@ class AudiobookPopup:
         locate_btn = _icon_button("find-location-symbolic", t("audiolibros", "ir_a_narracion"), "ab-round-btn")
         locate_btn.connect("clicked", self._on_locate_clicked)
         top.pack_end(locate_btn, False, False, 0)
+        search_btn = _icon_button("system-search-symbolic", t("audiolibros", "buscar_tooltip"), "ab-round-btn")
+        search_btn.connect("clicked", lambda _b: self._open_search())
+        top.pack_end(search_btn, False, False, 0)
         main.pack_start(top, False, False, 0)
 
         self.textview = Gtk.TextView()
@@ -905,6 +950,11 @@ class AudiobookPopup:
         self.current_sentence = self.current_chapter = -1
         self.bookmarks_sig = None
         self.last_user_scroll = 0
+        self.search_seq += 1
+        self.search_index = None
+        self.search_index_book = None
+        self.search_entry.set_text("")
+        self._clear_search_results()
         self.stack.set_visible_child_name("reader")
         return False
 
@@ -991,6 +1041,153 @@ class AudiobookPopup:
         self.stack.set_visible_child_name("library")
         self._reload_library()
 
+    # ---- búsqueda en el libro ------------------------------------------------
+
+    def _open_search(self):
+        self._set_sidebar(True)
+        self.tab_search.set_active(True)
+        GLib.idle_add(self._focus_search)
+
+    def _focus_search(self):
+        self.search_entry.grab_focus()
+        return False
+
+    def _on_search_key(self, entry, event):
+        if event.keyval == Gdk.KEY_Escape and entry.get_text():
+            entry.set_text("")
+            return True
+        return False
+
+    def _on_search_changed(self, _entry):
+        if self.search_timeout:
+            GLib.source_remove(self.search_timeout)
+            self.search_timeout = None
+        if not self.book:
+            return
+        if not self.search_entry.get_text().strip():
+            self.search_seq += 1
+            self._clear_search_results()
+            return
+        self.search_info.set_text(t("audiolibros", "buscar_buscando"))
+        self.search_timeout = GLib.timeout_add(SEARCH_DEBOUNCE_MS, self._on_search_debounce)
+
+    def _on_search_debounce(self):
+        self.search_timeout = None
+        self._run_search(self.search_entry.get_text())
+        return False
+
+    def _run_search(self, query):
+        needle = search.normalize(query)
+        if len(needle) < 2:
+            self.search_seq += 1
+            self._clear_search_results()
+            return
+        self.search_seq += 1
+        seq = self.search_seq
+        book = self.book
+
+        def work():
+            index = self.search_index
+            if index is None or self.search_index_book is not book:
+                index = search.SearchIndex(book)
+                GLib.idle_add(self._set_search_index, book, index)
+            results, total = index.search(needle, SEARCH_LIMIT)
+            GLib.idle_add(self._apply_search_results, seq, book, needle, results, total)
+
+        threading.Thread(target=work, daemon=True).start()
+
+    def _set_search_index(self, book, index):
+        if self.book is book:
+            self.search_index = index
+            self.search_index_book = book
+        return False
+
+    def _apply_search_results(self, seq, book, needle, results, total):
+        if seq != self.search_seq or self.book is not book:
+            return False
+        if search.normalize(self.search_entry.get_text()) != needle:
+            return False
+        for child in self.search_list.get_children():
+            self.search_list.remove(child)
+        for result in results:
+            self.search_list.add(self._build_search_row(result))
+        if total == 0:
+            message = t("audiolibros", "buscar_sin_resultados")
+            self.search_info.set_text(message)
+            self.search_hint.set_text(message)
+        elif total == 1:
+            self.search_info.set_text(t("audiolibros", "buscar_coincidencia"))
+        elif total > len(results):
+            self.search_info.set_text(t("audiolibros", "buscar_mostrando",
+                                         shown=len(results), total=total))
+        else:
+            self.search_info.set_text(t("audiolibros", "buscar_coincidencias", n=total))
+        if results:
+            self.search_hint.set_text(t("audiolibros", "buscar_pista"))
+        self.search_list.show_all()
+        return False
+
+    def _clear_search_results(self):
+        for child in self.search_list.get_children():
+            self.search_list.remove(child)
+        self.search_hint.set_text(t("audiolibros", "buscar_pista"))
+        self.search_info.set_text("")
+        self.search_list.show_all()
+
+    def _search_markup(self, segments):
+        accent = _hex(_rgba("myforegroundhover"))
+        parts = []
+        for text, match in segments:
+            escaped = GLib.markup_escape_text(text)
+            if match and escaped:
+                parts.append('<span foreground="%s" weight="bold">%s</span>' % (accent, escaped))
+            else:
+                parts.append(escaped)
+        return "".join(parts)
+
+    def _build_search_row(self, result):
+        row = Gtk.ListBoxRow()
+        row.position = result["start"]
+        row.sentence = result["sentence"]
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        box.get_style_context().add_class("ab-search-row")
+
+        top = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        chapter = result["chapter"] or "—"
+        chapter_label = Gtk.Label(label=chapter, xalign=0)
+        chapter_label.set_ellipsize(Pango.EllipsizeMode.END)
+        chapter_label.set_max_width_chars(20)
+        chapter_label.set_hexpand(True)
+        chapter_label.set_tooltip_text(chapter)
+        chapter_label.get_style_context().add_class("ab-search-chapter")
+        top.pack_start(chapter_label, True, True, 0)
+        when = Gtk.Label(label=fmt_clock(result["start"]), xalign=1.0)
+        when.set_width_chars(7)
+        when.get_style_context().add_class("ab-chapter-time")
+        top.pack_start(when, False, False, 0)
+        box.pack_start(top, False, False, 0)
+
+        excerpt = Gtk.Label(xalign=0)
+        excerpt.set_markup(self._search_markup(result["segments"]))
+        excerpt.set_line_wrap(True)
+        excerpt.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR)
+        excerpt.set_lines(3)
+        excerpt.set_ellipsize(Pango.EllipsizeMode.END)
+        excerpt.set_max_width_chars(1)
+        excerpt.get_style_context().add_class("ab-search-excerpt")
+        box.pack_start(excerpt, False, False, 0)
+
+        row.add(box)
+        return row
+
+    def _on_search_activated(self, _list, row):
+        self.last_user_scroll = 0
+        self.command("seek", position=row.position)
+        if 0 <= row.sentence < len(self.s_offsets):
+            buf = self.textview.get_buffer()
+            self.textview.scroll_to_iter(
+                buf.get_iter_at_offset(self.s_offsets[row.sentence][0]), 0.1, True, 0.0, 0.3)
+
     # ---- sincronía texto/audio ----------------------------------------------
 
     def _sync_reader(self, player):
@@ -1076,12 +1273,13 @@ class AudiobookPopup:
 
     def _on_tab_toggled(self, btn):
         if not btn.get_active():
-            if not (self.tab_chapters.get_active() or self.tab_marks.get_active()):
+            if not any(tab.get_active() for tab in self.tabs):
                 btn.set_active(True)
             return
-        other = self.tab_marks if btn is self.tab_chapters else self.tab_chapters
-        other.set_active(False)
-        self.side_stack.set_visible_child_name("chapters" if btn is self.tab_chapters else "marks")
+        for other in self.tabs:
+            if other is not btn:
+                other.set_active(False)
+        self.side_stack.set_visible_child_name(self.tabs[btn])
 
     def _on_add_bookmark(self, _btn):
         self.command("add_bookmark")
@@ -1168,17 +1366,28 @@ class AudiobookPopup:
     # ---- ciclo de vida ------------------------------------------------------------
 
     def _on_key(self, _widget, event):
-        if self.text_panel.get_reveal_child():
+        ctrl = bool(event.state & Gdk.ModifierType.CONTROL_MASK)
+        if ctrl and event.keyval == Gdk.KEY_f and self.stack.get_visible_child_name() == "reader":
+            self._open_search()
+            return True
+        if self.text_panel.get_reveal_child() and self.font_search.has_focus():
             if self._on_font_key(event):
                 return True
-            if self.font_search.has_focus() and not event.state & Gdk.ModifierType.CONTROL_MASK:
-                return False
+        focus = self.window.get_focus()
         if event.keyval == Gdk.KEY_Escape:
+            # Primero vacía el buscador (lo hace _on_search_key); vacío,
+            # cierra el popup como el resto del lector.
+            if isinstance(focus, Gtk.Entry) and focus.get_text():
+                return False
             self.window.destroy()
             return True
+        # Escribir en cualquier entry (buscar, tipografía) nunca dispara
+        # los atajos del lector -- sobre todo Espacio, que pausaría.
+        if isinstance(focus, Gtk.Entry) and not ctrl:
+            return False
         if self.stack.get_visible_child_name() != "reader":
             return False
-        if event.state & Gdk.ModifierType.CONTROL_MASK:
+        if ctrl:
             if event.keyval in (Gdk.KEY_plus, Gdk.KEY_equal, Gdk.KEY_KP_Add):
                 self._change_font_size(1)
                 return True
@@ -1197,6 +1406,9 @@ class AudiobookPopup:
         return False
 
     def _on_destroy(self, *_args):
+        if self.search_timeout:
+            GLib.source_remove(self.search_timeout)
+            self.search_timeout = None
         if os.path.exists(LOCK):
             os.remove(LOCK)
         Gtk.main_quit()

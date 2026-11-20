@@ -7,7 +7,7 @@ window {
 /* Mismo contenedor que #launcher-container/#dl-container. */
 #ab-container {
     background-color: @mybackground;
-    border-radius: 0px;
+    border-radius: 20px;
     padding: 18px 22px 16px 22px;
     min-width: 1120px;
     min-height: 760px;
@@ -26,7 +26,7 @@ window {
     background-color: alpha(@myforegroundhover, 0.55);
     font-size: 12px;
     font-weight: 800;
-    border-radius: 0px;
+    border-radius: 20px;
     padding: 1px 8px;
 }
 
@@ -39,7 +39,7 @@ window {
     color: @myforegroundhover;
     border: none;
     box-shadow: none;
-    border-radius: 0px;
+    border-radius: 20px;
     font-weight: 800;
     padding: 6px 16px;
 }
@@ -53,7 +53,7 @@ window {
     color: @myforeground;
     border: none;
     box-shadow: none;
-    border-radius: 0px;
+    border-radius: 20px;
     padding: 4px 10px;
 }
 
@@ -63,7 +63,7 @@ window {
 
 .ab-conv-row {
     background-color: alpha(@myforeground, 0.05);
-    border-radius: 0px;
+    border-radius: 20px;
     padding: 8px 12px;
     margin-bottom: 6px;
 }
@@ -91,11 +91,11 @@ window {
 
 .ab-card {
     padding: 8px;
-    border-radius: 0px;
+    border-radius: 20px;
 }
 
 flowboxchild {
-    border-radius: 0px;
+    border-radius: 20px;
     padding: 0;
 }
 
@@ -105,7 +105,7 @@ flowboxchild:hover {
 
 .ab-cover-placeholder {
     background-color: alpha(@myforeground, 0.06);
-    border-radius: 0px;
+    border-radius: 20px;
     color: alpha(@myforeground, 0.4);
 }
 
@@ -154,7 +154,7 @@ flowboxchild:hover {
     color: @myforeground;
     border: none;
     box-shadow: none;
-    border-radius: 0px;
+    border-radius: 20px;
     font-weight: 700;
     font-size: 12px;
     padding: 5px 0;
@@ -173,7 +173,7 @@ flowboxchild:hover {
 }
 
 .ab-list row {
-    border-radius: 0px;
+    border-radius: 20px;
     padding: 0;
 }
 
@@ -183,7 +183,7 @@ flowboxchild:hover {
 
 .ab-chapter {
     padding: 7px 8px;
-    border-radius: 0px;
+    border-radius: 20px;
     border: 1px solid transparent;
 }
 
@@ -212,6 +212,43 @@ flowboxchild:hover {
 .ab-chapter-current .ab-chapter-time {
     color: @myforeground;
     font-weight: 800;
+}
+
+/* ---- Buscar en el libro ---- */
+
+#ab-search-entry {
+    background-color: alpha(@myforeground, 0.06);
+    color: @myforeground;
+    border: none;
+    border-radius: 20px;
+    padding: 5px 10px;
+    margin-bottom: 0;
+    min-height: 26px;
+}
+
+#ab-search-entry image {
+    color: alpha(@myforeground, 0.55);
+}
+
+.ab-search-info {
+    color: alpha(@myforeground, 0.6);
+    font-size: 11px;
+}
+
+.ab-search-row {
+    padding: 7px 8px;
+    border-radius: 20px;
+}
+
+.ab-search-chapter {
+    color: @myforegroundhover;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.ab-search-excerpt {
+    color: alpha(@myforeground, 0.8);
+    font-size: 12px;
 }
 
 #ab-text,
@@ -292,12 +329,12 @@ flowboxchild:hover {
 scale trough {
     background-color: alpha(@myforeground, 0.16);
     min-height: 4px;
-    border-radius: 0px;
+    border-radius: 20px;
 }
 
 scale highlight {
     background-color: @myforegroundhover;
-    border-radius: 0px;
+    border-radius: 20px;
 }
 
 scale slider {
@@ -312,14 +349,14 @@ progressbar trough {
     background-color: alpha(@myforeground, 0.1);
     min-height: 5px;
     border: none;
-    border-radius: 0px;
+    border-radius: 20px;
 }
 
 progressbar progress {
     background-color: @myforegroundhover;
     min-height: 5px;
     border: none;
-    border-radius: 0px;
+    border-radius: 20px;
 }
 
 .ab-conv-error progressbar progress {

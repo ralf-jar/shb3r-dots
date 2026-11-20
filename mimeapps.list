@@ -50,6 +50,7 @@ image/svg+xml-compressed=org.gnome.Loupe.desktop
 image/avif=org.gnome.Loupe.desktop
 image/heic=org.gnome.Loupe.desktop
 image/jxl=org.gnome.Loupe.desktop
+application/x-msdownload=steam_app_4628710.desktop
 
 [Added Associations]
 text/x-lua=sublime_text.desktop;
@@ -71,3 +72,5 @@ audio/mpeg=mpv.desktop;
 application/json=sublime_text.desktop;
 text/x-shellscript=sublime_text.desktop;
 video/mp4=vlc.desktop;
+application/x-msdownload=steam_app_4628710.desktop;
+application/xml=sublime_text.desktop;
