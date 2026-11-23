@@ -30,7 +30,7 @@
     gap_size = 10
     separator_color = frame
     sort = yes
-    font = JetBrainsMono Nerd Font 9
+    font = Geologica, Symbols Nerd Font 9
     line_height = 0
     markup = full
     format = "<b>%s</b>: %b"
