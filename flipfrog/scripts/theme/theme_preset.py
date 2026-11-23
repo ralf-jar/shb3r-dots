@@ -33,6 +33,8 @@ PREFIX = "/* preset:"
 LINE_RE = re.compile(r"^/\*\s*preset:\s*(.+?)\s*\*/$")
 
 GLOBAL_CSS = os.path.join(THEMER_DIR, "global.css")
+DUNSTRC = os.path.normpath(os.path.join(THEMER_DIR, "..", "..", "dunst", "dunstrc"))
+DUNST_FONT_RE = re.compile(r"^(\s*font\s*=\s*).*?(\s+\d+(?:\.\d+)?)\s*$", re.MULTILINE)
 BLUR_FILE = os.path.join(THEMER_DIR, "blur-enabled.json")
 CLOCK_FORMAT_FILE = os.path.expanduser("~/.config/waybar/clock-format.json")
 CLOCK_GRADIENT_FILE = os.path.expanduser("~/.config/waybar/clock-gradient.json")
@@ -75,6 +77,22 @@ def set_font_family(name):
     if count == 0:
         return
     common.atomic_write(GLOBAL_CSS, new_content)
+    _set_dunst_font(name)
+
+
+def _set_dunst_font(name):
+    """Cambia la familia y conserva el tamaño de `font =` en dunstrc;
+    Symbols Nerd Font de respaldo, como en global.css."""
+    try:
+        with open(DUNSTRC) as f:
+            content = f.read()
+    except OSError:
+        return
+    new = DUNST_FONT_RE.sub(lambda m: f"{m.group(1)}{name}, Symbols Nerd Font{m.group(2)}",
+                            content, count=1)
+    if new != content:
+        common.atomic_write(DUNSTRC, new)
+        subprocess.run(["dunstctl", "reload"], capture_output=True, timeout=2)
 
 
 def _font_installed(name):
