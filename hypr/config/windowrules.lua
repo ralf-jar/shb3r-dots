@@ -437,6 +437,15 @@ hl.layer_rule({
     ignore_alpha = 0.02
 })
 
+-- Notificaciones de dunst (namespace "notifications"). ignore_alpha deja
+-- fuera las esquinas transparentes del redondeo (corner_radius).
+hl.layer_rule({
+    match = { namespace = "notifications" },
+    blur = true,
+    xray = false,
+    ignore_alpha = 0.02
+})
+
 -- disk/disk_usage_popup.py (click en la línea de disco de "Procesos") --
 -- mismo mecanismo, namespace "disk-usage" de build_layer_window().
 hl.layer_rule({
