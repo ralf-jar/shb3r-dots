@@ -22,7 +22,7 @@
     indicate_hidden = yes
     transparency = 0.5
     separator_height = 5
-    padding = 8
+    padding = 6
     horizontal_padding = 25
     text_icon_padding = 0
     frame_width = 0
@@ -46,8 +46,8 @@
     enable_recursive_icon_lookup = true
     icon_theme = Papirus
     icon_position = left
-    min_icon_size = 28
-    max_icon_size = 28
+    min_icon_size = 19
+    max_icon_size = 19
     icon_path = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
     sticky_history = yes
     history_length = 100
