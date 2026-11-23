@@ -56,7 +56,7 @@
     always_run_script = true
     title = Dunst
     class = Dunst
-    corner_radius = 25
+    corner_radius = 20
     corners = all
     ignore_dbusclose = false
     force_xwayland = false
