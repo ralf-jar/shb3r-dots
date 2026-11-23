@@ -4,7 +4,7 @@
     width = 400
     height = (0, 35)
     origin = top-right
-    offset = (25,-30)
+    offset = (25,-24)
     scale = 0
     notification_limit = 20
 
