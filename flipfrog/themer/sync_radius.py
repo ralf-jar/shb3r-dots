@@ -26,6 +26,9 @@ CSS_GLOBS = [
 
 NUM_BEFORE_PX_RE = re.compile(r"\d+(?=px)")
 
+DUNSTRC = os.path.join(CONFIG_ROOT, "dunst", "dunstrc")
+DUNST_RADIUS_RE = re.compile(r"^(\s*corner_radius\s*=\s*)\d+", re.MULTILINE)
+
 
 def discover_css_files():
     found = []
@@ -79,12 +82,27 @@ def _apply_hyprland_rounding(value):
     )
 
 
+def _apply_dunst_radius(value):
+    """Solo `corner_radius` (la notificación); los de ícono y barra de
+    progreso llevan prefijo y el regex no los toca."""
+    try:
+        with open(DUNSTRC) as f:
+            content = f.read()
+    except OSError:
+        return
+    new = DUNST_RADIUS_RE.sub(rf"\g<1>{value}", content)
+    if new != content:
+        _atomic_write(DUNSTRC, new)
+        subprocess.run(["dunstctl", "reload"], capture_output=True, timeout=2)
+
+
 def apply_radius(value):
     value = max(MIN_RADIUS, min(MAX_RADIUS, int(value)))
     for path in discover_css_files():
         _rewrite_css(path, value)
     save_radius(value)
     _apply_hyprland_rounding(value)
+    _apply_dunst_radius(value)
     return value
 
 
