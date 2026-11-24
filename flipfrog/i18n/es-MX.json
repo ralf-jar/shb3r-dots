@@ -897,6 +897,6 @@
   {"modulo": "fondo", "codigo": "tip_degradar_bordes", "texto": "Funde los bordes de la imagen con el fondo (desenfocado en Doble capa, negro en Ajustar)"},
   {"modulo": "fondo", "codigo": "sombra", "texto": "Sombra"},
   {"modulo": "fondo", "codigo": "tip_sombra", "texto": "Sombra difusa detrás de la imagen, un poco hacia abajo; el número es qué tan oscura"},
-  {"modulo": "fondo", "codigo": "aviso_titulo", "texto": "Fondo de pantalla"},
-  {"modulo": "fondo", "codigo": "aviso_ajustar", "texto": "Ajusta el fondo establecido con SUPER + R"}
+  {"modulo": "fondo", "codigo": "aviso_titulo", "texto": "Fondo"},
+  {"modulo": "fondo", "codigo": "aviso_ajustar", "texto": "ajústalo con SUPER + R"}
 ]

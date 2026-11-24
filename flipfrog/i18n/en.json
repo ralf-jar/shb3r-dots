@@ -897,5 +897,5 @@
   {"modulo": "fondo", "codigo": "sombra", "texto": "Shadow"},
   {"modulo": "fondo", "codigo": "tip_sombra", "texto": "Soft shadow behind the image, slightly below it; the number is how dark it is"},
   {"modulo": "fondo", "codigo": "aviso_titulo", "texto": "Wallpaper"},
-  {"modulo": "fondo", "codigo": "aviso_ajustar", "texto": "Adjust the wallpaper you just set with SUPER + R"}
+  {"modulo": "fondo", "codigo": "aviso_ajustar", "texto": "adjust it with SUPER + R"}
 ]
