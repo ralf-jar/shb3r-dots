@@ -17,6 +17,7 @@ import subprocess
 import sys
 import threading
 
+import cairo
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GdkPixbuf, GLib, Pango
@@ -109,6 +110,7 @@ class WallpaperAdjust:
         _fmt, self.src_w, self.src_h = GdkPixbuf.Pixbuf.get_file_info(still)
         self.pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(still, PREVIEW_MAX, PREVIEW_MAX, True)
         self.blur_cache = {}
+        self.mask_cache = {}
         self.small = None
 
         saved = fit.load(self.path)
@@ -190,7 +192,9 @@ class WallpaperAdjust:
         self.size_row = Gtk.Box(spacing=12)
         self.size_row.set_name("wa-size-row")
         self.size_scale = self._slider(self.size_row, t("fondo", "tamano_capa"), fit.MIN_SIZE, 100, 5, "size")
-        self.size_row.set_tooltip_text(t("fondo", "tip_tamano_capa"))
+        self.size_scale.set_tooltip_text(t("fondo", "tip_tamano_capa"))
+        self.feather_scale = self._slider(self.size_row, t("fondo", "degradar_bordes"), 0, fit.MAX_FEATHER, 5, "feather")
+        self.feather_scale.set_tooltip_text(t("fondo", "tip_degradar_bordes"))
         container.pack_start(self.size_row, False, False, 0)
 
         tools = Gtk.Box(spacing=8)
@@ -284,6 +288,7 @@ class WallpaperAdjust:
         self.blur_scale.set_value(s["blur"])
         self.dim_scale.set_value(s["dim"])
         self.size_scale.set_value(s["size"])
+        self.feather_scale.set_value(s["feather"])
         self._syncing = False
         self.blur_row.set_visible(s["mode"] == "blur")
         self.size_row.set_visible(s["mode"] in ("fit", "blur"))
@@ -349,6 +354,26 @@ class WallpaperAdjust:
                 data, GdkPixbuf.Colorspace.RGB, False, 8, out.width, out.height, out.width * 3)
         return self.blur_cache[key]
 
+    def _feather_mask(self, dw, dh, feather):
+        """Máscara de alfa de los bordes degradados, mismas proporciones
+        que la de wallpaper_fit.filter_graph."""
+        mw, mh = max(8, int(dw / 2)), max(8, int(dh / 2))
+        key = (mw, mh, feather)
+        if key not in self.mask_cache:
+            from PIL import Image, ImageDraw, ImageFilter
+            edge = max(1.0, feather / 100 * min(mw, mh))
+            inset = max(1, round(edge / 2))
+            img = Image.new("L", (mw, mh), 0)
+            ImageDraw.Draw(img).rectangle((inset, inset, mw - inset - 1, mh - inset - 1), fill=255)
+            img = img.filter(ImageFilter.GaussianBlur(max(0.5, edge / 4)))
+            stride = cairo.ImageSurface.format_stride_for_width(cairo.FORMAT_A8, mw)
+            raw = img.tobytes()
+            data = bytearray(stride * mh)
+            for row in range(mh):
+                data[row * stride:row * stride + mw] = raw[row * mw:(row + 1) * mw]
+            self.mask_cache[key] = cairo.ImageSurface.create_for_data(data, cairo.FORMAT_A8, mw, mh, stride)
+        return self.mask_cache[key]
+
     def _paint_region(self, cr, pixbuf, region, dx, dy, dw, dh):
         """Pinta la parte `region` (fracciones) de `pixbuf` estirada a
         (dx, dy, dw, dh)."""
@@ -392,7 +417,17 @@ class WallpaperAdjust:
                 cr.paint()
             k = min(w0 / cw_px, h0 / ch_px) * s["size"] / 100
             dw, dh = cw_px * k, ch_px * k
-            self._paint_region(cr, self.pixbuf, s["crop"], x0 + (w0 - dw) / 2, y0 + (h0 - dh) / 2, dw, dh)
+            fx, fy = x0 + (w0 - dw) / 2, y0 + (h0 - dh) / 2
+            if s["feather"]:
+                cr.push_group()
+                self._paint_region(cr, self.pixbuf, s["crop"], fx, fy, dw, dh)
+                cr.pop_group_to_source()
+                mask = self._feather_mask(dw, dh, s["feather"])
+                cr.translate(fx, fy)
+                cr.scale(dw / mask.get_width(), dh / mask.get_height())
+                cr.mask_surface(mask, 0, 0)
+            else:
+                self._paint_region(cr, self.pixbuf, s["crop"], fx, fy, dw, dh)
         cr.restore()
 
     def _draw_layout(self, _area, cr):

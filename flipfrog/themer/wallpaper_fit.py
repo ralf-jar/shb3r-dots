@@ -7,7 +7,8 @@ popup scripts/wallpaper/wallpaper_adjust.py para editarlo.
 Ajustes en themer/wallpaper-fit.json (un escritor: el popup), en
 "files" por archivo (ruta con `~`) y por salida: {"mode", "crop":
 [x, y, w, h] en fracciones de la imagen, "blur", "dim", "size" (% de la
-capa de encima en Ajustar/Doble capa)}; además
+capa de encima en Ajustar/Doble capa), "feather" (% de sus bordes que
+se degradan)}; además
 "detect_palette", el switch de sacar la paleta del tema del fondo. Un archivo sin ajustes usa el de siempre (rellenar
 centrado), así que el ajuste también vale cuando lo pone un tema.
 
@@ -40,6 +41,7 @@ DEFAULT_BLUR = 3.0     # sigma en % del ancho de la salida
 DEFAULT_DIM = 30       # % de oscurecido de la capa de atrás
 DEFAULT_SIZE = 100     # % del tamaño máximo de la imagen en Ajustar/Doble capa
 MIN_SIZE = 20
+MAX_FEATHER = 50   # % del lado corto de la imagen de encima que se degrada
 FULL = [0.0, 0.0, 1.0, 1.0]
 # El desenfoque de la capa de atrás se calcula a 1/BLUR_SCALE de tamaño:
 # a resolución completa un video de fondo se come varios núcleos.
@@ -162,7 +164,8 @@ def normalized(setting):
     return {"mode": mode, "crop": [x, y, w, h],
             "blur": float(setting.get("blur", DEFAULT_BLUR)),
             "dim": int(setting.get("dim", DEFAULT_DIM)),
-            "size": min(100, max(MIN_SIZE, int(setting.get("size", DEFAULT_SIZE))))}
+            "size": min(100, max(MIN_SIZE, int(setting.get("size", DEFAULT_SIZE)))),
+            "feather": min(MAX_FEATHER, max(0, int(setting.get("feather", 0))))}
 
 
 def cover_crop(src_w, src_h, out_w, out_h):
@@ -217,29 +220,47 @@ def filter_graph(setting, src_w, src_h, out_w, out_h, video=False):
     scale = min(out_w / cw, out_h / ch) * s["size"] / 100
     fw, fh = min(out_w, _even(cw * scale)), min(out_h, _even(ch * scale))
     ox, oy = (out_w - fw) // 2, (out_h - fh) // 2
-    if mode == "fit":
+    feather = s["feather"]
+    if mode == "fit" and not feather:
         return f"{pre}scale={fw}:{fh}:{lanczos},pad={out_w}:{out_h}:{ox}:{oy}:black,setsar=1"
 
-    # blur: atrás la misma imagen rellenando la salida, desenfocada y
-    # oscurecida; encima completa.
+    # Dos capas. blur: atrás la misma imagen rellenando la salida,
+    # desenfocada y oscurecida. fit con bordes degradados: atrás negro.
+    # Encima la imagen; con degradado lleva una máscara de alfa.
     bw, bh = _even(out_w / BLUR_SCALE), _even(out_h / BLUR_SCALE)
     bx, by, bcw, bch = cover_crop(cw, ch, bw, bh)
     bcw_px, bch_px = max(2, round(bcw * cw)), max(2, round(bch * ch))
     bcx, bcy = round(bx * cw), round(by * ch)
-    sigma = max(0.1, s["blur"] * out_w / 100 / BLUR_SCALE)
-    k = max(0.0, 1 - s["dim"] / 100)
-    # Oscurecer (lutyuv sobre la luma) y desenfocar a tamaño reducido;
-    # en RGB y a tamaño completo un video de fondo usaba ~3 núcleos.
-    # Una imagen se queda en RGB (yuv420 suaviza el color de los bordes).
-    if video:
-        fmt, dim, over = "yuv420p", f"lutyuv=y=val*{k:.3f}", "yuv420"
+    # Oscurecer (lut sobre la luma) y desenfocar a tamaño reducido; en RGB
+    # y a tamaño completo un video de fondo usaba ~3 núcleos. Una imagen
+    # se queda en RGB (yuv420 suaviza el color de los bordes).
+    if mode == "blur":
+        sigma = max(0.1, s["blur"] * out_w / 100 / BLUR_SCALE)
+        k = max(0.0, 1 - s["dim"] / 100)
+        dim = (f"lutyuv=y=val*{k:.3f}" if video
+               else f"lutrgb=r=val*{k:.3f}:g=val*{k:.3f}:b=val*{k:.3f}")
+        back = f"gblur=sigma={sigma:.2f},{dim}"
     else:
-        fmt, dim, over = "gbrp", f"lutrgb=r=val*{k:.3f}:g=val*{k:.3f}:b=val*{k:.3f}", "gbrp"
+        back = "lutyuv=y=16:u=128:v=128" if video else "lutrgb=r=0:g=0:b=0"
+    fmt, over = ("yuv420p", "yuv420") if video else ("gbrp", "gbrp")
+
+    front = f"[fgsrc]scale={fw}:{fh}:{scaler}[fg];"
+    if feather:
+        # Máscara: rectángulo blanco con borde negro, desenfocada a 1/4 y
+        # escalada. Una sola imagen (color de 1 cuadro): alphamerge repite
+        # la última, así no se recalcula en cada cuadro de un video.
+        mw, mh = max(8, fw // BLUR_SCALE), max(8, fh // BLUR_SCALE)
+        edge = max(1.0, feather / 100 * min(mw, mh))
+        inset = max(1, round(edge / 2))
+        front = (f"[fgsrc]scale={fw}:{fh}:{scaler},format={'yuva420p' if video else 'gbrap'}[fgc];"
+                 f"color=c=black:s={mw}x{mh}:r=1:d=1,format=gray,"
+                 f"drawbox=x={inset}:y={inset}:w={mw - 2 * inset}:h={mh - 2 * inset}:color=white:t=fill,"
+                 f"gblur=sigma={max(0.5, edge / 4):.2f},scale={fw}:{fh}:flags=bilinear[mask];"
+                 f"[fgc][mask]alphamerge[fg];")
     return (f"{pre}format={fmt},split=2[bgsrc][fgsrc];"
             f"[bgsrc]crop={bcw_px}:{bch_px}:{bcx}:{bcy},scale={bw}:{bh}:flags=fast_bilinear,"
-            f"gblur=sigma={sigma:.2f},{dim},"
-            f"scale={out_w}:{out_h}:flags=bilinear[bg];"
-            f"[fgsrc]scale={fw}:{fh}:{scaler}[fg];"
+            f"{back},scale={out_w}:{out_h}:flags=bilinear[bg];"
+            f"{front}"
             f"[bg][fg]overlay={ox}:{oy}:format={over},setsar=1")
 
 
