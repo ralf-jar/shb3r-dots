@@ -78,7 +78,8 @@ button:focus {
     box-shadow: none;
 }
 
-#wa-blur-row {
+#wa-blur-row,
+#wa-size-row {
     margin-top: 10px;
 }
 

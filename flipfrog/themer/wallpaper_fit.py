@@ -6,7 +6,8 @@ popup scripts/wallpaper/wallpaper_adjust.py para editarlo.
 
 Ajustes en themer/wallpaper-fit.json (un escritor: el popup), en
 "files" por archivo (ruta con `~`) y por salida: {"mode", "crop":
-[x, y, w, h] en fracciones de la imagen, "blur", "dim"}; además
+[x, y, w, h] en fracciones de la imagen, "blur", "dim", "size" (% de la
+capa de encima en Ajustar/Doble capa)}; además
 "detect_palette", el switch de sacar la paleta del tema del fondo. Un archivo sin ajustes usa el de siempre (rellenar
 centrado), así que el ajuste también vale cuando lo pone un tema.
 
@@ -37,6 +38,8 @@ RENDER_CACHE = os.path.expanduser("~/.cache/flipfrog-wallpaper-fit")
 MODES = ("fill", "fit", "blur", "stretch", "center")
 DEFAULT_BLUR = 3.0     # sigma en % del ancho de la salida
 DEFAULT_DIM = 30       # % de oscurecido de la capa de atrás
+DEFAULT_SIZE = 100     # % del tamaño máximo de la imagen en Ajustar/Doble capa
+MIN_SIZE = 20
 FULL = [0.0, 0.0, 1.0, 1.0]
 # El desenfoque de la capa de atrás se calcula a 1/BLUR_SCALE de tamaño:
 # a resolución completa un video de fondo se come varios núcleos.
@@ -158,7 +161,8 @@ def normalized(setting):
     h = max(0.01, min(h, 1 - y))
     return {"mode": mode, "crop": [x, y, w, h],
             "blur": float(setting.get("blur", DEFAULT_BLUR)),
-            "dim": int(setting.get("dim", DEFAULT_DIM))}
+            "dim": int(setting.get("dim", DEFAULT_DIM)),
+            "size": min(100, max(MIN_SIZE, int(setting.get("size", DEFAULT_SIZE))))}
 
 
 def cover_crop(src_w, src_h, out_w, out_h):
@@ -210,7 +214,7 @@ def filter_graph(setting, src_w, src_h, out_w, out_h, video=False):
         return (f"{pre}{inner}pad={out_w}:{out_h}:{(out_w - vw) // 2}:{(out_h - vh) // 2}:black,"
                 "setsar=1")
 
-    scale = min(out_w / cw, out_h / ch)
+    scale = min(out_w / cw, out_h / ch) * s["size"] / 100
     fw, fh = min(out_w, _even(cw * scale)), min(out_h, _even(ch * scale))
     ox, oy = (out_w - fw) // 2, (out_h - fh) // 2
     if mode == "fit":
