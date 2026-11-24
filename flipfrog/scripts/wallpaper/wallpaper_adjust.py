@@ -195,7 +195,15 @@ class WallpaperAdjust:
         self.size_scale.set_tooltip_text(t("fondo", "tip_tamano_capa"))
         self.feather_scale = self._slider(self.size_row, t("fondo", "degradar_bordes"), 0, fit.MAX_FEATHER, 5, "feather")
         self.feather_scale.set_tooltip_text(t("fondo", "tip_degradar_bordes"))
+
+        self.shadow_row = Gtk.Box(spacing=12)
+        self.shadow_row.set_name("wa-shadow-row")
+        self.shadow_scale = self._slider(self.shadow_row, t("fondo", "sombra"), 0, 100, 5, "shadow")
+        self.shadow_scale.set_tooltip_text(t("fondo", "tip_sombra"))
+        # Media fila, alineada con la columna de "Tamaño de la imagen".
+        self.shadow_row.pack_start(Gtk.Box(), True, True, 0)
         container.pack_start(self.size_row, False, False, 0)
+        container.pack_start(self.shadow_row, False, False, 0)
 
         tools = Gtk.Box(spacing=8)
         tools.set_name("wa-tools")
@@ -269,6 +277,8 @@ class WallpaperAdjust:
         value.set_width_chars(4)
         value.set_xalign(1.0)
         scale.connect("value-changed", self._on_slider, key, value)
+        # value-changed no se emite si el valor inicial ya es el del ajuste.
+        value.set_text(self._slider_text(key, lo))
         box.pack_start(label, False, False, 0)
         box.pack_start(scale, True, True, 0)
         box.pack_start(value, False, False, 0)
@@ -289,9 +299,11 @@ class WallpaperAdjust:
         self.dim_scale.set_value(s["dim"])
         self.size_scale.set_value(s["size"])
         self.feather_scale.set_value(s["feather"])
+        self.shadow_scale.set_value(s["shadow"])
         self._syncing = False
         self.blur_row.set_visible(s["mode"] == "blur")
         self.size_row.set_visible(s["mode"] in ("fit", "blur"))
+        self.shadow_row.set_visible(s["mode"] in ("fit", "blur"))
         self.editor_label.set_text(t("fondo", "seccion_recorte", monitor=name,
                                      size=f"{m['width']}×{m['height']}"))
         self._redraw()
@@ -354,6 +366,40 @@ class WallpaperAdjust:
                 data, GdkPixbuf.Colorspace.RGB, False, 8, out.width, out.height, out.width * 3)
         return self.blur_cache[key]
 
+    @staticmethod
+    def _a8_surface(img):
+        """cairo.ImageSurface A8 desde una imagen "L" de Pillow."""
+        w, h = img.size
+        stride = cairo.ImageSurface.format_stride_for_width(cairo.FORMAT_A8, w)
+        raw = img.tobytes()
+        data = bytearray(stride * h)
+        for row in range(h):
+            data[row * stride:row * stride + w] = raw[row * w:(row + 1) * w]
+        return cairo.ImageSurface.create_for_data(data, cairo.FORMAT_A8, w, h, stride)
+
+    def _paint_shadow(self, cr, shadow, x0, y0, w0, h0, fx, fy, dw, dh):
+        """Misma sombra que wallpaper_fit.filter_graph, en chico."""
+        sw, sh = max(8, int(w0 / 2)), max(8, int(h0 / 2))
+        k = sw / w0
+        box = (round((fx - x0) * k), round((fy - y0 + fit.SHADOW_OFFSET * h0) * k),
+               round((fx - x0 + dw) * k), round((fy - y0 + fit.SHADOW_OFFSET * h0 + dh) * k))
+        key = ("shadow", sw, sh, box, shadow)
+        if key not in self.mask_cache:
+            from PIL import Image, ImageDraw, ImageFilter
+            img = Image.new("L", (sw, sh), 0)
+            ImageDraw.Draw(img).rectangle(box, fill=255)
+            img = img.filter(ImageFilter.GaussianBlur(max(0.5, fit.SHADOW_SIGMA * sh)))
+            alpha = shadow / 100 * 0.9
+            img = img.point(lambda v: int(v * alpha))
+            self.mask_cache[key] = self._a8_surface(img)
+        mask = self.mask_cache[key]
+        cr.save()
+        cr.set_source_rgb(0, 0, 0)
+        cr.translate(x0, y0)
+        cr.scale(w0 / sw, h0 / sh)
+        cr.mask_surface(mask, 0, 0)
+        cr.restore()
+
     def _feather_mask(self, dw, dh, feather):
         """Máscara de alfa de los bordes degradados, mismas proporciones
         que la de wallpaper_fit.filter_graph."""
@@ -367,12 +413,7 @@ class WallpaperAdjust:
             ImageDraw.Draw(img).rectangle((inset, inset, mw - inset - 1, mh - inset - 1), fill=255)
             img = img.filter(ImageFilter.GaussianBlur(max(0.5, edge / 4)))
             img = img.point(lambda v: v * v // 255)  # misma curva que el lut de ffmpeg
-            stride = cairo.ImageSurface.format_stride_for_width(cairo.FORMAT_A8, mw)
-            raw = img.tobytes()
-            data = bytearray(stride * mh)
-            for row in range(mh):
-                data[row * stride:row * stride + mw] = raw[row * mw:(row + 1) * mw]
-            self.mask_cache[key] = cairo.ImageSurface.create_for_data(data, cairo.FORMAT_A8, mw, mh, stride)
+            self.mask_cache[key] = self._a8_surface(img)
         return self.mask_cache[key]
 
     def _paint_region(self, cr, pixbuf, region, dx, dy, dw, dh):
@@ -419,6 +460,8 @@ class WallpaperAdjust:
             k = min(w0 / cw_px, h0 / ch_px) * s["size"] / 100
             dw, dh = cw_px * k, ch_px * k
             fx, fy = x0 + (w0 - dw) / 2, y0 + (h0 - dh) / 2
+            if s["shadow"]:
+                self._paint_shadow(cr, s["shadow"], x0, y0, w0, h0, fx, fy, dw, dh)
             if s["feather"]:
                 cr.push_group()
                 self._paint_region(cr, self.pixbuf, s["crop"], fx, fy, dw, dh)
@@ -611,9 +654,13 @@ class WallpaperAdjust:
             s["crop"] = list(fit.FULL)
         self._select(self.current)
 
+    @staticmethod
+    def _slider_text(key, v):
+        return f"{v:.1f}" if key == "blur" else f"{int(v)}%"
+
     def _on_slider(self, scale, key, value_label):
         v = scale.get_value()
-        value_label.set_text(f"{v:.1f}" if key == "blur" else f"{int(v)}%")
+        value_label.set_text(self._slider_text(key, v))
         if getattr(self, "_syncing", False):
             return
         self.settings[self.current][key] = round(v, 1) if key == "blur" else int(v)

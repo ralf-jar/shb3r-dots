@@ -79,7 +79,8 @@ button:focus {
 }
 
 #wa-blur-row,
-#wa-size-row {
+#wa-size-row,
+#wa-shadow-row {
     margin-top: 10px;
 }
 
