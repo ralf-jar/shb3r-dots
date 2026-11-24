@@ -891,5 +891,6 @@
   {"modulo": "fondo", "codigo": "prerender", "texto": "Renderizar el video con el ajuste (menos CPU)"},
   {"modulo": "fondo", "codigo": "tip_prerender", "texto": "ffmpeg crea una sola vez, en segundo plano, una copia del video ya ajustada para cada monitor. Mientras tanto el ajuste se aplica en vivo; al terminar el fondo cambia solo a la copia. Con NVIDIA usa la GPU (NVENC)"},
   {"modulo": "fondo", "codigo": "tamano_capa", "texto": "Tamaño de la imagen"},
-  {"modulo": "fondo", "codigo": "tip_tamano_capa", "texto": "Achica la imagen de encima, siempre centrada; en Doble capa deja ver más fondo desenfocado alrededor"}
+  {"modulo": "fondo", "codigo": "tip_tamano_capa", "texto": "Achica la imagen de encima, siempre centrada; en Doble capa deja ver más fondo desenfocado alrededor"},
+  {"modulo": "fondo", "codigo": "aplicado", "texto": "Aplicado"}
 ]

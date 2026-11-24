@@ -639,7 +639,6 @@ class WallpaperAdjust:
         fit.save(self.path, settings)
         if bool(fit.get_option("detect_palette", False)) != detect:
             fit.set_option("detect_palette", detect)
-        suppress_close(15)
         subprocess.run([sys.executable, os.path.join(THEMER_DIR, "wallpaper.py"), "set", self.path],
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         message = None
@@ -648,17 +647,18 @@ class WallpaperAdjust:
             colors, err = palette_detect.colors_from_image(self.still, box=box)
             if err:
                 message = err
-            elif not palette_detect.apply_colors(colors):
-                message = t("fondo", "error_recargar")
+            else:
+                # reload.sh hace hyprctl reload (click afuera sintético).
+                suppress_close(5)
+                if not palette_detect.apply_colors(colors):
+                    message = t("fondo", "error_recargar")
         GLib.idle_add(self._applied, message)
 
     def _applied(self, message):
-        if message:
-            self.applying = False
-            self.apply_btn.set_sensitive(True)
-            self.status.set_text(message)
-            return
-        self.window.destroy()
+        """La ventana sigue abierta para seguir ajustando."""
+        self.applying = False
+        self.apply_btn.set_sensitive(True)
+        self.status.set_text(message or t("fondo", "aplicado"))
 
 
 def main():
