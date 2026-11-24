@@ -366,6 +366,7 @@ class WallpaperAdjust:
             img = Image.new("L", (mw, mh), 0)
             ImageDraw.Draw(img).rectangle((inset, inset, mw - inset - 1, mh - inset - 1), fill=255)
             img = img.filter(ImageFilter.GaussianBlur(max(0.5, edge / 4)))
+            img = img.point(lambda v: v * v // 255)  # misma curva que el lut de ffmpeg
             stride = cairo.ImageSurface.format_stride_for_width(cairo.FORMAT_A8, mw)
             raw = img.tobytes()
             data = bytearray(stride * mh)
