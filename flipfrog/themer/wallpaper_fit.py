@@ -247,7 +247,10 @@ def filter_graph(setting, src_w, src_h, out_w, out_h, video=False):
     front = f"[fgsrc]scale={fw}:{fh}:{scaler}[fg];"
     if feather:
         # Máscara: rectángulo blanco con borde negro, desenfocada a 1/4 y
-        # escalada. Una sola imagen (color de 1 cuadro): alphamerge repite
+        # escalada. gblur en gray deja la máscara entre 7 y 235 (el centro
+        # quedaba 8 % transparente y el borde nunca en 0): el lut la lleva a
+        # 0-255 y la eleva al cuadrado, para que lo claro se apague antes
+        # de llegar al borde. Una sola imagen (color de 1 cuadro): alphamerge repite
         # la última, así no se recalcula en cada cuadro de un video.
         mw, mh = max(8, fw // BLUR_SCALE), max(8, fh // BLUR_SCALE)
         edge = max(1.0, feather / 100 * min(mw, mh))
@@ -255,7 +258,8 @@ def filter_graph(setting, src_w, src_h, out_w, out_h, video=False):
         front = (f"[fgsrc]scale={fw}:{fh}:{scaler},format={'yuva420p' if video else 'gbrap'}[fgc];"
                  f"color=c=black:s={mw}x{mh}:r=1:d=1,format=gray,"
                  f"drawbox=x={inset}:y={inset}:w={mw - 2 * inset}:h={mh - 2 * inset}:color=white:t=fill,"
-                 f"gblur=sigma={max(0.5, edge / 4):.2f},scale={fw}:{fh}:flags=bilinear[mask];"
+                 f"gblur=sigma={max(0.5, edge / 4):.2f},lut=c0=(val-7)*(val-7)/204,"
+                 f"scale={fw}:{fh}:flags=bilinear[mask];"
                  f"[fgc][mask]alphamerge[fg];")
     return (f"{pre}format={fmt},split=2[bgsrc][fgsrc];"
             f"[bgsrc]crop={bcw_px}:{bch_px}:{bcx}:{bcy},scale={bw}:{bh}:flags=fast_bilinear,"
@@ -342,17 +346,46 @@ def pending_encode(path):
             if st and src and not prerendered(path, st, m["width"], m["height"])]
 
 
+def _encode_unit(path):
+    return "ff-wall-enc-" + hashlib.sha1(path.encode()).hexdigest()[:10]
+
+
+def _partial_prefix(path):
+    return hashlib.sha1(path.encode()).hexdigest()[:10] + "-"
+
+
+def _remove_partials(path):
+    try:
+        for f in os.listdir(VIDEO_CACHE):
+            if f.startswith(_partial_prefix(path)) and f.endswith(".tmp.mp4"):
+                os.remove(os.path.join(VIDEO_CACHE, f))
+    except OSError:
+        pass
+
+
 def start_encode(path):
     """Lanza `encode` como unidad transitoria de systemd (sobrevive al
-    popup y al servicio de la rotación de temas). El nombre sale del
-    archivo + ajuste: systemd rechaza una segunda con el mismo."""
+    popup y al servicio de la rotación de temas), una por archivo."""
     if not get_option("prerender_video", True) or not pending_encode(path):
         return
-    unit = "ff-wall-enc-" + hashlib.sha1(json.dumps([path, load(path)]).encode()).hexdigest()[:10]
+    unit = _encode_unit(path)
     cmd = [sys.executable, os.path.realpath(__file__), "encode", path]
+    # La descripción guarda el ajuste: reaplicar el mismo fondo (restore,
+    # thaw, rotación) no reinicia una codificación que ya va a medias.
+    tag = "flipfrog " + hashlib.sha1(json.dumps(load(path), sort_keys=True).encode()).hexdigest()[:12]
     try:
+        out = subprocess.run(["systemctl", "--user", "show", f"{unit}.service",
+                              "-p", "ActiveState", "-p", "Description", "--value"],
+                             capture_output=True, text=True, timeout=10).stdout.split("\n")
+        if tag in out and ("active" in out or "activating" in out):
+            return
+        # Un ajuste nuevo reemplaza la codificación del anterior: sin esto
+        # cada "Aplicar" sumaba otra (11 a la vez sobre un video de 1 h).
+        subprocess.run(["systemctl", "--user", "stop", f"{unit}.service"], timeout=15,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        _remove_partials(path)
         subprocess.run(["systemd-run", "--user", "--quiet", "--collect", f"--unit={unit}",
-                        "--nice=10", *cmd], timeout=10,
+                        f"--description={tag}", "--nice=10", *cmd], timeout=10,
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except (OSError, subprocess.TimeoutExpired):
         pass
@@ -361,7 +394,7 @@ def start_encode(path):
 def _encode_one(path, setting, src_size, out_w, out_h):
     os.makedirs(VIDEO_CACHE, exist_ok=True)
     target = os.path.join(VIDEO_CACHE, _cache_key(path, setting, (out_w, out_h)) + ".mp4")
-    tmp = target + ".tmp.mp4"
+    tmp = os.path.join(VIDEO_CACHE, _partial_prefix(path) + os.path.basename(target) + ".tmp.mp4")
     graph = filter_graph(setting, *src_size, out_w, out_h, video=True)
     for encoder in ENCODERS:
         cmd = ["ffmpeg", "-v", "error", "-y", "-i", path, "-an", "-sn", "-dn",
