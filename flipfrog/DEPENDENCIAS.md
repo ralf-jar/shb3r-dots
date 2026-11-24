@@ -20,6 +20,7 @@ Ya vienen por defecto y no se listan: `ffmpeg`, `ffmpegthumbnailer`, `grim`, `uf
 | Descubre Bandcamp | `python-requests`, `mpv` | Scraping de Bandcamp; reproductor del daemon |
 | Galería de temas | `python-pillow`, `awww`, `mpvpaper` | Miniaturas; `apply-theme.sh` pone el fondo (imagen/video) |
 | Editor de temas | `python-pillow` | Detectar colores desde el wallpaper |
+| Ajustar fondo (Thunar) | `python-pillow`, `awww`, `mpvpaper` | Vista previa con desenfoque, paleta opcional; render de imagen/video con `ffmpeg` (NVENC si hay NVIDIA) |
 | Google Fonts | -- | |
 | Selectores de cursor e íconos | `hyprpolkitagent` | "Instalar" de los repositorios en "Obtener cursores"/"Obtener íconos" (`pkexec pacman -S`); las vistas previas y la KDE Store extraen con `bsdtar`, que trae pacman |
 | Descargas | `python-requests`, `python-cryptography`, `yt-dlp`, `libtorrent-rasterbar` | MediaFire y Google Drive; MEGA (descifrado AES); YouTube (vía la función `ytd` de fish); torrents (bindings de Python, `import libtorrent`) |
