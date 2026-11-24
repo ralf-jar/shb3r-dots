@@ -7,6 +7,7 @@ y aplica con wallpaper.py; opcionalmente saca la paleta del tema del
 fondo (theme/palette_detect.py).
 
     wallpaper_adjust.py <imagen|gif|video>
+    wallpaper_adjust.py          el fondo actual (SUPER+R); repetir cierra
 """
 
 import hashlib
@@ -26,7 +27,7 @@ THEMER_DIR = os.path.normpath(os.path.join(SCRIPTS_DIR, "..", "themer"))
 sys.path.insert(0, SCRIPTS_DIR)
 sys.path.insert(0, os.path.join(SCRIPTS_DIR, "theme"))
 sys.path.insert(0, THEMER_DIR)
-from waybar_lib import (kill_group, build_layer_window, position_fixed_top,
+from waybar_lib import (kill_group, kill_existing, build_layer_window, position_fixed_top,
                         build_switch_row, svg_icon_image, load_module_css, suppress_close)
 from i18n import t
 import common
@@ -653,21 +654,28 @@ class WallpaperAdjust:
 
 
 def main():
-    if len(sys.argv) != 2 or not os.path.isfile(sys.argv[1]):
-        sys.exit("uso: wallpaper_adjust.py <imagen|gif|video>")
+    if len(sys.argv) == 1:
+        kill_existing(LOCK)
+        path = wallpaper.current_path()
+    elif len(sys.argv) == 2:
+        path = sys.argv[1]
+        # Otro archivo desde Thunar con el ajustador abierto: reemplaza al
+        # anterior en vez de solo cerrarlo.
+        try:
+            with open(LOCK) as f:
+                os.kill(int(f.read().strip()), signal.SIGTERM)
+        except (OSError, ValueError):
+            pass
+    else:
+        path = None
+    if not path or not os.path.isfile(path):
+        sys.exit("uso: wallpaper_adjust.py [imagen|gif|video]")
     common.set_process_name("ff-wall-adjust")
-    # Otro archivo con el ajustador abierto: reemplaza al anterior (no es
-    # un toggle como el resto de popups).
-    try:
-        with open(LOCK) as f:
-            os.kill(int(f.read().strip()), signal.SIGTERM)
-    except (OSError, ValueError):
-        pass
     kill_group(LOCK)
     with open(LOCK, "w") as f:
         f.write(str(os.getpid()))
     try:
-        WallpaperAdjust(sys.argv[1])
+        WallpaperAdjust(path)
         Gtk.main()
     finally:
         try:

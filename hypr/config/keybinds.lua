@@ -80,6 +80,8 @@ hl.bind(mainMod .. " + M", musicPress)
 hl.bind("M", musicRelease, { release = true, ignore_mods = true, non_consuming = true })
 hl.bind(mainMod .. " + P", hl.dsp.exec_cmd("python3 ~/.config/flipfrog/scripts/theme/theme_gallery.py"))
 -- description: Abrir galería de temas
+hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("python3 ~/.config/flipfrog/scripts/wallpaper/wallpaper_adjust.py"))
+-- description: Ajustar fondo de pantalla actual
 hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("python3 ~/.config/flipfrog/scripts/downloads/download_popup.py"))
 -- description: Abrir gestor de descargas (MediaFire y YouTube)
 hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("python3 ~/.config/flipfrog/scripts/audiobook/audiobook_popup.py"))
