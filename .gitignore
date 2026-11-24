@@ -45,6 +45,7 @@
 /flipfrog/scripts/bandcamp/artist_aliases.json
 /flipfrog/scripts/bandcamp/wishlist-history.json
 /flipfrog/themer/wallpaper.json
+/flipfrog/themer/wallpaper-fit.json
 /flipfrog/scripts/gaming/
 # ajustes de la barra propia (bar_settings.py, toggles del dashboard) -- estado personal:
 /flipfrog/scripts/bar/bar-settings.json

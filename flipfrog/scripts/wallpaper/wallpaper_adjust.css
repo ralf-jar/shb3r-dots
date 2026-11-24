@@ -1,0 +1,130 @@
+@import url("../../themer/global.css");
+
+window {
+    background-color: transparent;
+}
+
+#wa-container {
+    background-color: @mybackground;
+    border-radius: 4px;
+    padding: 16px 22px 18px 22px;
+}
+
+/* Label: "Ajustar fondo de pantalla" */
+#wa-title {
+    color: @myforegroundhover;
+    font-weight: 900;
+    font-size: 17px;
+}
+
+#wa-file {
+    color: @myforeground;
+    opacity: 0.7;
+    margin-bottom: 8px;
+}
+
+/* Label: "Vista previa" / "Recorte para ..." */
+.wa-section {
+    color: @myforegroundhover;
+    font-weight: 800;
+    margin: 10px 0 6px 0;
+}
+
+#wa-modes {
+    margin-top: 12px;
+}
+
+/* ToggleButton: un modo (Rellenar, Ajustar, Doble capa...) */
+.wa-mode,
+.wa-tool,
+.wa-apply {
+    background-image: none;
+    background-color: @mybackgroundhover;
+    color: @myforeground;
+    border: none;
+    box-shadow: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+}
+
+.wa-mode:hover,
+.wa-tool:hover {
+    color: @myforegroundhover;
+}
+
+/* Texto oscuro fijo: @mybackground suele ser translúcido y sobre el
+   acento casi no se lee. */
+.wa-mode:checked {
+    background-color: @myforegroundhover;
+    color: #111111;
+}
+
+.wa-apply {
+    background-color: @myforegroundhover;
+    color: #111111;
+    font-weight: 800;
+}
+
+.wa-apply:hover {
+    background-color: @myforegroundhover2;
+}
+
+.wa-apply:disabled {
+    opacity: 0.4;
+}
+
+button:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+#wa-blur-row {
+    margin-top: 10px;
+}
+
+.wa-slider-label {
+    color: @myforeground;
+}
+
+.wa-slider-value {
+    color: @myforegroundhover;
+}
+
+scale trough {
+    background-color: @mybackgroundhover;
+    min-height: 6px;
+    border-radius: 4px;
+}
+
+scale highlight {
+    background-color: @myforegroundhover;
+    border-radius: 4px;
+}
+
+scale slider {
+    background-color: @myforegroundhover;
+    min-width: 12px;
+    min-height: 12px;
+    margin: -3px 0;
+    box-shadow: none;
+    border: none;
+    border-radius: 50%;
+}
+
+#wa-tools {
+    margin-top: 10px;
+}
+
+#wa-palette-row,
+#wa-prerender-row {
+    margin-top: 10px;
+}
+
+#wa-bottom {
+    margin-top: 12px;
+}
+
+#wa-status {
+    color: @myforeground;
+    opacity: 0.8;
+}

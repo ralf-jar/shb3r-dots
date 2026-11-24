@@ -338,6 +338,14 @@ hl.layer_rule({
     ignore_alpha = 0.02
 })
 
+-- wallpaper/wallpaper_adjust.py (Thunar: "Poner como fondo de pantalla")
+hl.layer_rule({
+    match = { namespace = "wallpaper-adjust" },
+    blur = true,
+    xray = false,
+    ignore_alpha = 0.02
+})
+
 -- calendar/phone_sync_popup.py (botón del calendario / lanzador)
 hl.layer_rule({
     match = { namespace = "calendar-sync" },
@@ -490,6 +498,6 @@ hl.layer_rule({
 -- (waybar_lib._PopupAnimation); la de Hyprland escalaría la superficie
 -- entera, que es pantalla completa.
 hl.layer_rule({
-    match = { namespace = "^(dashboard|calendar|calendar-sync|volume-mixer|volume-simple|sink-selector|brightness|cursor-picker|icon-picker|boot-picker|theme-editor|google-fonts|firewall-popup|firewall-log|keybinds-popup|download-popup|alarms|bandcamp-radio|disk-usage|services-popup|app-launcher|audiobook-popup|vpn-config|notification-history)$" },
+    match = { namespace = "^(dashboard|calendar|calendar-sync|volume-mixer|volume-simple|sink-selector|brightness|cursor-picker|icon-picker|boot-picker|theme-editor|google-fonts|firewall-popup|firewall-log|keybinds-popup|download-popup|alarms|bandcamp-radio|disk-usage|services-popup|app-launcher|audiobook-popup|vpn-config|notification-history|wallpaper-adjust)$" },
     no_anim = true
 })
