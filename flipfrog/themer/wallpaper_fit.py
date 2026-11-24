@@ -8,7 +8,7 @@ Ajustes en themer/wallpaper-fit.json (un escritor: el popup), en
 "files" por archivo (ruta con `~`) y por salida: {"mode", "crop":
 [x, y, w, h] en fracciones de la imagen, "blur", "dim", "size" (% de la
 capa de encima en Ajustar/Doble capa), "feather" (% de sus bordes que
-se degradan)}; además
+se degradan), "shadow" (opacidad de su sombra)}; además
 "detect_palette", el switch de sacar la paleta del tema del fondo. Un archivo sin ajustes usa el de siempre (rellenar
 centrado), así que el ajuste también vale cuando lo pone un tema.
 
@@ -42,6 +42,10 @@ DEFAULT_DIM = 30       # % de oscurecido de la capa de atrás
 DEFAULT_SIZE = 100     # % del tamaño máximo de la imagen en Ajustar/Doble capa
 MIN_SIZE = 20
 MAX_FEATHER = 50   # % del lado corto de la imagen de encima que se degrada
+# Sombra detrás de la imagen de encima: desenfoque y desplazamiento hacia
+# abajo en fracción del alto de la salida; "shadow" = opacidad en %.
+SHADOW_SIGMA = 0.03
+SHADOW_OFFSET = 0.012
 FULL = [0.0, 0.0, 1.0, 1.0]
 # El desenfoque de la capa de atrás se calcula a 1/BLUR_SCALE de tamaño:
 # a resolución completa un video de fondo se come varios núcleos.
@@ -165,7 +169,8 @@ def normalized(setting):
             "blur": float(setting.get("blur", DEFAULT_BLUR)),
             "dim": int(setting.get("dim", DEFAULT_DIM)),
             "size": min(100, max(MIN_SIZE, int(setting.get("size", DEFAULT_SIZE)))),
-            "feather": min(MAX_FEATHER, max(0, int(setting.get("feather", 0))))}
+            "feather": min(MAX_FEATHER, max(0, int(setting.get("feather", 0)))),
+            "shadow": min(100, max(0, int(setting.get("shadow", 0))))}
 
 
 def cover_crop(src_w, src_h, out_w, out_h):
@@ -220,8 +225,8 @@ def filter_graph(setting, src_w, src_h, out_w, out_h, video=False):
     scale = min(out_w / cw, out_h / ch) * s["size"] / 100
     fw, fh = min(out_w, _even(cw * scale)), min(out_h, _even(ch * scale))
     ox, oy = (out_w - fw) // 2, (out_h - fh) // 2
-    feather = s["feather"]
-    if mode == "fit" and not feather:
+    feather, shadow = s["feather"], s["shadow"]
+    if mode == "fit" and not feather and not shadow:
         return f"{pre}scale={fw}:{fh}:{lanczos},pad={out_w}:{out_h}:{ox}:{oy}:black,setsar=1"
 
     # Dos capas. blur: atrás la misma imagen rellenando la salida,
@@ -261,9 +266,27 @@ def filter_graph(setting, src_w, src_h, out_w, out_h, video=False):
                  f"gblur=sigma={max(0.5, edge / 4):.2f},lut=c0=(val-7)*(val-7)/204,"
                  f"scale={fw}:{fh}:flags=bilinear[mask];"
                  f"[fgc][mask]alphamerge[fg];")
+    shade = ""
+    if shadow:
+        # Rectángulo negro desenfocado bajo la imagen, a 1/4 de tamaño y de
+        # un solo cuadro (overlay repite el último). Mismo arreglo del
+        # rango de gblur que en la máscara del degradado.
+        sw, sh = bw, bh
+        sx = round(ox / BLUR_SCALE)
+        sy = round((oy + SHADOW_OFFSET * out_h) / BLUR_SCALE)
+        sigma = max(0.5, SHADOW_SIGMA * out_h / BLUR_SCALE)
+        alpha = shadow / 100 * 0.9 * 255 / 228
+        rgba = "yuva420p" if video else "gbrap"
+        shade = (f"color=c=black:s={out_w}x{out_h}:r=1:d=1,format={rgba}[shc];"
+                 f"color=c=black:s={sw}x{sh}:r=1:d=1,format=gray,"
+                 f"drawbox=x={sx}:y={sy}:w={max(1, fw // BLUR_SCALE)}:h={max(1, fh // BLUR_SCALE)}:"
+                 f"color=white:t=fill,gblur=sigma={sigma:.2f},lut=c0=(val-7)*{alpha:.4f},"
+                 f"scale={out_w}:{out_h}:flags=bilinear[shm];"
+                 f"[shc][shm]alphamerge[sh];[bg0][sh]overlay=0:0:format={over}[bg];")
     return (f"{pre}format={fmt},split=2[bgsrc][fgsrc];"
             f"[bgsrc]crop={bcw_px}:{bch_px}:{bcx}:{bcy},scale={bw}:{bh}:flags=fast_bilinear,"
-            f"{back},scale={out_w}:{out_h}:flags=bilinear[bg];"
+            f"{back},scale={out_w}:{out_h}:flags=bilinear[{'bg0' if shadow else 'bg'}];"
+            f"{shade}"
             f"{front}"
             f"[bg][fg]overlay={ox}:{oy}:format={over},setsar=1")
 
