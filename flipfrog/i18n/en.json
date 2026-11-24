@@ -904,5 +904,7 @@
   {"modulo": "fondo", "codigo": "degradar_bordes", "texto": "Fade edges"},
   {"modulo": "fondo", "codigo": "tip_degradar_bordes", "texto": "Blends the image edges into the background (blurred in Two layers, black in Fit)"},
   {"modulo": "fondo", "codigo": "sombra", "texto": "Shadow"},
-  {"modulo": "fondo", "codigo": "tip_sombra", "texto": "Soft shadow behind the image, slightly below it; the number is how dark it is"}
+  {"modulo": "fondo", "codigo": "tip_sombra", "texto": "Soft shadow behind the image, slightly below it; the number is how dark it is"},
+  {"modulo": "fondo", "codigo": "aviso_titulo", "texto": "Wallpaper"},
+  {"modulo": "fondo", "codigo": "aviso_ajustar", "texto": "Adjust the wallpaper you just set with SUPER + R"}
 ]
