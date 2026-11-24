@@ -188,7 +188,8 @@ GROUP_LOCKS = [
     "/tmp/notification-history.pid",
     "/tmp/disk-usage.pid",
     "/tmp/power-menu.pid",
-    "/tmp/vpn-config.pid"
+    "/tmp/vpn-config.pid",
+    "/tmp/wallpaper-adjust.pid"
 ]
 
 def kill_group(LOCK):

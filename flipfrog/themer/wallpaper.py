@@ -9,6 +9,10 @@ para video. El fondo activo vive en themer/wallpaper.json, ruta con `~`
     wallpaper.py freeze|thaw   fondo fijo mientras hay juego o modo cine
                                (hypr/config/gaming-mode.lua)
 
+Cada archivo puede tener un ajuste por monitor (recorte, ajustar, doble
+capa con desenfoque...) en wallpaper-fit.json, ver wallpaper_fit.py; sin
+ajuste, rellenar centrado como siempre.
+
 Con un juego abierto o en modo cine el fondo queda fijo: un video se
 muestra como un frame, un gif pausado. `set` respeta eso (cambiar de tema
 a media partida pone el fondo nuevo ya congelado) y `thaw` reanuda el
@@ -25,6 +29,7 @@ import time
 THEMER_DIR = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(THEMER_DIR, "..", "scripts"))
 import common
+import wallpaper_fit
 
 STATE_FILE = os.path.join(THEMER_DIR, "wallpaper.json")
 VIDEO_EXTS = {"mp4", "webm", "mkv", "mov", "m4v", "avi"}
@@ -111,17 +116,46 @@ def ensure_awww_daemon():
 
 
 def show_video(path):
-    subprocess.Popen(["mpvpaper", "--fork", "-o", MPV_OPTIONS, "*", path],
-                     start_new_session=True,
-                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    """Con ajuste (wallpaper_fit.py) un mpvpaper por salida, con el
+    recorte/desenfoque como filtro de mpv."""
+    targets = []
+    for m, s, src in wallpaper_fit.plan(path):
+        ready = s and wallpaper_fit.prerendered(path, s, m["width"], m["height"])
+        if ready:
+            targets.append((m["name"], MPV_OPTIONS, ready))
+        elif s:
+            targets.append((m["name"], MPV_OPTIONS + " " + wallpaper_fit.mpv_vf(s, src, m["width"], m["height"]), path))
+        else:
+            targets.append((m["name"], MPV_OPTIONS, path))
+    for output, options, video in targets or [("*", MPV_OPTIONS, path)]:
+        subprocess.Popen(["mpvpaper", "--fork", "-o", options, output, video],
+                         start_new_session=True,
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    wallpaper_fit.start_encode(path)
+
+
+def show_fitted(path, source, options):
+    """Muestra `source` (el propio fondo, o un frame si `path` es video)
+    con el ajuste guardado para `path`: se renderiza cada salida antes de
+    mandar nada a awww, así la transición arranca igual en todas."""
+    plan = wallpaper_fit.plan(path)
+    if not plan:
+        subprocess.run(["awww", "img", source, *options], check=False)
+        return
+    jobs = []
+    for m, s, _src in plan:
+        rendered = wallpaper_fit.render(source, s, m["width"], m["height"]) if s else None
+        jobs.append((m["name"], rendered or source))
+    for output, image in jobs:
+        subprocess.run(["awww", "img", "-o", output, image, *options], check=False)
 
 
 def show_image(path):
-    subprocess.run(["awww", "img", path, *AWWW_OPTIONS], check=False)
+    show_fitted(path, path, AWWW_OPTIONS)
 
 
-def show_image_now(path):
-    subprocess.run(["awww", "img", path, *AWWW_BASE, "--transition-type", "none"], check=False)
+def show_image_now(path, source=None):
+    show_fitted(path, source or path, AWWW_BASE + ["--transition-type", "none"])
 
 
 def _frame_path(path):
@@ -168,9 +202,9 @@ def show_frozen(path):
     subprocess.run(["awww", "unpause"], check=False)
     if is_video(path):
         subprocess.run(["ffmpegthumbnailer", "-i", path, "-o", FROZEN_FRAME, "-s", "0"], check=False)
-        subprocess.run(["awww", "img", FROZEN_FRAME], check=False)
+        show_fitted(path, FROZEN_FRAME, AWWW_BASE)
     elif is_gif(path):
-        subprocess.run(["awww", "img", path, "--resize", "crop", "--transition-type", "none"], check=False)
+        show_image_now(path)
         subprocess.run(["awww", "pause"], check=False)
     else:
         show_image(path)
@@ -216,7 +250,7 @@ def restore():
     if is_video(path):
         frame = _frame_path(path)
         if os.path.isfile(frame):
-            show_image_now(frame)
+            show_image_now(path, frame)
         apply(path)
     else:
         show_image_now(path)

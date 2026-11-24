@@ -98,8 +98,8 @@
 	<name>Poner como fondo de pantalla (Themer)</name>
 	<submenu></submenu>
 	<unique-id>1790000000000003-1</unique-id>
-	<command>python3 &quot;$HOME/.config/flipfrog/themer/wallpaper.py&quot; set %f</command>
-	<description>Imagen con awww, video con mpvpaper</description>
+	<command>python3 &quot;$HOME/.config/flipfrog/scripts/wallpaper/wallpaper_adjust.py&quot; %f</command>
+	<description>Vista previa y ajuste por monitor (rellenar, recortar, doble capa con desenfoque...)</description>
 	<range>1</range>
 	<patterns>*.png;*.jpg;*.jpeg;*.webp;*.gif;*.bmp;*.PNG;*.JPG;*.JPEG;*.WEBP;*.GIF;*.mp4;*.webm;*.mkv;*.mov;*.m4v;*.avi;*.MP4;*.WEBM;*.MKV;*.MOV</patterns>
 	<image-files/>
