@@ -4,6 +4,8 @@ para video. El fondo activo vive en themer/wallpaper.json, ruta con `~`
 (mismo formato que el comentario `/* wallpaper: */` de los .theme).
 
     wallpaper.py set <ruta>    aplica y guarda
+    wallpaper.py set --hint <ruta>   igual, y avisa que SUPER+R lo ajusta
+                               (acción de Thunar; máx. una vez cada 10 min)
     wallpaper.py restore       reaplica el guardado (autostart)
     wallpaper.py current       imprime la ruta guardada, con `~`
     wallpaper.py freeze|thaw   fondo fijo mientras hay juego o modo cine
@@ -57,6 +59,8 @@ FROZEN_FRAME = "/tmp/flipfrog-wallpaper-frame.png"
 # Primer frame de cada video de fondo: al iniciar sesión se pinta al
 # instante con awww mientras mpvpaper carga el video encima.
 FRAME_CACHE = os.path.expanduser("~/.cache/flipfrog-wallpaper-frames")
+HINT_STAMP = os.path.expanduser("~/.cache/flipfrog-wallpaper-hint")
+HINT_INTERVAL = 600
 
 
 def _collapse_home(path):
@@ -256,9 +260,28 @@ def restore():
         show_image_now(path)
 
 
+def adjust_hint():
+    """Aviso de que SUPER+R ajusta el fondo (solo la acción de Thunar, con
+    --hint; no la rotación ni los temas). Una vez cada HINT_INTERVAL: quien
+    prueba varios fondos seguidos no lo ve en cada uno."""
+    try:
+        if time.time() - os.path.getmtime(HINT_STAMP) < HINT_INTERVAL:
+            return
+    except OSError:
+        pass
+    from i18n import t
+    os.makedirs(os.path.dirname(HINT_STAMP), exist_ok=True)
+    open(HINT_STAMP, "w").close()
+    subprocess.run(["notify-send", "-a", "flipfrog", "-i", "preferences-desktop-wallpaper",
+                    t("fondo", "aviso_titulo"), t("fondo", "aviso_ajustar")], check=False)
+
+
 def main():
     args = sys.argv[1:]
-    if args[:1] == ["set"] and len(args) == 2:
+    if args[:1] == ["set"] and len(args) == 3 and args[1] == "--hint":
+        set_wallpaper(args[2])
+        adjust_hint()
+    elif args[:1] == ["set"] and len(args) == 2:
         set_wallpaper(args[1])
     elif args == ["restore"]:
         restore()
@@ -269,7 +292,7 @@ def main():
     elif args == ["thaw"]:
         thaw()
     else:
-        sys.exit("uso: wallpaper.py set <ruta> | restore | current | freeze | thaw")
+        sys.exit("uso: wallpaper.py set [--hint] <ruta> | restore | current | freeze | thaw")
 
 
 if __name__ == "__main__":
