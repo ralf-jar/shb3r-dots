@@ -899,5 +899,8 @@
   {"modulo": "fondo", "codigo": "prerender", "texto": "Render the video with the adjustment (less CPU)"},
   {"modulo": "fondo", "codigo": "tip_prerender", "texto": "ffmpeg makes, once and in the background, a copy of the video already adjusted for each monitor. Meanwhile the adjustment is applied live; when done the wallpaper switches to the copy. Uses the GPU (NVENC) on NVIDIA"},
   {"modulo": "fondo", "codigo": "tamano_capa", "texto": "Image size"},
-  {"modulo": "fondo", "codigo": "tip_tamano_capa", "texto": "Shrinks the image on top, always centered; in Two layers it shows more blurred background around it"}
+  {"modulo": "fondo", "codigo": "tip_tamano_capa", "texto": "Shrinks the image on top, always centered; in Two layers it shows more blurred background around it"},
+  {"modulo": "fondo", "codigo": "aplicado", "texto": "Applied"},
+  {"modulo": "fondo", "codigo": "degradar_bordes", "texto": "Fade edges"},
+  {"modulo": "fondo", "codigo": "tip_degradar_bordes", "texto": "Blends the image edges into the background (blurred in Two layers, black in Fit)"}
 ]
