@@ -187,6 +187,12 @@ class WallpaperAdjust:
         self.dim_scale = self._slider(self.blur_row, t("fondo", "oscurecer"), 0, 80, 5, "dim")
         container.pack_start(self.blur_row, False, False, 0)
 
+        self.size_row = Gtk.Box(spacing=12)
+        self.size_row.set_name("wa-size-row")
+        self.size_scale = self._slider(self.size_row, t("fondo", "tamano_capa"), fit.MIN_SIZE, 100, 5, "size")
+        self.size_row.set_tooltip_text(t("fondo", "tip_tamano_capa"))
+        container.pack_start(self.size_row, False, False, 0)
+
         tools = Gtk.Box(spacing=8)
         tools.set_name("wa-tools")
         reset = Gtk.Button(label=t("fondo", "restablecer"))
@@ -277,8 +283,10 @@ class WallpaperAdjust:
             btn.set_active(mode == s["mode"])
         self.blur_scale.set_value(s["blur"])
         self.dim_scale.set_value(s["dim"])
+        self.size_scale.set_value(s["size"])
         self._syncing = False
         self.blur_row.set_visible(s["mode"] == "blur")
+        self.size_row.set_visible(s["mode"] in ("fit", "blur"))
         self.editor_label.set_text(t("fondo", "seccion_recorte", monitor=name,
                                      size=f"{m['width']}×{m['height']}"))
         self._redraw()
@@ -382,7 +390,7 @@ class WallpaperAdjust:
                                    x0, y0, w0, h0)
                 cr.set_source_rgba(0, 0, 0, s["dim"] / 100)
                 cr.paint()
-            k = min(w0 / cw_px, h0 / ch_px)
+            k = min(w0 / cw_px, h0 / ch_px) * s["size"] / 100
             dw, dh = cw_px * k, ch_px * k
             self._paint_region(cr, self.pixbuf, s["crop"], x0 + (w0 - dw) / 2, y0 + (h0 - dh) / 2, dw, dh)
         cr.restore()

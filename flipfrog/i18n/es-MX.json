@@ -889,5 +889,7 @@
   {"modulo": "fondo", "codigo": "video_listo", "texto": "Listo: {nombre} ya está renderizado con su ajuste y usa la misma CPU que un video normal"},
   {"modulo": "fondo", "codigo": "video_error", "texto": "No se pudo renderizar {nombre}; se sigue aplicando el ajuste en vivo"},
   {"modulo": "fondo", "codigo": "prerender", "texto": "Renderizar el video con el ajuste (menos CPU)"},
-  {"modulo": "fondo", "codigo": "tip_prerender", "texto": "ffmpeg crea una sola vez, en segundo plano, una copia del video ya ajustada para cada monitor. Mientras tanto el ajuste se aplica en vivo; al terminar el fondo cambia solo a la copia. Con NVIDIA usa la GPU (NVENC)"}
+  {"modulo": "fondo", "codigo": "tip_prerender", "texto": "ffmpeg crea una sola vez, en segundo plano, una copia del video ya ajustada para cada monitor. Mientras tanto el ajuste se aplica en vivo; al terminar el fondo cambia solo a la copia. Con NVIDIA usa la GPU (NVENC)"},
+  {"modulo": "fondo", "codigo": "tamano_capa", "texto": "Tamaño de la imagen"},
+  {"modulo": "fondo", "codigo": "tip_tamano_capa", "texto": "Achica la imagen de encima, siempre centrada; en Doble capa deja ver más fondo desenfocado alrededor"}
 ]
